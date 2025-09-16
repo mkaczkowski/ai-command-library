@@ -80,14 +80,16 @@ async function listProviders() {
 }
 
 function printHelp() {
-  console.log(`Usage: link-ai-commands [options]\n\n` +
-    `Options:\n` +
-    `  -p, --provider <name>    Provider configuration to use (default: claude)\n` +
-    `  -d, --destination <dir> Override destination root (relative to cwd)\n` +
-    `  -m, --mode <copy|symlink>  Transfer mode (default: copy)\n` +
-    `      --dry-run            Print planned actions without writing\n` +
-    `      --list-providers     Show bundled provider configs\n` +
-    `  -h, --help               Show this help message\n`);
+  console.log(
+    `Usage: link-ai-commands [options]\n\n` +
+      `Options:\n` +
+      `  -p, --provider <name>    Provider configuration to use (default: claude)\n` +
+      `  -d, --destination <dir> Override destination root (relative to cwd)\n` +
+      `  -m, --mode <copy|symlink>  Transfer mode (default: copy)\n` +
+      `      --dry-run            Print planned actions without writing\n` +
+      `      --list-providers     Show bundled provider configs\n` +
+      `  -h, --help               Show this help message\n`
+  );
 }
 
 async function ensureProviderConfig(providerId) {
@@ -137,7 +139,17 @@ async function createSymlink(source, destination, dryRun) {
     return;
   }
   await fs.mkdir(path.dirname(destination), { recursive: true });
-  await fs.symlink(source, destination, 'dir');
+  const linkType = process.platform === 'win32' ? 'junction' : 'dir';
+  try {
+    await fs.symlink(source, destination, linkType);
+  } catch (error) {
+    if (process.platform === 'win32') {
+      console.warn(`Symlink not supported at ${destination}, falling back to copy. (${error.message})`);
+      await copyRecursive(source, destination, false);
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function main(argv = process.argv.slice(2)) {
@@ -185,8 +197,7 @@ export async function main(argv = process.argv.slice(2)) {
   console.log(args.dryRun ? 'Dry run finished.' : 'Commands linked successfully.');
 }
 
-const executedDirectly = process.argv[1]
-  && path.resolve(process.argv[1]) === __filename;
+const executedDirectly = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 if (executedDirectly) {
   main().catch((error) => {

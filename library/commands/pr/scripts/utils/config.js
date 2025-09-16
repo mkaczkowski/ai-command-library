@@ -5,14 +5,14 @@
 /**
  * CSV parsing defaults shared across comment utilities.
  */
-export const CSV_CONFIG = {
-  REQUIRED_HEADERS: ["id", "original", "rewritten"],
+export const ENHANCE_COMMENT_CSV_CONFIG = {
+  REQUIRED_HEADERS: ['id', 'original', 'rewritten'],
   EXPECTED_COLUMNS: 3,
   CHARS: {
     QUOTE: '"',
-    COMMA: ",",
-    NEWLINE: "\n",
-    CARRIAGE_RETURN: "\r",
+    COMMA: ',',
+    NEWLINE: '\n',
+    CARRIAGE_RETURN: '\r',
   },
 };
 
@@ -20,7 +20,7 @@ export const CSV_CONFIG = {
  * CSV layout expected when creating review comments.
  */
 export const REVIEW_COMMENT_CSV_CONFIG = {
-  REQUIRED_HEADERS: ["path", "position", "body", "line", "startLine", "side", "startSide"],
+  REQUIRED_HEADERS: ['path', 'position', 'body', 'line', 'startLine', 'side', 'startSide'],
   EXPECTED_COLUMNS: 7,
 };
 
@@ -36,4 +36,4 @@ export const PAGINATION_LIMITS = {
 /**
  * Boolean flags recognised by the shared CLI helpers.
  */
-export const COMMON_BOOLEAN_FLAGS = ["--verbose", "--help", "-h"];
+export const COMMON_BOOLEAN_FLAGS = ['--verbose', '--help', '-h'];

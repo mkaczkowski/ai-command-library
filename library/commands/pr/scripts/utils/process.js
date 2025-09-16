@@ -1,5 +1,5 @@
-import { spawn } from "child_process";
-import { log } from "./logger.js";
+import { spawn } from 'child_process';
+import { log } from './logger.js';
 
 /**
  * Process execution helpers used by the GitHub scripts.
@@ -13,44 +13,44 @@ import { log } from "./logger.js";
  * @returns {Promise<string>}
  */
 function run(command, args, { input, env } = {}) {
-  const commandString = `${command} ${args.join(" ")}`;
-  log("DEBUG", `Executing command: ${commandString}`);
+  const commandString = `${command} ${args.join(' ')}`;
+  log('DEBUG', `Executing command: ${commandString}`);
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
-      stdio: ["pipe", "pipe", "pipe"],
+      stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, ...env },
     });
 
-    let stdout = "";
-    let stderr = "";
+    let stdout = '';
+    let stderr = '';
 
-    child.stdout.on("data", (data) => {
+    child.stdout.on('data', (data) => {
       stdout += data.toString();
     });
 
-    child.stderr.on("data", (data) => {
+    child.stderr.on('data', (data) => {
       stderr += data.toString();
     });
 
-    child.on("close", (code) => {
+    child.on('close', (code) => {
       if (code === 0) {
-        log("DEBUG", `Command successful, stdout length: ${stdout.length}`);
+        log('DEBUG', `Command successful, stdout length: ${stdout.length}`);
         resolve(stdout.trim());
       } else {
         const message = stderr.trim() || stdout.trim() || `Command failed: ${commandString}`;
-        log("ERROR", `Command failed: ${message}`);
+        log('ERROR', `Command failed: ${message}`);
         reject(new Error(message));
       }
     });
 
-    child.on("error", (error) => {
-      log("ERROR", `Command execution error: ${error.message}`);
+    child.on('error', (error) => {
+      log('ERROR', `Command execution error: ${error.message}`);
       reject(error);
     });
 
     if (input !== undefined) {
-      log("DEBUG", `Writing ${input.length} characters to stdin`);
+      log('DEBUG', `Writing ${input.length} characters to stdin`);
       child.stdin.write(input);
       child.stdin.end();
     } else {
@@ -66,20 +66,20 @@ function run(command, args, { input, env } = {}) {
  * @returns {Promise<string>}
  */
 async function runGh(args, { input, host } = {}) {
-  const env = { GH_PAGER: "" };
+  const env = { GH_PAGER: '' };
 
   if (host) {
     // Include enterprise hostname when provided.
-    args = ["--hostname", host, ...args];
+    args = ['--hostname', host, ...args];
     env.GH_HOST = host;
   }
 
   try {
-    const result = await run("gh", args, { input, env });
-    log("DEBUG", "GitHub CLI command completed successfully");
+    const result = await run('gh', args, { input, env });
+    log('DEBUG', 'GitHub CLI command completed successfully');
     return result;
   } catch (error) {
-    log("ERROR", `GitHub CLI command failed: ${error.message}`);
+    log('ERROR', `GitHub CLI command failed: ${error.message}`);
     throw error;
   }
 }
@@ -95,7 +95,7 @@ async function runGhJson(args, { input, host } = {}) {
     const result = await runGh(args, { input, host });
     return JSON.parse(result);
   } catch (error) {
-    if (error.message.includes("Failed to parse JSON")) {
+    if (error.message.includes('Failed to parse JSON')) {
       throw error;
     }
     throw new Error(`Failed to parse JSON response: ${error.message}`);
@@ -109,11 +109,11 @@ async function runGhJson(args, { input, host } = {}) {
  */
 async function checkCommand(command) {
   try {
-    await run(command, ["--version"]);
-    log("DEBUG", `${command} found`);
+    await run(command, ['--version']);
+    log('DEBUG', `${command} found`);
     return true;
   } catch (error) {
-    log("ERROR", `${command} not found: ${error.message}`);
+    log('ERROR', `${command} not found: ${error.message}`);
     return false;
   }
 }
@@ -123,9 +123,9 @@ async function checkCommand(command) {
  * @returns {Promise<boolean>}
  */
 async function ensureGhCli() {
-  const isAvailable = await checkCommand("gh");
+  const isAvailable = await checkCommand('gh');
   if (!isAvailable) {
-    throw new Error("GitHub CLI not found. Please install gh cli: https://cli.github.com/");
+    throw new Error('GitHub CLI not found. Please install gh cli: https://cli.github.com/');
   }
   return true;
 }

@@ -1,12 +1,12 @@
 const REACTION_CONTENT_MAP = Object.freeze({
-  "+1": "THUMBS_UP",
-  "-1": "THUMBS_DOWN",
-  laugh: "LAUGH",
-  hooray: "HOORAY",
-  confused: "CONFUSED",
-  heart: "HEART",
-  rocket: "ROCKET",
-  eyes: "EYES",
+  '+1': 'THUMBS_UP',
+  '-1': 'THUMBS_DOWN',
+  laugh: 'LAUGH',
+  hooray: 'HOORAY',
+  confused: 'CONFUSED',
+  heart: 'HEART',
+  rocket: 'ROCKET',
+  eyes: 'EYES',
 });
 
 const ALLOWED_REACTIONS = Object.freeze(Object.keys(REACTION_CONTENT_MAP));
@@ -17,8 +17,8 @@ const ALLOWED_REACTIONS = Object.freeze(Object.keys(REACTION_CONTENT_MAP));
  * @returns {string}
  */
 function normalizeReactionName(value) {
-  if (typeof value !== "string") {
-    return "";
+  if (typeof value !== 'string') {
+    return '';
   }
 
   return value.trim().toLowerCase();

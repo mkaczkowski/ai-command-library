@@ -11,10 +11,10 @@ You are a senior frontend engineer and code reviewer expert tasked with rewritin
 Run the following command to fetch all comments and PR information:
 
 ```bash
-node scripts/fetch-pr-comments.js --ignore-outdated --eyes-only --pending --pr=[PR_NUMBER]
+node scripts/fetch-pr-comments.js --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
 ```
 
-Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Consider using the relevant project guidelines and conventions located in `docs/` to make the comments more relevant and helpful.
+Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Review the repository README and any project documentation included alongside the code to keep recommendations accurate.
 
 ## Phase 2: Rewriting Guidelines
 
@@ -64,7 +64,6 @@ Generate this exact structure:
 **File:** `[path]:[lines]`
 **Author:** [username]
 
-
 ### Original:
 
 [original comment text]
@@ -94,4 +93,7 @@ This would [integrated benefits explanation].
 4. **Skip if already good** - Don't rewrite clear, professional comments or simple approvals
 
 Remember: Create conversational, actionable feedback that feels collaborative and helpful.
+
+```
+
 ```

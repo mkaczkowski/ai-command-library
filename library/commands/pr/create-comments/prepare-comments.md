@@ -13,7 +13,7 @@ You are a staff-level engineer and seasoned reviewer responsible for producing a
    node .claude/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
    ```
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level stats, and review the `files[].patch` entries for inline diffs.
-3. Inspect the codebase for surrounding context, leaning on project docs (`docs/`, `README.md`) and existing implementations that mirror the affected area.
+3. Inspect the codebase for surrounding context, leaning on project documentation (README, in-repo guides) and existing implementations that mirror the affected area.
 4. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
 
 ## Phase 2: Review Guidelines
@@ -51,6 +51,7 @@ Structure the generated markdown exactly as follows (omit sections that would be
 ---
 
 ## Overview
+
 - [One-line summary of the changes]
 - [Biggest risk or area of focus]
 - [Notable strengths worth preserving]
@@ -58,6 +59,7 @@ Structure the generated markdown exactly as follows (omit sections that would be
 ## Findings
 
 ### [Severity: Blocker/Major/Minor] [Short title]
+
 - **Area:** `[file/path.ext:line]`
 - **Issue:** [Describe the problem, referencing behaviour expectations]
 - **Recommendation:** [Actionable fix or follow-up]
@@ -70,10 +72,12 @@ Structure the generated markdown exactly as follows (omit sections that would be
 ### [Repeat for each finding]
 
 ## Additional Observations
+
 - [Optional improvements or questions that are non-blocking]
 - [Docs or tests to add, or manual checks to run]
 
 ## Suggested Validation
+
 - [List tests, QA steps, or monitoring to perform before merge]
 ````
 

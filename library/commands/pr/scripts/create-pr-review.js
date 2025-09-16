@@ -5,9 +5,9 @@
  *
  * Creates a pending review on an existing pull request using comment data from CSV.
  */
-import { log } from "./utils/logger.js";
-import { ensureGhCli, runGhJson } from "./utils/process.js";
-import { getCurrentPRNumber, resolveRepository } from "./utils/repository.js";
+import { log } from './utils/logger.js';
+import { ensureGhCli, runGhJson } from './utils/process.js';
+import { getCurrentPRNumber, resolveRepository } from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -15,9 +15,9 @@ import {
   parseArgs,
   showHelp,
   validateArgs,
-} from "./utils/cli.js";
-import { COMMON_BOOLEAN_FLAGS, REVIEW_COMMENT_CSV_CONFIG } from "./utils/config.js";
-import { createOptionalPositiveIntegerFieldValidator, createStringFieldValidator, parseCSVFile } from "./utils/csv.js";
+} from './utils/cli.js';
+import { COMMON_BOOLEAN_FLAGS, REVIEW_COMMENT_CSV_CONFIG } from './utils/config.js';
+import { createOptionalPositiveIntegerFieldValidator, createStringFieldValidator, parseCSVFile } from './utils/csv.js';
 
 const HELP_TEXT = `
 Create a pending GitHub PR review populated with inline comments supplied via CSV.
@@ -47,10 +47,10 @@ Rules:
 
 async function main() {
   try {
-    log("INFO", "GitHub PR Pending Review Creator starting...");
+    log('INFO', 'GitHub PR Pending Review Creator starting...');
 
     const options = parseCliArgs(process.argv.slice(2));
-    log("DEBUG", "Parsed CLI options", options);
+    log('DEBUG', 'Parsed CLI options', options);
 
     if (options.help) {
       showHelp(HELP_TEXT);
@@ -61,27 +61,27 @@ async function main() {
     const validations = [
       standardValidations.repository,
       standardValidations.prNumber,
-      { ...standardValidations.mappingFile, field: "commentsFile" },
+      { ...standardValidations.mappingFile, field: 'commentsFile' },
     ];
 
     validateArgs(options, validations);
 
     await ensureGhCli();
 
-    log("INFO", `Loading review comments from CSV: ${options.commentsFile}`);
+    log('INFO', `Loading review comments from CSV: ${options.commentsFile}`);
     const comments = await parseCommentsFile(options.commentsFile);
-    log("INFO", `Loaded ${comments.length} review comment(s) from CSV`);
+    log('INFO', `Loaded ${comments.length} review comment(s) from CSV`);
 
     if (comments.length === 0) {
-      throw new Error("No review comments provided in CSV file");
+      throw new Error('No review comments provided in CSV file');
     }
 
     const repo = await resolveRepository(options.repo);
     const prNumber = await resolvePullRequestNumber(options.pr);
 
-    const hostInfo = repo.host && repo.host !== "github.com" ? ` (${repo.host})` : "";
-    log("INFO", `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
-    log("INFO", `Target PR number: ${prNumber}`);
+    const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
+    log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
+    log('INFO', `Target PR number: ${prNumber}`);
     console.log(`Creating pending review on PR #${prNumber} with ${comments.length} comment(s)`);
 
     const reviewBody = resolveReviewBody(options);
@@ -93,7 +93,7 @@ async function main() {
 
     await submitReview(repo, prNumber, payload);
   } catch (error) {
-    log("ERROR", `Script failed: ${error.message}`);
+    log('ERROR', `Script failed: ${error.message}`);
     console.error(error.message);
     process.exit(1);
   }
@@ -103,18 +103,18 @@ function parseCliArgs(argv) {
   const argHandlers = createStandardArgHandlers();
 
   const flagHandlers = {
-    "--comments-file": createFlagHandler("commentsFile"),
-    "--repo": createFlagHandler("repo"),
-    "--pr": createFlagHandler("pr", (value) => parseInt(value.trim(), 10)),
-    "--review-body": createFlagHandler("reviewBody"),
-    "--commit": createFlagHandler("commit"),
+    '--comments-file': createFlagHandler('commentsFile'),
+    '--repo': createFlagHandler('repo'),
+    '--pr': createFlagHandler('pr', (value) => parseInt(value.trim(), 10)),
+    '--review-body': createFlagHandler('reviewBody'),
+    '--commit': createFlagHandler('commit'),
   };
 
   return parseArgs(argv, {
     argHandlers,
     flagHandlers,
     booleanFlags: [...COMMON_BOOLEAN_FLAGS],
-    requiredFlags: ["--comments-file"],
+    requiredFlags: ['--comments-file'],
   });
 }
 
@@ -123,7 +123,7 @@ async function resolvePullRequestNumber(providedPr) {
     return providedPr;
   }
 
-  log("INFO", "Auto-detecting PR number using gh pr view");
+  log('INFO', 'Auto-detecting PR number using gh pr view');
   return getCurrentPRNumber();
 }
 
@@ -139,13 +139,13 @@ async function parseCommentsFile(filePath) {
   const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = REVIEW_COMMENT_CSV_CONFIG;
 
   const fieldValidators = [
-    createStringFieldValidator("path"),
-    createOptionalPositiveIntegerFieldValidator("position"),
-    createStringFieldValidator("body"),
-    createOptionalPositiveIntegerFieldValidator("line"),
-    createOptionalPositiveIntegerFieldValidator("startLine"),
-    createStringFieldValidator("side", true),
-    createStringFieldValidator("startSide", true),
+    createStringFieldValidator('path'),
+    createOptionalPositiveIntegerFieldValidator('position'),
+    createStringFieldValidator('body'),
+    createOptionalPositiveIntegerFieldValidator('line'),
+    createOptionalPositiveIntegerFieldValidator('startLine'),
+    createStringFieldValidator('side', true),
+    createStringFieldValidator('startSide', true),
   ];
 
   const rowProcessor = (row, rowNumber) => buildCommentFromRow(row, rowNumber);
@@ -166,8 +166,8 @@ function buildCommentFromRow(row, rowNumber) {
   const position = row.position;
   const line = row.line;
   const startLine = row.startLine;
-  const side = normalizeSide(row.side, "side", rowNumber);
-  const startSide = normalizeSide(row.startSide, "startSide", rowNumber);
+  const side = normalizeSide(row.side, 'side', rowNumber);
+  const startSide = normalizeSide(row.startSide, 'startSide', rowNumber);
 
   if (!position && !line) {
     throw new Error(`Row ${rowNumber}: Provide either position or line value.`);
@@ -196,7 +196,7 @@ function buildCommentFromRow(row, rowNumber) {
   }
 
   comment.line = line;
-  comment.side = side || "RIGHT";
+  comment.side = side || 'RIGHT';
 
   if (startSide && !startLine) {
     throw new Error(`Row ${rowNumber}: startSide requires startLine to be set.`);
@@ -215,13 +215,13 @@ function normalizeSide(value, fieldName, rowNumber) {
     return undefined;
   }
 
-  const trimmed = typeof value === "string" ? value.trim() : "";
+  const trimmed = typeof value === 'string' ? value.trim() : '';
   if (!trimmed) {
     return undefined;
   }
 
   const upper = trimmed.toUpperCase();
-  if (upper !== "LEFT" && upper !== "RIGHT") {
+  if (upper !== 'LEFT' && upper !== 'RIGHT') {
     throw new Error(`Row ${rowNumber}: ${fieldName} must be LEFT or RIGHT when provided.`);
   }
 
@@ -251,15 +251,15 @@ async function submitReview(repo, prNumber, payload) {
   const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews`;
   const payloadString = `${JSON.stringify(payload)}\n`;
 
-  log("DEBUG", `Submitting review via POST ${endpoint}`);
+  log('DEBUG', `Submitting review via POST ${endpoint}`);
 
-  const response = await runGhJson(["api", "--method", "POST", endpoint, "--input", "-"], {
+  const response = await runGhJson(['api', '--method', 'POST', endpoint, '--input', '-'], {
     input: payloadString,
     host: repo.host,
   });
 
-  const reviewId = response.id || response.node_id || "unknown";
-  const state = response.state || "pending";
+  const reviewId = response.id || response.node_id || 'unknown';
+  const state = response.state || 'pending';
   console.log(`✔ Created pending review ${reviewId} (state: ${state})`);
 }
 
