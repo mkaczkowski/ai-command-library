@@ -1,10 +1,21 @@
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
+
+function expandHomeDir(targetPath) {
+  if (!targetPath) return targetPath;
+  if (targetPath === '~') return os.homedir();
+  if (targetPath.startsWith('~/') || targetPath.startsWith('~\\')) {
+    const suffix = targetPath.slice(2);
+    return suffix ? path.join(os.homedir(), suffix) : os.homedir();
+  }
+  return targetPath;
+}
 
 function parseArgs(argv) {
   const args = { provider: 'claude', mode: 'copy', dryRun: false };
@@ -172,7 +183,14 @@ export async function main(argv = process.argv.slice(2)) {
 
   const providerConfig = await ensureProviderConfig(args.provider);
   const sourceRoot = path.join(PACKAGE_ROOT, providerConfig.sourceRoot ?? 'library/commands');
-  const destinationRoot = path.resolve(process.cwd(), args.destination ?? providerConfig.defaultTargetDir);
+  const destinationInput = args.destination ?? providerConfig.defaultTargetDir;
+  if (!destinationInput) {
+    throw new Error(`Provider '${args.provider}' does not specify a default target directory.`);
+  }
+  const expandedDestination = expandHomeDir(destinationInput);
+  const destinationRoot = path.isAbsolute(expandedDestination)
+    ? expandedDestination
+    : path.resolve(process.cwd(), expandedDestination);
 
   console.log(`Linking commands for provider '${args.provider}' using mode '${args.mode}'.`);
   console.log(`Source root: ${sourceRoot}`);

@@ -1,0 +1,7 @@
+{
+  "id": "cursor-global",
+  "label": "Cursor IDE (Global)",
+  "sourceRoot": "library/commands",
+  "defaultTargetDir": "~/.cursor/commands",
+  "mappings": [{ "source": "pr", "target": "pr" }]
+}
