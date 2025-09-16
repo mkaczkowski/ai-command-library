@@ -1,6 +1,7 @@
 # AI Command Library
 
-Reusable set of custom AI agent commands that can be consumed by tooling such as Claude Desktop, Cursor, and Codex. The repository packages the commands and a small CLI that syncs the right files into provider-specific folders.
+Reusable set of custom AI agent commands that can be consumed by tooling such as Claude Desktop, Cursor, and Codex. The
+repository packages the commands and a small CLI that syncs the right files into provider-specific folders.
 
 ## Repository Layout
 
@@ -12,50 +13,42 @@ ai-command-library/
 └── bin/link-ai-commands.js
 ```
 
-`library/commands` mirrors the `.claude/commands` structure so Markdown instructions and helper scripts remain untouched.
+`library/commands` mirrors the `.claude/commands` structure so Markdown instructions and helper scripts remain
+untouched.
 
 ## Using as an npm Package (Option B)
 
-1. **Publish** the private repository to GitHub and (optionally) the GitHub npm registry.
-   - `cd ai-command-library`
-   - `git init && git add .`
-   - `git commit -m "chore: initial command library"`
-   - `gh repo create mkaczkowski/ai-command-library --private --source . --push`
-   - If you prefer installing via `npm`, configure `.npmrc` with:
-     ```ini
-     @mkaczkowski:registry=https://npm.pkg.github.com
-     //npm.pkg.github.com/:_authToken=<github-personal-access-token>
-     ```
-   - Publish the package when ready:
-     ```bash
-     npm publish
-     ```
-     (or use `npm publish --access restricted` for private scopes.)
-
 2. **Install inside each project**:
-   ```bash
-   npm install -D @mkaczkowski/ai-command-library
-   ```
-   For direct Git installs you can use:
-   ```bash
-   npm install -D git+ssh://git@github.com/mkaczkowski/ai-command-library.git
-   ```
+
+```bash
+npm install -D @mkaczkowski/ai-command-library
+```
+
+For direct Git installs you can use:
+
+```bash
+npm install -D git+ssh://git@github.com/mkaczkowski/ai-command-library.git
+```
 
 3. **Link the commands** into your tooling folder:
-   ```bash
-   npx link-ai-commands --provider claude
-   ```
-   This copies the canonical `library/commands` content to `.claude/commands`. Use
-   `--provider cursor` to target `.cursor/commands`, or `--destination` to override
-   the target directory entirely.
+
+ ```bash
+ npx link-ai-commands --provider claude
+ ```
+
+This copies the canonical `library/commands` content to `.claude/commands`. Use
+`--provider cursor` to target `.cursor/commands`, or `--destination` to override
+the target directory entirely.
 
 4. (Optional) add a project script for convenience:
-   ```json
-   "scripts": {
-     "sync-ai-commands": "link-ai-commands --provider claude"
-   }
-   ```
-   Run `npm run sync-ai-commands` whenever you update the library version.
+
+ ```json
+ "scripts": {
+"sync-ai-commands": "link-ai-commands --provider claude"
+}
+ ```
+
+Run `npm run sync-ai-commands` whenever you update the library version.
 
 ## CLI Reference
 
