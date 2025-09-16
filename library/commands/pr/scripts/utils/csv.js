@@ -1,6 +1,6 @@
-import { readFile } from "fs/promises";
-import { log } from "./logger.js";
-import { CSV_CONFIG } from "./config.js";
+import { readFile } from 'fs/promises';
+import { log } from './logger.js';
+import { ENHANCE_COMMENT_CSV_CONFIG } from './config.js';
 
 /**
  * CSV parsing helpers tailored to the GitHub comment workflows.
@@ -12,12 +12,12 @@ import { CSV_CONFIG } from "./config.js";
  * @returns {{headers: string[], rows: string[][]}} Parsed CSV data
  */
 function parseCSVContent(content) {
-  const { QUOTE, COMMA, NEWLINE, CARRIAGE_RETURN } = CSV_CONFIG.CHARS;
+  const { QUOTE, COMMA, NEWLINE, CARRIAGE_RETURN } = ENHANCE_COMMENT_CSV_CONFIG.CHARS;
 
   const parser = {
     rows: [],
     currentRow: [],
-    currentField: "",
+    currentField: '',
     inQuotes: false,
     position: 0,
 
@@ -49,7 +49,7 @@ function parseCSVContent(content) {
 
     handleComma() {
       this.currentRow.push(this.currentField);
-      this.currentField = "";
+      this.currentField = '';
       this.advance();
     },
 
@@ -59,7 +59,7 @@ function parseCSVContent(content) {
         this.rows.push(this.currentRow);
       }
       this.currentRow = [];
-      this.currentField = "";
+      this.currentField = '';
 
       // Handle \r\n
       if (this.currentChar() === CARRIAGE_RETURN && this.nextChar() === NEWLINE) {
@@ -83,7 +83,7 @@ function parseCSVContent(content) {
       }
 
       if (this.rows.length === 0) {
-        throw new Error("CSV file is empty or contains no valid data");
+        throw new Error('CSV file is empty or contains no valid data');
       }
 
       const headers = this.rows[0];
@@ -123,7 +123,7 @@ function validateCSVHeaders(headers, requiredHeaders, expectedColumns) {
 
   for (let i = 0; i < requiredHeaders.length; i++) {
     if (headers[i] !== requiredHeaders[i]) {
-      throw new Error(`CSV header must be exactly: ${requiredHeaders.join(",")}`);
+      throw new Error(`CSV header must be exactly: ${requiredHeaders.join(',')}`);
     }
   }
 }
@@ -172,10 +172,10 @@ function validateCSVRow(row, rowNumber, expectedColumns, fieldValidators = []) {
 async function parseCSVFile(filePath, options) {
   const { requiredHeaders, expectedColumns, fieldValidators, rowProcessor } = options;
 
-  log("INFO", `Reading CSV file: ${filePath}`);
+  log('INFO', `Reading CSV file: ${filePath}`);
 
-  const content = await readFile(filePath, "utf8");
-  log("DEBUG", `File size: ${content.length} characters`);
+  const content = await readFile(filePath, 'utf8');
+  log('DEBUG', `File size: ${content.length} characters`);
 
   const { headers, rows } = parseCSVContent(content);
 
@@ -190,15 +190,15 @@ async function parseCSVFile(filePath, options) {
       validatedRow = await rowProcessor(validatedRow, rowNumber);
     }
 
-    log("DEBUG", `Processing row ${rowNumber}`, { rowData: validatedRow });
+    log('DEBUG', `Processing row ${rowNumber}`, { rowData: validatedRow });
     processedRows.push(validatedRow);
   }
 
   if (processedRows.length === 0) {
-    throw new Error("No valid rows found in CSV file");
+    throw new Error('No valid rows found in CSV file');
   }
 
-  log("INFO", `Loaded ${processedRows.length} rows from CSV`);
+  log('INFO', `Loaded ${processedRows.length} rows from CSV`);
   return { headers, rows: processedRows };
 }
 
@@ -207,7 +207,7 @@ async function parseCSVFile(filePath, options) {
  * @param {string} fieldName - Name of the field
  * @returns {Function} Validator function
  */
-function createIdFieldValidator(fieldName = "id") {
+function createIdFieldValidator(fieldName = 'id') {
   return (value) => {
     const trimmedValue = String(value).trim();
     if (!trimmedValue) {
@@ -232,7 +232,7 @@ function createIdFieldValidator(fieldName = "id") {
  */
 function createStringFieldValidator(fieldName, allowEmpty = false) {
   return (value) => {
-    if (typeof value !== "string") {
+    if (typeof value !== 'string') {
       return {
         isValid: false,
         error: `${fieldName} must be a string`,

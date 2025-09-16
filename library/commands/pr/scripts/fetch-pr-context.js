@@ -6,11 +6,11 @@
  * Retrieves detailed metadata, commits, and file diffs for a pull request.
  */
 
-import fs from "fs";
-import path from "path";
-import { log } from "./utils/logger.js";
-import { ensureGhCli, runGhJson } from "./utils/process.js";
-import { getCurrentPRNumber, resolveRepository } from "./utils/repository.js";
+import fs from 'fs';
+import path from 'path';
+import { log } from './utils/logger.js';
+import { ensureGhCli, runGhJson } from './utils/process.js';
+import { getCurrentPRNumber, resolveRepository } from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -18,25 +18,13 @@ import {
   parseArgs,
   showHelp,
   validateArgs,
-} from "./utils/cli.js";
-import { COMMON_BOOLEAN_FLAGS } from "./utils/config.js";
-import { normalizeDirectoryPath, shouldIncludeFile } from "./utils/fileSystem.js";
+} from './utils/cli.js';
+import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
+import { normalizeDirectoryPath, shouldIncludeFile } from './utils/fileSystem.js';
 
 const FILE_REVIEW_BLOCKLIST = Object.freeze({
-  fileNames: new Set([
-    "package-lock.json",
-    "pnpm-lock.yaml",
-    "yarn.lock",
-  ]),
-  directories: new Set(
-    [
-      "dist",
-      "coverage",
-      "build",
-    ]
-      .map(normalizeDirectoryPath)
-      .filter(Boolean),
-  ),
+  fileNames: new Set(['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']),
+  directories: new Set(['dist', 'coverage', 'build'].map(normalizeDirectoryPath).filter(Boolean)),
 });
 
 const HELP_TEXT = `
@@ -63,7 +51,7 @@ Examples:
 
 async function main() {
   try {
-    log("INFO", "GitHub PR Context Fetcher starting...");
+    log('INFO', 'GitHub PR Context Fetcher starting...');
 
     const options = parseCliArgs(process.argv.slice(2));
 
@@ -80,12 +68,12 @@ async function main() {
     await ensureGhCli();
 
     const repo = await resolveRepository(options.repo);
-    const hostInfo = repo.host && repo.host !== "github.com" ? ` (${repo.host})` : "";
-    log("INFO", `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
+    const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
+    log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
 
     let prNumber = options.pr;
     if (!prNumber) {
-      log("INFO", "Auto-detecting current PR number...");
+      log('INFO', 'Auto-detecting current PR number...');
       prNumber = await getCurrentPRNumber();
     }
 
@@ -99,14 +87,14 @@ async function main() {
 
     if (options.output) {
       const outputPath = path.resolve(options.output);
-      fs.writeFileSync(outputPath, output, "utf8");
-      log("INFO", `Results written to ${outputPath}`);
+      fs.writeFileSync(outputPath, output, 'utf8');
+      log('INFO', `Results written to ${outputPath}`);
       console.log(`Saved PR context for #${prNumber} to ${outputPath}`);
     } else {
       console.log(output);
     }
   } catch (error) {
-    log("ERROR", `Failed to fetch PR context: ${error.message}`);
+    log('ERROR', `Failed to fetch PR context: ${error.message}`);
     console.error(error.message);
     process.exit(1);
   }
@@ -118,9 +106,9 @@ function parseCliArgs(argv) {
   };
 
   const flagHandlers = {
-    "--repo": createFlagHandler("repo"),
-    "--pr": createFlagHandler("pr", (value) => parseInt(value.trim(), 10)),
-    "--output": createFlagHandler("output"),
+    '--repo': createFlagHandler('repo'),
+    '--pr': createFlagHandler('pr', (value) => parseInt(value.trim(), 10)),
+    '--output': createFlagHandler('output'),
   };
 
   return parseArgs(argv, {
@@ -131,13 +119,13 @@ function parseCliArgs(argv) {
 }
 
 async function fetchPRContext(repoInfo, prNumber) {
-  log("INFO", `Fetching context for PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
+  log('INFO', `Fetching context for PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
 
   const query = buildPRContextQuery(prNumber);
 
-  const commandArgs = ["api", "graphql", "-f", `query=${query}`];
-  commandArgs.push("-F", `owner=${repoInfo.owner}`);
-  commandArgs.push("-F", `repo=${repoInfo.repo}`);
+  const commandArgs = ['api', 'graphql', '-f', `query=${query}`];
+  commandArgs.push('-F', `owner=${repoInfo.owner}`);
+  commandArgs.push('-F', `repo=${repoInfo.repo}`);
 
   const response = await runGhJson(commandArgs, { host: repoInfo.host });
   const pr = response?.data?.repository?.pullRequest;
@@ -146,7 +134,7 @@ async function fetchPRContext(repoInfo, prNumber) {
     throw new Error(`PR #${prNumber} not found`);
   }
 
-  log("INFO", `Fetched pull request #${prNumber}: ${pr.title}`);
+  log('INFO', `Fetched pull request #${prNumber}: ${pr.title}`);
   return pr;
 }
 
@@ -190,14 +178,14 @@ function buildContext(pr, { fileDetails = [] }) {
         repository: pr.headRepository?.nameWithOwner || null,
       },
     },
-    author: pr.author?.login || "unknown",
+    author: pr.author?.login || 'unknown',
     stats: {
       additions: pr.additions,
       deletions: pr.deletions,
       changedFiles: pr.changedFiles,
       commitCount: pr.commits?.totalCount || 0,
     },
-    body: pr.body || "",
+    body: pr.body || '',
     files: extractFiles(fileDetails),
   };
 }
@@ -210,38 +198,44 @@ function extractFiles(fileDetails = []) {
     }
   }
 
-  const reviewableFiles = Array.from(detailMap.values()).filter((detail) => shouldIncludeFile(detail, FILE_REVIEW_BLOCKLIST));
+  const reviewableFiles = Array.from(detailMap.values()).filter((detail) =>
+    shouldIncludeFile(detail, FILE_REVIEW_BLOCKLIST)
+  );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return reviewableFiles.map(({ blob_url, raw_url, contents_url, ...detail }) => ({
-    ...detail,
-  }));
+  return reviewableFiles.map((detail) => {
+    const sanitized = { ...detail };
+    delete sanitized.blob_url;
+    delete sanitized.raw_url;
+    delete sanitized.contents_url;
+    return sanitized;
+  });
 }
 
 async function fetchPRFileDetails(repoInfo, prNumber) {
   const perPage = 100;
   let page = 1;
   const results = [];
+  let hasMore = true;
 
-  while (true) {
+  while (hasMore) {
     const endpoint = `/repos/${repoInfo.owner}/${repoInfo.repo}/pulls/${prNumber}/files?per_page=${perPage}&page=${page}`;
-    log("DEBUG", `Fetching file details: ${endpoint}`);
-    const response = await runGhJson(["api", endpoint], { host: repoInfo.host });
+    log('DEBUG', `Fetching file details: ${endpoint}`);
+    const response = await runGhJson(['api', endpoint], { host: repoInfo.host });
 
     if (!Array.isArray(response)) {
-      throw new Error("Unexpected response when fetching PR file details");
+      throw new Error('Unexpected response when fetching PR file details');
     }
 
     results.push(...response);
 
     if (response.length < perPage) {
-      break;
+      hasMore = false;
+    } else {
+      page += 1;
     }
-
-    page += 1;
   }
 
-  log("INFO", `Fetched ${results.length} file detail(s)`);
+  log('INFO', `Fetched ${results.length} file detail(s)`);
   return results;
 }
 

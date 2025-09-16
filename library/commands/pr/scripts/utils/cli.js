@@ -1,8 +1,8 @@
-import fs from "fs";
-import { enableVerboseLogging, log } from "./logger.js";
-import { ALLOWED_REACTIONS, isSupportedReaction } from "./reactions.js";
+import fs from 'fs';
+import { enableVerboseLogging, log } from './logger.js';
+import { ALLOWED_REACTIONS, isSupportedReaction } from './reactions.js';
 
-const HELP_HINT = "Use --help for usage information.";
+const HELP_HINT = 'Use --help for usage information.';
 
 /**
  * Shared CLI utilities for the GitHub scripts.
@@ -15,7 +15,7 @@ const HELP_HINT = "Use --help for usage information.";
  * @returns {Object} Parsed options
  */
 function parseArgs(argv, config) {
-  log("DEBUG", "Parsing CLI arguments", { argv });
+  log('DEBUG', 'Parsing CLI arguments', { argv });
 
   const { argHandlers = {}, flagHandlers = {}, booleanFlags = [], requiredFlags = [] } = config;
 
@@ -29,13 +29,13 @@ function parseArgs(argv, config) {
       continue;
     }
 
-    if (!arg.startsWith("--")) {
+    if (!arg.startsWith('--')) {
       throw buildUnknownParameterError(`Unknown argument: ${arg}`);
     }
 
-    if (arg.includes("=")) {
-      const [flag, ...rest] = arg.split("=");
-      const value = rest.join("=");
+    if (arg.includes('=')) {
+      const [flag, ...rest] = arg.split('=');
+      const value = rest.join('=');
 
       if (!flagHandlers[flag]) {
         throw buildUnknownParameterError(`Unknown flag: ${flag}`);
@@ -51,16 +51,16 @@ function parseArgs(argv, config) {
   }
 
   for (const requiredFlag of requiredFlags) {
-    const flagName = requiredFlag.replace("--", "");
+    const flagName = requiredFlag.replace('--', '');
     const camelCaseFlag = flagName.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
     if (!options[camelCaseFlag] && !options.help) {
-      log("ERROR", `Missing required ${requiredFlag} parameter`);
+      log('ERROR', `Missing required ${requiredFlag} parameter`);
       throw new Error(`Provide ${requiredFlag} parameter.\n${HELP_HINT}`);
     }
   }
 
-  log("DEBUG", "CLI arguments parsed successfully", options);
+  log('DEBUG', 'CLI arguments parsed successfully', options);
   return options;
 }
 
@@ -70,9 +70,9 @@ function parseArgs(argv, config) {
  */
 function createStandardArgHandlers() {
   return {
-    "--help": (options) => ({ ...options, help: true }),
-    "-h": (options) => ({ ...options, help: true }),
-    "--verbose": (options) => {
+    '--help': (options) => ({ ...options, help: true }),
+    '-h': (options) => ({ ...options, help: true }),
+    '--verbose': (options) => {
       enableVerboseLogging();
       return { ...options, verbose: true };
     },
@@ -87,7 +87,7 @@ function createStandardArgHandlers() {
  */
 function createFlagHandler(propertyName, transform = (value) => value) {
   return (options, value) => {
-    log("DEBUG", `Setting ${propertyName}: ${value}`);
+    log('DEBUG', `Setting ${propertyName}: ${value}`);
     return { ...options, [propertyName]: transform(value) };
   };
 }
@@ -110,7 +110,7 @@ function validateArgs(options, validations = []) {
   }
 
   if (errors.length > 0) {
-    const message = ["Validation errors:", ...errors.map((error) => `  ${error}`), "", HELP_HINT].join("\n");
+    const message = ['Validation errors:', ...errors.map((error) => `  ${error}`), '', HELP_HINT].join('\n');
 
     throw new Error(message);
   }
@@ -134,39 +134,39 @@ function showHelp(helpText) {
 function createStandardValidations() {
   return {
     prNumber: {
-      field: "pr",
+      field: 'pr',
       validator: (pr) => !isNaN(pr) && pr > 0,
-      message: "--pr must be a valid PR number",
+      message: '--pr must be a valid PR number',
     },
     repository: {
-      field: "repo",
-      validator: (repo) => repo && (repo.includes("/") || repo.includes("github.com")),
-      message: "--repo must be in format owner/repo or full GitHub URL",
+      field: 'repo',
+      validator: (repo) => repo && (repo.includes('/') || repo.includes('github.com')),
+      message: '--repo must be in format owner/repo or full GitHub URL',
     },
     outputFile: {
-      field: "output",
-      validator: (output) => output !== "",
-      message: "--output filename cannot be empty",
+      field: 'output',
+      validator: (output) => output !== '',
+      message: '--output filename cannot be empty',
     },
     reaction: {
-      field: "reaction",
+      field: 'reaction',
       validator: (reaction) => isSupportedReaction(reaction),
-      message: `--reaction must be one of: ${ALLOWED_REACTIONS.join(", ")}`,
+      message: `--reaction must be one of: ${ALLOWED_REACTIONS.join(', ')}`,
     },
     mappingFile: {
-      field: "mappingFile",
+      field: 'mappingFile',
       validator: (filePath) => {
-        if (typeof filePath !== "string" || filePath.trim() === "") {
+        if (typeof filePath !== 'string' || filePath.trim() === '') {
           return false;
         }
         try {
           return fs.existsSync(filePath);
         } catch (error) {
-          log("ERROR", `Error validating mapping file path: ${error.message}`);
+          log('ERROR', `Error validating mapping file path: ${error.message}`);
           return false;
         }
       },
-      message: "--mapping-file must point to an existing file",
+      message: '--mapping-file must point to an existing file',
     },
   };
 }

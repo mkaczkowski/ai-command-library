@@ -1,88 +1,108 @@
 # AI Command Library
 
-Reusable set of custom AI agent commands that can be consumed by tooling such as Claude Desktop, Cursor, and Codex. The
-repository packages the commands and a small CLI that syncs the right files into provider-specific folders.
+Reusable AI agent commands and helper scripts that plug into Claude Desktop, Cursor, Codex, and other tooling. The project ships a provider-agnostic command catalogue plus a CLI that syncs commands into the correct provider-specific folders.
 
-## Repository Layout
+## Features
 
-```
-ai-command-library/
-├── library/commands/      # Canonical command source shared across providers
-├── providers/             # Provider mapping metadata
-├── scripts/link-commands.js
-└── bin/link-ai-commands.js
-```
+- Canonical command source under `library/commands/` shared by all providers
+- Provider metadata (`providers/*.json`) that maps source folders to destinations
+- Node-based CLI (`link-ai-commands`) for copying or symlinking commands into tool-specific directories
+- GitHub PR utilities for fetching context, preparing feedback, and updating comments
 
-`library/commands` mirrors the `.claude/commands` structure so Markdown instructions and helper scripts remain
-untouched.
+## Prerequisites
 
-## Using as an npm Package (Option B)
+- Node.js 22 or newer
+- npm 10+
+- [GitHub CLI](https://cli.github.com/) for the PR helpers; authenticate with `gh auth login` and ensure the `repo` scope is granted. Enterprise users can set `GH_HOST` or pass `--repo` to the scripts.
 
-2. **Install inside each project**:
+## Installation
 
 ```bash
 npm install -D @mkaczkowski/ai-command-library
 ```
 
-For direct Git installs you can use:
+The package publishes the CLI as a binary named `link-ai-commands`.
+
+If you prefer installing straight from GitHub:
 
 ```bash
-npm install -D git+ssh://git@github.com/mkaczkowski/ai-command-library.git
+npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 ```
 
-3. **Link the commands** into your tooling folder:
+## Linking Commands
 
- ```bash
- npx link-ai-commands --provider claude
- ```
+Copy commands into a provider workspace:
 
-This copies the canonical `library/commands` content to `.claude/commands`. Use
-`--provider cursor` to target `.cursor/commands`, or `--destination` to override
-the target directory entirely.
-
-4. (Optional) add a project script for convenience:
-
- ```json
- "scripts": {
-"sync-ai-commands": "link-ai-commands --provider claude"
-}
- ```
-
-Run `npm run sync-ai-commands` whenever you update the library version.
-
-## CLI Reference
-
-```
-link-ai-commands [options]
-
-Options:
-  -p, --provider <name>     Provider configuration (default: claude)
-  -d, --destination <dir>   Override the destination directory
-  -m, --mode <copy|symlink> Copy files (default) or create symlinks
-      --dry-run             Show planned actions without modifying the filesystem
-      --list-providers      Show bundled provider configurations
-  -h, --help                Print usage help
+```bash
+npx link-ai-commands --provider claude
 ```
 
-The CLI reads provider definitions from the `providers/` directory. Each provider
-specifies a `defaultTargetDir` and a set of folder mappings, making it easy to add
-new integrations. To add a provider, create a new JSON file similar to
-`providers/claude.json` and re-run the CLI with the new provider ID.
+The command copies `library/commands/pr` to `.claude/commands/pr`. Use `--provider cursor` for `.cursor/commands` or `--destination` to override the output directory entirely. `--mode symlink` creates symlinks when supported; on Windows the CLI automatically falls back to copy mode if junctions are unavailable.
 
-## Automating Syncing
+List bundled providers:
 
-- Add `link-ai-commands --provider <id>` to your project's `postinstall` hook to
-  keep commands synchronized after every dependency install.
-- For repositories with multiple AI tools, run the CLI twice with different providers.
-- CI pipelines can run the CLI during build steps to ensure command folders exist.
+```bash
+npx link-ai-commands --list-providers
+```
 
-## Future Enhancements
+Dry-run actions without touching the filesystem:
 
-- Publish typed provider metadata for editor autocompletion.
-- Add validation tests that ensure command Markdown files declare required frontmatter.
-- Ship prebuilt automation scripts (Git hooks, GitHub Actions) for keeping commands fresh.
+```bash
+npx link-ai-commands --provider claude --dry-run
+```
+
+## Automating Syncs
+
+- Add `link-ai-commands --provider <id>` to your project's `postinstall` script so command folders stay up to date.
+- In multi-tool environments, run the CLI once per provider target.
+- CI pipelines can execute the CLI during build steps to verify the destination folders exist before publishing artifacts.
+
+## Development
+
+Clone and install dependencies:
+
+```bash
+git clone https://github.com/mkaczkowski/ai-command-library.git
+cd ai-command-library
+npm install
+```
+
+Run linting and formatting checks:
+
+```bash
+npm run lint
+npm run format:check
+```
+
+Automatically fix lint issues and apply formatting:
+
+```bash
+npm run lint:fix
+npm run format
+```
+
+### Releasing
+
+1. Update `CHANGELOG.md` and bump the version in `package.json`.
+2. Run `npm run release` to verify linting and formatting.
+3. Publish with `npm publish --access public` (requires an npm token with publish rights).
+4. Push the release commit and tag to GitHub.
+
+## Repository Layout
+
+```
+ai-command-library/
+├── library/commands/      # Canonical command source
+├── providers/             # Provider mapping metadata
+├── scripts/link-commands.js
+└── bin/link-ai-commands.js
+```
+
+## Support & Feedback
+
+- Report bugs and feature requests via [GitHub issues](https://github.com/mkaczkowski/ai-command-library/issues).
+- Security reports should follow the guidance in [`SECURITY.md`](SECURITY.md).
 
 ## License
 
-This package is scoped as private (`UNLICENSED`). Update the license field before
-making the repository public.
+Released under the [MIT License](LICENSE).

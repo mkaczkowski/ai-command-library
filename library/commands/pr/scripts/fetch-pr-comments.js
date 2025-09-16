@@ -6,11 +6,11 @@
  * Retrieves review comments for a pull request and supports optional filters.
  */
 
-import fs from "fs";
-import path from "path";
-import { log } from "./utils/logger.js";
-import { ensureGhCli, runGhJson } from "./utils/process.js";
-import { getCurrentPRNumber, resolveRepository } from "./utils/repository.js";
+import fs from 'fs';
+import path from 'path';
+import { log } from './utils/logger.js';
+import { ensureGhCli, runGhJson } from './utils/process.js';
+import { getCurrentPRNumber, resolveRepository } from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -18,11 +18,11 @@ import {
   parseArgs,
   showHelp,
   validateArgs,
-} from "./utils/cli.js";
-import { COMMON_BOOLEAN_FLAGS, PAGINATION_LIMITS } from "./utils/config.js";
-import { ALLOWED_REACTIONS, mapReactionNameToContent, normalizeReactionName } from "./utils/reactions.js";
+} from './utils/cli.js';
+import { COMMON_BOOLEAN_FLAGS, PAGINATION_LIMITS } from './utils/config.js';
+import { ALLOWED_REACTIONS, mapReactionNameToContent, normalizeReactionName } from './utils/reactions.js';
 
-const ALLOWED_REACTION_NAMES = ALLOWED_REACTIONS.join(", ");
+const ALLOWED_REACTION_NAMES = ALLOWED_REACTIONS.join(', ');
 
 const HELP_TEXT = `
 GitHub PR Comments Fetcher
@@ -70,22 +70,22 @@ Examples:
 function parseCliArgs(argv) {
   const argHandlers = {
     ...createStandardArgHandlers(),
-    "--ignore-outdated": (options) => ({ ...options, ignoreOutdated: true }),
-    "--pending": (options) => ({ ...options, pending: true }),
+    '--ignore-outdated': (options) => ({ ...options, ignoreOutdated: true }),
+    '--pending': (options) => ({ ...options, pending: true }),
   };
 
   const flagHandlers = {
-    "--repo": createFlagHandler("repo"),
-    "--author": createFlagHandler("author"),
-    "--pr": createFlagHandler("pr", (value) => parseInt(value.trim())),
-    "--output": createFlagHandler("output"),
-    "--reaction": createFlagHandler("reaction", normalizeReactionName),
+    '--repo': createFlagHandler('repo'),
+    '--author': createFlagHandler('author'),
+    '--pr': createFlagHandler('pr', (value) => parseInt(value.trim())),
+    '--output': createFlagHandler('output'),
+    '--reaction': createFlagHandler('reaction', normalizeReactionName),
   };
 
   const parsedOptions = parseArgs(argv, {
     argHandlers,
     flagHandlers,
-    booleanFlags: [...COMMON_BOOLEAN_FLAGS, "--ignore-outdated", "--pending"],
+    booleanFlags: [...COMMON_BOOLEAN_FLAGS, '--ignore-outdated', '--pending'],
   });
 
   if (!parsedOptions.reaction) {
@@ -156,14 +156,14 @@ function buildPRCommentsQuery(prNumber) {
  * @returns {Promise<Object>}
  */
 async function fetchPRComments(repoInfo, prNumber) {
-  log("INFO", `Fetching PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
+  log('INFO', `Fetching PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
 
   const query = buildPRCommentsQuery(prNumber);
 
   try {
-    const commandArgs = ["api", "graphql", "-f", `query=${query}`];
-    commandArgs.push("-F", `owner=${repoInfo.owner}`);
-    commandArgs.push("-F", `repo=${repoInfo.repo}`);
+    const commandArgs = ['api', 'graphql', '-f', `query=${query}`];
+    commandArgs.push('-F', `owner=${repoInfo.owner}`);
+    commandArgs.push('-F', `repo=${repoInfo.repo}`);
 
     const response = await runGhJson(commandArgs, { host: repoInfo.host });
 
@@ -172,10 +172,10 @@ async function fetchPRComments(repoInfo, prNumber) {
       throw new Error(`PR #${prNumber} not found`);
     }
 
-    log("INFO", `Found PR #${prNumber}`);
+    log('INFO', `Found PR #${prNumber}`);
     return pr;
   } catch (error) {
-    log("ERROR", `Failed to fetch PR: ${error.message}`);
+    log('ERROR', `Failed to fetch PR: ${error.message}`);
     throw error;
   }
 }
@@ -202,22 +202,22 @@ function processPRData(pr, options = {}) {
     const lastComment = thread.comments.nodes[thread.comments.nodes.length - 1];
 
     if (thread.isResolved) {
-      log("DEBUG", `Skipping resolved thread with comment ${lastComment.id}`);
+      log('DEBUG', `Skipping resolved thread with comment ${lastComment.id}`);
       return;
     }
 
-    if (options.pending && lastComment.pullRequestReview?.state !== "PENDING") {
-      log("DEBUG", `Skipping last comment ${lastComment.id} not in pending review`);
+    if (options.pending && lastComment.pullRequestReview?.state !== 'PENDING') {
+      log('DEBUG', `Skipping last comment ${lastComment.id} not in pending review`);
       return;
     }
 
     if (options.author && lastComment.author?.login !== options.author) {
-      log("DEBUG", `Skipping last comment ${lastComment.id} from different author ${lastComment.author?.login}`);
+      log('DEBUG', `Skipping last comment ${lastComment.id} from different author ${lastComment.author?.login}`);
       return;
     }
 
     if (options.ignoreOutdated && (thread.isOutdated || lastComment.outdated)) {
-      log("DEBUG", `Skipping outdated thread/comment ${lastComment.id}`);
+      log('DEBUG', `Skipping outdated thread/comment ${lastComment.id}`);
       skippedOutdatedCount++;
       return;
     }
@@ -227,7 +227,7 @@ function processPRData(pr, options = {}) {
         (reaction) => reaction.content === options.reactionContent
       );
       if (!hasReaction) {
-        log("DEBUG", `Skipping last comment ${lastComment.id} without ${options.reaction} reaction`);
+        log('DEBUG', `Skipping last comment ${lastComment.id} without ${options.reaction} reaction`);
         return;
       }
     }
@@ -237,16 +237,16 @@ function processPRData(pr, options = {}) {
       id: lastComment.fullDatabaseId,
       reviewId: lastComment.pullRequestReview?.fullDatabaseId,
       body: lastComment.body,
-      author: lastComment.author?.login ?? "Unknown",
+      author: lastComment.author?.login ?? 'Unknown',
       path: lastComment.path,
       startLineNumber: lastComment.startLine,
       endLineNumber: lastComment.line,
     });
   });
 
-  log("INFO", `Processed last comments from ${threadCount} threads`);
+  log('INFO', `Processed last comments from ${threadCount} threads`);
   if (options.ignoreOutdated && skippedOutdatedCount > 0) {
-    log("INFO", `Skipped ${skippedOutdatedCount} outdated threads/comments`);
+    log('INFO', `Skipped ${skippedOutdatedCount} outdated threads/comments`);
   }
   return result;
 }
@@ -257,7 +257,7 @@ function processPRData(pr, options = {}) {
  */
 async function main() {
   try {
-    log("INFO", "GitHub PR Comments Fetcher starting...");
+    log('INFO', 'GitHub PR Comments Fetcher starting...');
 
     const options = parseCliArgs(process.argv.slice(2));
 
@@ -279,12 +279,12 @@ async function main() {
     await ensureGhCli();
 
     const repoInfo = await resolveRepository(options.repo);
-    const hostInfo = repoInfo.host && repoInfo.host !== "github.com" ? ` (${repoInfo.host})` : "";
-    log("INFO", `Target repository: ${repoInfo.owner}/${repoInfo.repo}${hostInfo}`);
+    const hostInfo = repoInfo.host && repoInfo.host !== 'github.com' ? ` (${repoInfo.host})` : '';
+    log('INFO', `Target repository: ${repoInfo.owner}/${repoInfo.repo}${hostInfo}`);
 
     let prNumber = options.pr;
     if (!prNumber) {
-      log("INFO", "Auto-detecting current PR number...");
+      log('INFO', 'Auto-detecting current PR number...');
       prNumber = await getCurrentPRNumber();
     }
 
@@ -296,14 +296,14 @@ async function main() {
 
     if (options.output) {
       const outputPath = path.resolve(options.output);
-      fs.writeFileSync(outputPath, output, "utf8");
-      log("INFO", `Results written to ${outputPath}`);
-      log("INFO", `Found ${result.comments.length} comments in PR #${prNumber}`);
+      fs.writeFileSync(outputPath, output, 'utf8');
+      log('INFO', `Results written to ${outputPath}`);
+      log('INFO', `Found ${result.comments.length} comments in PR #${prNumber}`);
     } else {
       console.log(output);
     }
   } catch (error) {
-    log("ERROR", `Failed to fetch PR comments: ${error.message}`);
+    log('ERROR', `Failed to fetch PR comments: ${error.message}`);
     process.exit(1);
   }
 }

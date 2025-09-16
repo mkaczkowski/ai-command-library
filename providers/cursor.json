@@ -3,7 +3,5 @@
   "label": "Cursor IDE",
   "sourceRoot": "library/commands",
   "defaultTargetDir": ".cursor/commands",
-  "mappings": [
-    { "source": "pr", "target": "pr" }
-  ]
+  "mappings": [{ "source": "pr", "target": "pr" }]
 }

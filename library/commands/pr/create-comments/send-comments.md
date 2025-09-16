@@ -22,7 +22,7 @@ For each finding block under `## Findings`:
 
 1. Treat the heading `### [Severity] [Short title]` as metadata.
 2. Extract supporting fields:
-   - `**Area:**` ``[path:line]`` or ``[path:start-end]``
+   - `**Area:**` `[path:line]` or `[path:start-end]`
    - `**Issue:**` Problem summary
    - `**Recommendation:**` Requested action
    - `**Rationale:**` Why it matters

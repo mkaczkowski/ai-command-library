@@ -5,9 +5,9 @@
  *
  * Updates review comments using mappings defined in a CSV file.
  */
-import { log } from "./utils/logger.js";
-import { ensureGhCli, runGh } from "./utils/process.js";
-import { resolveRepository } from "./utils/repository.js";
+import { log } from './utils/logger.js';
+import { ensureGhCli, runGh } from './utils/process.js';
+import { resolveRepository } from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -15,9 +15,9 @@ import {
   parseArgs,
   showHelp,
   validateArgs,
-} from "./utils/cli.js";
-import { COMMON_BOOLEAN_FLAGS, CSV_CONFIG } from "./utils/config.js";
-import { createIdFieldValidator, createStringFieldValidator, parseCSVFile } from "./utils/csv.js";
+} from './utils/cli.js';
+import { COMMON_BOOLEAN_FLAGS, ENHANCE_COMMENT_CSV_CONFIG } from './utils/config.js';
+import { createIdFieldValidator, createStringFieldValidator, parseCSVFile } from './utils/csv.js';
 
 const HELP_TEXT = `
 Update existing GitHub PR comments with new content.
@@ -55,10 +55,10 @@ Please reuse the existing helper instead of duplicating it.
  */
 async function main() {
   try {
-    log("INFO", "GitHub PR Comment Updater starting...");
+    log('INFO', 'GitHub PR Comment Updater starting...');
 
     const options = parseCliArgs(process.argv.slice(2));
-    log("DEBUG", "Parsed CLI options", options);
+    log('DEBUG', 'Parsed CLI options', options);
 
     if (options.help) {
       showHelp(HELP_TEXT);
@@ -72,40 +72,40 @@ async function main() {
 
     await ensureGhCli();
 
-    log("INFO", `Loading comment mappings from CSV: ${options.mappingFile}`);
+    log('INFO', `Loading comment mappings from CSV: ${options.mappingFile}`);
     const mappings = await parseMappingFile(options.mappingFile);
     if (mappings.size === 0) {
-      throw new Error("No comment updates provided in CSV file");
+      throw new Error('No comment updates provided in CSV file');
     }
-    log("INFO", `Loaded ${mappings.size} comment mappings from CSV`);
+    log('INFO', `Loaded ${mappings.size} comment mappings from CSV`);
 
     const repo = await resolveRepository(options.repo);
-    const hostInfo = repo.host && repo.host !== "github.com" ? ` (${repo.host})` : "";
-    log("INFO", `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
+    const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
+    log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
     console.log(`Updating ${mappings.size} comment(s) in ${repo.owner}/${repo.repo}`);
 
     let failures = 0;
     let successes = 0;
     for (const [commentId, body] of mappings.entries()) {
       try {
-        log("DEBUG", `Updating comment ${commentId}`, { bodyLength: body.length });
+        log('DEBUG', `Updating comment ${commentId}`, { bodyLength: body.length });
         await updateComment(repo, commentId, body);
         successes++;
         console.log(`✔ Updated ${commentId}`);
-        log("DEBUG", `Successfully updated comment ${commentId}`);
+        log('DEBUG', `Successfully updated comment ${commentId}`);
       } catch (error) {
         failures++;
         console.error(`✖ Failed to update ${commentId}: ${error.message}`);
-        log("ERROR", `Failed to update comment ${commentId}`, { error: error.message });
+        log('ERROR', `Failed to update comment ${commentId}`, { error: error.message });
       }
     }
 
-    log("INFO", `Update completed: ${successes} successful, ${failures} failed`);
+    log('INFO', `Update completed: ${successes} successful, ${failures} failed`);
     if (failures > 0) {
       throw new Error(`${failures} update(s) failed`);
     }
   } catch (error) {
-    log("ERROR", `Script failed: ${error.message}`);
+    log('ERROR', `Script failed: ${error.message}`);
     console.error(error.message);
     process.exit(1);
   }
@@ -120,15 +120,15 @@ function parseCliArgs(argv) {
   const argHandlers = createStandardArgHandlers();
 
   const flagHandlers = {
-    "--mapping-file": createFlagHandler("mappingFile"),
-    "--repo": createFlagHandler("repo"),
+    '--mapping-file': createFlagHandler('mappingFile'),
+    '--repo': createFlagHandler('repo'),
   };
 
   return parseArgs(argv, {
     argHandlers,
     flagHandlers,
     booleanFlags: [...COMMON_BOOLEAN_FLAGS],
-    requiredFlags: ["--mapping-file"],
+    requiredFlags: ['--mapping-file'],
   });
 }
 
@@ -138,12 +138,12 @@ function parseCliArgs(argv) {
  * @returns {Promise<Map<string, string>>}
  */
 async function parseMappingFile(filePath) {
-  const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = CSV_CONFIG;
+  const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = ENHANCE_COMMENT_CSV_CONFIG;
 
   const fieldValidators = [
-    createIdFieldValidator("id"),
-    createStringFieldValidator("original"),
-    createStringFieldValidator("rewritten"),
+    createIdFieldValidator('id'),
+    createStringFieldValidator('original'),
+    createStringFieldValidator('rewritten'),
   ];
 
   const rowProcessor = (row) => {
@@ -193,21 +193,21 @@ ${rewritten}`;
  * @returns {Promise<void>}
  */
 async function updateComment(repo, rawId, body) {
-  log("DEBUG", `Starting comment update for ID: ${rawId}`);
+  log('DEBUG', `Starting comment update for ID: ${rawId}`);
 
   const payload = `${JSON.stringify({ body })}\n`;
   const apiBase = `/repos/${repo.owner}/${repo.repo}`;
   const endpoint = `${apiBase}/pulls/comments/${rawId}`;
 
-  log("DEBUG", `API endpoint: PATCH ${endpoint}`);
+  log('DEBUG', `API endpoint: PATCH ${endpoint}`);
   try {
-    await runGh(["api", "--method", "PATCH", endpoint, "--input", "-"], {
+    await runGh(['api', '--method', 'PATCH', endpoint, '--input', '-'], {
       input: payload,
       host: repo.host,
     });
-    log("DEBUG", `Comment ${rawId} updated successfully`);
+    log('DEBUG', `Comment ${rawId} updated successfully`);
   } catch (error) {
-    log("ERROR", `Failed to update comment ${rawId}: ${error.message}`);
+    log('ERROR', `Failed to update comment ${rawId}: ${error.message}`);
     throw error;
   }
 }

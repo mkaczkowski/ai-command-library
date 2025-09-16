@@ -1,29 +1,29 @@
-import path from "path";
+import path from 'path';
 
-function normalizeRepositoryPath(filePath) {
-  if (typeof filePath !== "string") {
-    return "";
+export function normalizeRepositoryPath(filePath) {
+  if (typeof filePath !== 'string') {
+    return '';
   }
 
-  const normalized = path.posix.normalize(filePath).replace(/^\.\/+/, "");
-  if (normalized === ".") {
-    return "";
+  const normalized = path.posix.normalize(filePath).replace(/^\.\/+/, '');
+  if (normalized === '.') {
+    return '';
   }
 
-  return normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
 }
 
 export function normalizeDirectoryPath(dirPath) {
-  if (typeof dirPath !== "string") {
-    return "";
+  if (typeof dirPath !== 'string') {
+    return '';
   }
 
-  const normalized = path.posix.normalize(dirPath).replace(/^\.\/+/, "");
-  if (normalized === ".") {
-    return "";
+  const normalized = path.posix.normalize(dirPath).replace(/^\.\/+/, '');
+  if (normalized === '.') {
+    return '';
   }
 
-  return normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
 }
 
 function isDirectoryBlocked(normalizedPath, blockedDirectories = new Set()) {
