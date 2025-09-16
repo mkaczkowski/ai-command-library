@@ -1,0 +1,27 @@
+{
+  "name": "@mkaczkowski/ai-command-library",
+  "version": "0.1.0",
+  "description": "Reusable AI agent commands packaged for Claude, Cursor, Codex and similar tooling.",
+  "type": "module",
+  "bin": {
+    "link-ai-commands": "./bin/link-ai-commands.js"
+  },
+  "files": [
+    "library",
+    "providers",
+    "scripts",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "echo 'No lint configured'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mkaczkowski/ai-command-library.git"
+  },
+  "license": "UNLICENSED"
+}
