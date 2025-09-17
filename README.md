@@ -71,16 +71,17 @@ The library groups commands by PR workflow. Each markdown file contains step-by-
 - **Typical run:** Use `node scripts/fetch-pr-comments.js` to gather the latest review threads, then launch this command to polish each comment. If the source comment includes a markdown `AI` section, treat it as a private hint—pull guidance from it but omit the section from the rewritten response.
 - **Output:** A markdown report at `tmp/pr-[PR_NUMBER]-comments.md` ready to sanity check before sharing or exporting.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Need([Need to polish existing PR feedback?]) -->|Yes| Fetch[Fetch target comments with fetch-pr-comments.js]
+    Fetch[Fetch PR comments]
     Fetch --> Context[Review diff and project standards for tone and accuracy]
     Context --> Rewrite[Rewrite each comment in a collaborative voice]
-    Rewrite --> Output[Save improved feedback to tmp/pr-PR_NUMBER-comments.md]
+    Rewrite --> Output[Save improved feedback]
     Output --> Decide{Ready to push updates to GitHub?}
-    Decide -->|Yes| Update[Hand off to update-review to apply changes]
-    Decide -->|No| Share[Share markdown for manual review or async feedback]
-    Need -->|No| Exit([Leave comment as-is or use another workflow])
+    Decide -->|Yes| Update[Update comments]
+    Decide -->|No| Share[Manual review or async feedback]
 ```
 
 #### `library/commands/pr/enhance-review/update-review.md`
@@ -89,15 +90,13 @@ flowchart TD
 - **Typical run:** Execute this command once you have refined comments in the markdown output. It guides you through generating a CSV file that maps old comment IDs to the improved text so `scripts/edit-pr-comments.js` can submit updates via the GitHub API.
 - **Output:** CSV rows that the `edit-pr-comments.js` script turns into actual comment edits.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Start([Have rewritten comments ready to publish?]) -->|Yes| Parse[Read enhanced markdown and extract comment set]
-    Parse --> CSV[Generate id,original,rewritten CSV at tmp/pr-PR_NUMBER-comments.csv]
-    CSV --> Review[Spot-check quoting, spacing, and tone]
-    Review --> Push{Confident in updates?}
-    Push -->|Yes| Script[Run edit-pr-comments.js to update GitHub comments]
-    Push -->|No| Iterate[Return to rewriting for further passes]
-    Start -->|No| Prep([Use rewrite-comments or capture new feedback first])
+    Parse[Read enhanced markdown and extract comments]
+    Parse --> CSV[Generate CSV]
+    CSV -->|Yes| Script[Update GitHub comments]
 ```
 
 ### Create New Review Comments
@@ -108,17 +107,15 @@ flowchart TD
 - **Typical run:** Start by running `node scripts/fetch-pr-context.js` (and the comment fetcher if needed) so the workspace has up-to-date metadata, files, and diffs. The command then helps the assistant catalog issues, suggested fixes, and supporting references.
 - **Output:** Structured findings stored in the workspace (usually under `tmp/`) that are ready to be turned into actionable review comments.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Trigger([Need a structured plan for a fresh PR review?]) -->|Yes| Context[Fetch PR context and diffs with helper scripts]
+    Context[Fetch PR context]
     Context --> Inspect[Study patches, docs, and neighbouring code]
     Inspect --> Analyze[Assess risks, gaps, and strengths across files]
-    Analyze --> Document[Record findings, evidence, and suggested validation]
-    Document --> Output[Publish plan to tmp/pr-PR_NUMBER-review.md]
-    Output --> Next{Ready to draft inline comments?}
-    Next -->|Yes| Handoff[Move to create-review to craft comment CSV]
-    Next -->|No| Sync[Review plan with teammates or gather clarifications]
-    Trigger -->|No| Alt([Skip to other workflows if review plan already exists])
+    Analyze --> Output[Generate structured plan]
+    Output --> Handoff[Move to create-review to craft comment CSV]
 ```
 
 #### `library/commands/pr/draft-review/create-review.md`
@@ -127,16 +124,15 @@ flowchart TD
 - **Typical run:** Point this command at the findings produced by `prepare-review.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
 - **Output:** A CSV file containing comment drafts plus any required metadata for bulk submission.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Input([Have review findings from prepare-review?]) -->|Yes| Parse[Load findings markdown and iterate over each issue]
-    Parse --> Craft[Compose concise, empathetic inline comment bodies]
+    Parse[Load findings markdown and iterate over each issue]
+    Parse --> Craft[Compose concise, inline comments]
     Craft --> Map[Align paths and line numbers with PR diffs]
-    Map --> Export[Export CSV to tmp/pr-PR_NUMBER-review-comments.csv]
-    Export --> Submit{Ready to stage comments on GitHub?}
-    Submit -->|Yes| RunScript[Run create-pr-review.js to create pending review]
-    Submit -->|No| Polish[Refine messaging or double-check coverage]
-    Input -->|No| Plan([Return to prepare-review for deeper analysis])
+    Map --> Export[Export comments to CSV]
+    Export --> RunScript[Create pending PR review]
 ```
 
 ### Address Review Feedback
@@ -147,16 +143,15 @@ flowchart TD
 - **Typical run:** Refresh comment data with `node scripts/fetch-pr-comments.js --reaction=+1 --ignore-outdated --include-diff-hunk` (and optionally `node scripts/fetch-pr-context.js` for richer metadata), study linked standards, then document the steps needed to satisfy each reviewer.
 - **Output:** A markdown playbook saved to `tmp/pr-[PR_NUMBER]-address-plan.md` cataloguing required code/doc changes, validation, and open questions per comment.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Prompt([Need a plan to resolve thumbs-up reviewer comments?]) -->|Yes| Gather[Fetch unresolved threads plus optional PR context]
+    Gather[Fetch unresolved threads + PR context]
     Gather --> Study[Review diffs, standards, and previous discussion]
     Study --> Strategize[Define fixes, validation, and sequencing per comment]
-    Strategize --> Document[Write plan to tmp/pr-PR_NUMBER-address-plan.md]
-    Document --> Align{Plan clear and approved?}
-    Align -->|Yes| Execute[Hand off to apply-resolutions for implementation]
-    Align -->|No| Clarify[Sync with reviewers or stakeholders for answers]
-    Prompt -->|No| Defer([Leave notes for future or continue current work])
+    Strategize --> Document[Write implementation plan]
+    Document --> Execute[Hand off to apply-resolutions for implementation]
 ```
 
 #### `library/commands/pr/address-review/apply-resolutions.md`
@@ -165,18 +160,17 @@ flowchart TD
 - **Typical run:** Follow the plan from `prepare-resolutions.md`, apply each change, stage commits that reference the associated comment, and record validation outcomes as you go.
 - **Output:** A detailed report at `tmp/pr-[PR_NUMBER]-address-report.md` summarizing commits, tests, and any follow-up work tied to each resolved comment.
 
+#### Flow
+
 ```mermaid
 flowchart TD
-    Kickoff([Plan from prepare-resolutions ready to execute?]) -->|Yes| Reconfirm[Recheck unresolved comments and thumbs-up status]
+    Reconfirm[Load implementation plan]
     Reconfirm --> Implement[Apply fixes, docs, and tests per planned steps]
-    Implement --> Validate[Run targeted checks and record outcomes]
-    Validate --> Commit[Stage focused commits referencing each comment]
-    Commit --> Log[Capture resolution details for the final report]
-    Log --> Report[Publish tmp/pr-PR_NUMBER-address-report.md for reviewers]
+    Implement --> Validate[Run targeted checks]
+    Validate --> Report[Generate final report]
     Report --> Wrap{Everything resolved?}
-    Wrap -->|Yes| Share[Hand report and commits back to reviewers]
-    Wrap -->|No| Loop[Return to Implement for remaining feedback]
-    Kickoff -->|No| Prep([Return to prepare-resolutions or gather approvals])
+    Wrap -->|Yes| Share[Push commits and report back to reviewers]
+    Wrap -->|No| Loop[Return to implement for remaining feedback]
 ```
 
 ### PR Automation Scripts
