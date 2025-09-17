@@ -16,13 +16,17 @@ You are a staff-level engineer responsible for transforming every unresolved ðŸ‘
      --ignore-outdated \\
      --include-diff-hunk \\
      --output=tmp/pr-[PR_NUMBER]-address-comments.json
-  ```
-  - The JSON includes branch names, comment metadata, file paths, line numbers, `diffHunk`, permalinks, and an `previousComments` array containing the earlier conversation in each thread. Reload it if new reactions appear.
-2. (Optional) Pull enriched PR context for surrounding diffs, commits, and metadata when you need a canonical snapshot or lack reliable local history:
-   ```bash
-   node .claude/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
    ```
-   - Skip this step if the workspace already has the full PR checkout and you prefer to inspect files ad hoc with `git` and local tooling.
+
+````
+- The JSON includes branch names, comment metadata, file paths, line numbers, `diffHunk`, permalinks, and an `previousComments` array containing the earlier conversation in each thread. Reload it if new reactions appear.
+2. (Optional) Pull enriched PR context for surrounding diffs, commits, and metadata when you need a canonical snapshot or lack reliable local history:
+ ```bash
+ node .claude/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+````
+
+- Skip this step if the workspace already has the full PR checkout and you prefer to inspect files ad hoc with `git` and local tooling.
+
 3. Review project standards and shared conventions referenced by reviewers:
    - `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`
    - `/docs/**`, `/library/commands/pr/**`, and any architecture notes in the repo
@@ -49,7 +53,7 @@ For every comment captured in `tmp/pr-[PR_NUMBER]-address-comments.json`:
 
 Author `tmp/pr-[PR_NUMBER]-address-plan.md` using this layout (omit sections only when empty and state "None" explicitly when applicable):
 
-````markdown
+```markdown
 # PR Comment Resolution Plan
 
 **Generated:** [current date]
@@ -62,19 +66,35 @@ Author `tmp/pr-[PR_NUMBER]-address-plan.md` using this layout (omit sections onl
 ## Comment [index]: [concise summary]
 
 - **GitHub URL:** [permalink]
-- **File & Lines:** `[path#Lstart-Lend]`
-- **Reviewer Intent:** [your paraphrased goal]
-- **Root Cause:** [technical/compliance issue to fix]
-- **Resolution Strategy:**
-  - [ordered list of concrete code/doc updates]
-- **Validation:**
-  - [tests, QA steps, or monitoring to run]
-- **Project Standards & References:**
-  - [`docs/...`, `README.md` section, code examples]
-- **Dependencies / Sequencing:**
-  - [related comments, blocking work, migrations]
-- **Open Questions / Risks:**
-  - [clarifications needed, potential regressions]
+- **File & Lines:** [path#Lstart-Lend](path#Lstart-Lend) # formatted as a markdown link
+
+### Intent
+
+[your paraphrased goal]
+
+### Root Cause
+
+[technical/compliance issue to fix]
+
+### Resolution Strategy
+
+- [ordered list of concrete code/doc updates]
+
+### Validation
+
+- [tests, QA steps, or monitoring to run]
+
+### Project Standards & References
+
+- [`docs/...`, `README.md` section, code examples]
+
+### Dependencies / Sequencing
+
+- [related comments, blocking work, migrations]
+
+### Open Questions / Risks
+
+- [clarifications needed, potential regressions]
 
 ---
 
@@ -86,8 +106,7 @@ Author `tmp/pr-[PR_NUMBER]-address-plan.md` using this layout (omit sections onl
 
 - [ ] Unit tests identified
 - [ ] Documentation updates scoped
-
-````
+```
 
 ### Final Review Before Handoff
 
