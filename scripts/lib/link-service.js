@@ -5,7 +5,7 @@ import { buildDefaultMappings, loadProviderConfig } from './providers.js';
 import { processMappings } from './mapping-processor.js';
 
 /** Orchestrates linking commands for a given provider. */
-export async function linkCommands({ providerId, destination, mode, dryRun, logger = console }) {
+export async function linkCommands     ({ providerId, destination, mode, dryRun, logger = console }) {
   const supportedModes = new Set(['copy', 'symlink']);
   if (!supportedModes.has(mode)) {
     throw new Error(`Unsupported mode '${mode}'. Use copy or symlink.`);
@@ -14,7 +14,7 @@ export async function linkCommands({ providerId, destination, mode, dryRun, logg
   const providerConfig = await loadProviderConfig(providerId);
   const sourceRoot = COMMAND_SOURCE_ROOT;
   const destinationInput = destination ?? providerConfig.defaultTargetDir;
-  if (!destinationInput)           {
+  if (!destinationInput) {
     throw new Error(`Provider '${providerId}' does not specify a default target directory.`);
   }
 

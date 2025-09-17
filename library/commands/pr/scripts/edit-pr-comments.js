@@ -129,15 +129,12 @@ function parseCliArgs(argv) {
 async function parseMappingFile(filePath) {
   const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = ENHANCE_COMMENT_CSV_CONFIG;
 
-  const fieldValidators = [
-    createIdFieldValidator('id'),
-    createStringFieldValidator('rewritten'),
-  ];
+  const fieldValidators = [createIdFieldValidator('id'), createStringFieldValidator('rewritten')];
 
   const rowProcessor = (row) => {
     return {
       ...row,
-      formattedBody:row.rewritten,
+      formattedBody: row.rewritten,
     };
   };
 
