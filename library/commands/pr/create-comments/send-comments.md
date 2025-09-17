@@ -21,12 +21,13 @@ that can be submitted as a pending review.
 For each finding block under `## Findings`:
 
 1. Treat the heading `### [Severity] [Short title]` as metadata.
-2. Extract supporting fields:
-   - `**Area:**` `[path:line]` or `[path:start-end]`
-   - `**Issue:**` Problem summary
-   - `**Recommendation:**` Requested action
-   - `**Rationale:**` Why it matters
-   - `**Suggested Snippet (optional):**` Code block to include in the comment when present
+2. Extract supporting fields: the canonical finding layout is
+   - `- **Area:**` `[path/to/file.ext#L123]` (range variant: `[path/to/file.ext#L120-L128]`)
+   - `**Issue**:` Paragraph describing the problem
+   - `### code (optional)` followed by a fenced block (language inferred from the opening fence)
+   - `### suggested changes (optional)` followed by a fenced block
+   - `**Recommendation**:` Requested action, typically a single sentence
+   - `**Rationale**:` Why the change matters; may include inline references
 3. Ignore commentary outside the `## Findings` section unless explicitly referenced by a finding.
 4. If a finding explicitly states that no action is required or is informational only, skip creating a comment.
 
@@ -47,7 +48,10 @@ Compose a single inline comment per finding that clearly communicates the concer
 
 When converting the `Area` field to CSV columns:
 
-- Split the area token at the last colon to separate `path` from location details.
+- Strip formatting markers from the extracted `Area` value:
+  - Remove leading `- `, trailing punctuation, and outer backticks.
+  - Convert `path/to/file#L120-L128` to `path/to/file:120-128` before splitting.
+- Split the normalised area at the last colon to separate `path` from location details.
 - For single line references (`path:123`), set:
   - `path` → `path`
   - `line` → `123`

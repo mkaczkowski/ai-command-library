@@ -31,37 +31,76 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 
 ## Linking Commands
 
-Copy commands into a provider workspace:
+`link-ai-commands` copies or symlinks everything under `library/commands/` into the folders your AI tools expect. Run it from a project root after adding the package (or globally once the CLI is installed).
+
+### Quick Start
 
 ```bash
 npx link-ai-commands --provider claude
 ```
 
-The command copies `library/commands/pr` to `.claude/commands/pr`. Use `--provider cursor` for `.cursor/commands` or `--provider codex` for `.codex/commands` when working inside a project. To populate user-level command folders (`~/.claude/commands`, `~/.cursor/commands`, `~/.codex/commands`), run the matching `--provider <id>-global` option. You can also supply `--destination` to override the output directory entirely. `--mode symlink` creates symlinks when supported; on Windows the CLI automatically falls back to copy mode if junctions are unavailable.
+The example above populates `.claude/commands/pr` with the canonical PR workflows.
 
-List bundled providers:
+### Provider Defaults
 
-```bash
-npx link-ai-commands --list-providers
-```
+| Provider id     | Default destination  | Typical use case                                         |
+| --------------- | -------------------- | -------------------------------------------------------- |
+| `claude`        | `.claude/commands`   | Project-scoped commands for Claude Desktop / Claude Code |
+| `claude-global` | `~/.claude/commands` | Machine-wide Claude command catalogue                    |
+| `cursor`        | `.cursor/commands`   | Project-scoped commands for Cursor IDE                   |
+| `cursor-global` | `~/.cursor/commands` | Machine-wide Cursor command catalogue                    |
+| `codex-global`  | `~/.codex/prompts`   | Machine-wide prompts for the Codex CLI                   |
 
-Dry-run actions without touching the filesystem:
+Run `npx link-ai-commands --list-providers` at any time to see bundled IDs and destinations.
 
-```bash
-npx link-ai-commands --provider claude --dry-run
-```
+### Useful Flags
+
+- `--destination <dir>` sends the files somewhere else (relative paths resolve from the current directory).
+- `--mode symlink` keeps a live link to the library instead of copying files. On Windows, the CLI automatically falls back to copy mode if junctions are unavailable.
+- `--dry-run` prints the planned actions without touching the filesystem — combine it with any other flags to preview results.
 
 ## Command Catalogue
 
+The library groups commands by PR workflow. Each markdown file contains step-by-step instructions intended for an AI assistant. Run the linked helper scripts first so the command has the data it expects.
+
 ### Enhance Existing Comments
 
-- `library/commands/pr/enhance-comments/rewrite-comments.md` — rewrites GitHub PR feedback in a collaborative voice ready for bulk upload.
-- `library/commands/pr/enhance-comments/update-comments.md` — generates CSV mappings so improved comments can be pushed back to GitHub via the helper script.
+#### `library/commands/pr/enhance-comments/rewrite-comments.md`
+
+- **Purpose:** Rewrite existing reviewer comments so they sound collaborative while keeping the original technical request intact.
+- **Typical run:** Use `node scripts/fetch-pr-comments.js` to gather the latest review threads, then launch this command to polish each comment. If the source comment includes a markdown `AI` section, treat it as a private hint—pull guidance from it but omit the section from the rewritten response.
+- **Output:** A markdown report at `tmp/pr-[PR_NUMBER]-comments.md` ready to sanity check before sharing or exporting.
+
+#### `library/commands/pr/enhance-comments/update-comments.md`
+
+- **Purpose:** Prepare bulk updates for existing GitHub comments after you finish rewriting them.
+- **Typical run:** Execute this command once you have refined comments in the markdown output. It guides you through generating a CSV file that maps old comment IDs to the improved text so `scripts/edit-pr-comments.js` can submit updates via the GitHub API.
+- **Output:** CSV rows that the `edit-pr-comments.js` script turns into actual comment edits.
 
 ### Create New Review Comments
 
-- `library/commands/pr/create-comments/prepare-comments.md` — plans a full PR review, producing structured findings from fetched context.
-- `library/commands/pr/create-comments/send-comments.md` — converts review findings into CSV rows usable by the pending review submission script.
+#### `library/commands/pr/create-comments/prepare-comments.md`
+
+- **Purpose:** Collect PR context and outline a full review plan before you start drafting comments.
+- **Typical run:** Start by running `node scripts/fetch-pr-context.js` (and the comment fetcher if needed) so the workspace has up-to-date metadata, files, and diffs. The command then helps the assistant catalog issues, suggested fixes, and supporting references.
+- **Output:** Structured findings stored in the workspace (usually under `tmp/`) that are ready to be turned into actionable review comments.
+
+#### `library/commands/pr/create-comments/send-comments.md`
+
+- **Purpose:** Convert prepared review findings into individual comment bodies that GitHub can accept.
+- **Typical run:** Point this command at the findings produced by `prepare-comments.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
+- **Output:** A CSV file containing comment drafts plus any required metadata for bulk submission.
+
+### PR Automation Scripts
+
+The `library/commands/pr/scripts/` folder contains Node.js helpers that automate API calls the markdown commands rely on:
+
+- `fetch-pr-comments.js` retrieves review comments with options for ignoring outdated threads or filtering by reaction.
+- `fetch-pr-context.js` gathers supplemental PR metadata (files, commits, participants) so commands can reference the latest state.
+- `create-pr-review.js` submits the prepared comment CSV as a pending GitHub review.
+- `edit-pr-comments.js` updates existing review comments based on the CSV produced by the update workflow.
+
+Run these scripts with `node scripts/<script-name> [options]`. Use `--help` on any script to inspect supported flags.
 
 ## Automating Syncs
 

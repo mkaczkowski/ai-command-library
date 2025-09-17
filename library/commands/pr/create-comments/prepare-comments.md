@@ -13,8 +13,27 @@ You are a staff-level engineer and seasoned reviewer responsible for producing a
    node .claude/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
    ```
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level stats, and review the `files[].patch` entries for inline diffs.
-3. Inspect the codebase for surrounding context, leaning on project documentation (README, in-repo guides) and existing implementations that mirror the affected area.
-4. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
+3. Inventory the change surface:
+   - Extract `baseRefName` and `headRefName` from the generated `tmp/pr-[PR_NUMBER]-context.json`, then run
+     ```bash
+     BASE_REF=$(jq -r '.baseRefName' tmp/pr-[PR_NUMBER]-context.json)
+     HEAD_REF=$(jq -r '.headRefName' tmp/pr-[PR_NUMBER]-context.json)
+     git diff --name-only "${BASE_REF}...${HEAD_REF}" \
+       ':(exclude)yarn.lock' \
+       ':(exclude)package-lock.json' \
+       ':(exclude)pnpm-lock.yaml' \
+       ':(exclude)*.properties'
+     ```
+     Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
+   - Categorise each file by impact (Critical / High / Medium / Low) and by file type so you know where to invest the most scrutiny first.
+4. Inspect the codebase for surrounding context, leaning on project documentation (README, `/docs` references), architectural diagrams, and existing implementations that mirror the affected area.
+5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
+6. Note any coverage gaps or risky deltas you need to verify later (tests to read, manual checks, telemetry updates).
+
+### Coverage Edge Cases
+
+- For large or truncated patches, fall back to `git show <branch>:<path>` to review the complete file.
+- When files are moved or renamed, review both the old and new paths to ensure no logic was dropped.
 
 ## Phase 2: Review Guidelines
 
@@ -26,6 +45,22 @@ You are a staff-level engineer and seasoned reviewer responsible for producing a
 - **Security & Privacy:** data exposure, injection risks, permission checks, compliance requirements.
 - **Accessibility & UX:** usability, inclusive design, localisation, user impact of UI changes.
 - **Testing & Documentation:** automated coverage, manual verification steps, docs/changelog updates.
+
+### File Type & Priority Guide
+
+- **Components & business logic:** Validate correctness, state management patterns, and regression risk.
+- **Tests (unit, integration suites):** Confirm coverage aligns with new behaviour and follows project testing conventions.
+- **Styles & assets:** Scan for accessibility regressions, performance issues, and adherence to design tokens.
+- **Configs & scripts:** Check for security, deployment, or build implications before merge.
+- **Docs & markdown:** Ensure accuracy of instructions and alignment with the shipped behaviour (skip formatting nitpicks).
+
+### Common Failure Modes to Flag
+
+- Missing dependency lists or cleanup in React hooks and other subscription-style utilities.
+- Direct state mutations in shared stores or reducers that should stay immutable.
+- Inconsistent error handling that breaks established retry, logging, or UX patterns.
+- Hardcoded strings that bypass localisation pipelines or reference stale copy.
+- Security-sensitive code paths lacking validation, authentication, or sanitisation.
 
 ### Style & Tone
 
@@ -60,14 +95,25 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 ### [Severity: Blocker/Major/Minor] [Short title]
 
-- **Area:** `[file/path.ext:line]`
-- **Issue:** [Describe the problem, referencing behaviour expectations]
-- **Recommendation:** [Actionable fix or follow-up]
-- **Rationale:** [Why this matters; cite project patterns or requirements]
-- **Suggested Snippet (optional):**
-  ```[language]
-  // Provide only when a concrete fix makes the change clearer
-  ```
+- **Area:** `[file/path.ext#Lline]`
+
+**Issue**: [Describe the problem, referencing expected behaviour or standards]
+
+### code (optional)
+
+```[language]
+// Include only the minimum context needed to illustrate the issue
+```
+
+### suggested changes (optional)
+
+```[language]
+// Provide a concrete fix, test addition, or follow-up action
+```
+
+**Recommendation**: [Summarise the action the author should take]
+
+**Rationale**: [Explain why the change is needed; cite patterns, docs, or risk]
 
 ### [Repeat for each finding]
 
@@ -81,6 +127,12 @@ Structure the generated markdown exactly as follows (omit sections that would be
 - [List tests, QA steps, or monitoring to perform before merge]
 ````
 
+### Severity Guidance
+
+- **Blocker:** The change is unsafe to merge (security, crash, data loss) without a fix.
+- **Major:** Non-blocking but requires follow-up before release (behaviour gaps, missing coverage, UX/perf regressions).
+- **Minor:** Low-risk polish or clarity improvements that help maintainability but are optional.
+
 ## Key Reminders
 
 1. Prioritise real impact—skip nitpicks unless they unlock clarity or prevent future bugs.
@@ -88,5 +140,11 @@ Structure the generated markdown exactly as follows (omit sections that would be
 3. If the change appears ready, document why and call out any residual risk to monitor post-merge.
 4. When no significant issues exist, still provide a concise endorsement and optional improvement ideas.
 5. Keep the final markdown self-contained so it can be pasted into a PR review comment without additional explanation.
+
+## Analysis Checklist
+
+- [ ] Reviewed every changed file (excluding autogenerated artefacts) and documented skips with rationale.
+- [ ] Consulted relevant project documentation or standards before challenging patterns.
+- [ ] Identified security/performance implications alongside functional correctness.
 
 Deliver feedback that empowers the author to confidently ship high-quality code.

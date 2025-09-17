@@ -16,7 +16,7 @@ node scripts/fetch-pr-comments.js --ignore-outdated --reaction=eyes --pending --
 
 Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Review the repository README and any project documentation included alongside the code to keep recommendations accurate.
 
-## Phase 2: Rewriting Guidelines
+## Phase 2: Rewriting Guidelines``
 
 ### Tone and Style:
 
@@ -37,6 +37,12 @@ Then analyze the codebase to understand context, relevant existing patterns, and
 - ❌ Rigid sections like "Issue:", "Suggestion:", "Why:", "Next steps:"
 - ❌ Analysis summaries or meta-commentary
 - ❌ Overly formal or directive language
+- ❌ Copying any markdown section titled `AI` from the original comment into the rewritten response
+
+### AI Hint Sections
+
+- Treat any markdown heading named `AI` in the original comment as optional guidance meant for you, not the reviewer
+- Use the information in that section to refine your rewritten feedback, but omit the section itself (and its content) from the rewritten comment
 
 ### Comment Structure:
 
