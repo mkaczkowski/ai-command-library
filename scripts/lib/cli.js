@@ -1,0 +1,65 @@
+/** Parses CLI arguments for the link commands tool. */
+export function parseArgs(argv) {
+  const args = { mode: 'copy', dryRun: false };
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    const next = () => {
+      i += 1;
+      return argv[i];
+    };
+    switch (token) {
+      case '--provider':
+      case '-p': {
+        const value = next();
+        if (!value) throw new Error('Missing value after --provider');
+        args.provider = value;
+        break;
+      }
+      case '--destination':
+      case '--dest':
+      case '-d': {
+        const value = next();
+        if (!value) throw new Error('Missing value after --destination');
+        args.destination = value;
+        break;
+      }
+      case '--mode':
+      case '-m': {
+        const value = next();
+        if (!value) throw new Error('Missing value after --mode');
+        args.mode = value;
+        break;
+      }
+      case '--dry-run':
+        args.dryRun = true;
+        break;
+      case '--list-providers':
+        args.listProviders = true;
+        break;
+      case '--help':
+      case '-h':
+        args.help = true;
+        break;
+      default:
+        throw new Error(`Unknown argument: ${token}`);
+    }
+  }
+  if (!args.provider) {
+    throw new Error('Missing required option --provider <name>.');
+  }
+  return args;
+}
+
+/** Prints usage information for the link commands tool. */
+export function printHelp(logger = console) {
+  logger.log(
+    `Usage: link-ai-commands [options]\n\n` +
+      `Options:\n` +
+      `  -p, --provider <name>    Provider configuration to use (required)\n` +
+      `  -d, --destination <dir> Override destination root (relative to cwd)\n` +
+      `  -m, --mode <copy|symlink>  Transfer mode (default: copy)\n` +
+      `      --dry-run            Print planned actions without writing\n` +
+      `      --list-providers     Show bundled provider configs\n` +
+      `  -h, --help               Show this help message\n`
+  );
+}
