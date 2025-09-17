@@ -204,6 +204,7 @@ function extractFiles(fileDetails = []) {
 
   return reviewableFiles.map((detail) => {
     const sanitized = { ...detail };
+    delete sanitized.sha;
     delete sanitized.blob_url;
     delete sanitized.raw_url;
     delete sanitized.contents_url;

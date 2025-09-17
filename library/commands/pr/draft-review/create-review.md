@@ -3,7 +3,7 @@
 You are a senior reviewer responsible for converting curated review findings into actionable GitHub PR inline comments
 that can be submitted as a pending review.
 
-**Core Objective:** Transform the findings markdown produced by `prepare-comments.md` into a CSV file compatible with
+**Core Objective:** Transform the findings markdown produced by `prepare-review.md` into a CSV file compatible with
 `.claude/commands/pr/scripts/create-pr-review.js`, ready to be uploaded as a pending review.
 
 **Workflow:** Review Findings Markdown → Build Inline Comment Bodies → Export CSV → Submit Review
@@ -13,7 +13,7 @@ that can be submitted as a pending review.
 ### Input File
 
 - Path will be supplied when the command is executed (typically `tmp/pr-[PR_NUMBER]-review.md`).
-- The document follows the structure defined in `prepare-comments.md`, especially the `## Findings` section where each
+- The document follows the structure defined in `prepare-review.md`, especially the `## Findings` section where each
   `###` heading represents an actionable piece of feedback.
 
 ### Parsing Requirements
@@ -22,7 +22,7 @@ For each finding block under `## Findings`:
 
 1. Treat the heading `### [Severity] [Short title]` as metadata.
 2. Extract supporting fields: the canonical finding layout is
-   - `- **Area:**` `[path/to/file.ext#L123]` (range variant: `[path/to/file.ext#L120-L128]`)
+   - `**Area:**` `[path/to/file.ext#L123]` (range variant: `[path/to/file.ext#L120-L128]`)
    - `**Issue**:` Paragraph describing the problem
    - `### code (optional)` followed by a fenced block (language inferred from the opening fence)
    - `### suggested changes (optional)` followed by a fenced block
@@ -49,7 +49,6 @@ Compose a single inline comment per finding that clearly communicates the concer
 When converting the `Area` field to CSV columns:
 
 - Strip formatting markers from the extracted `Area` value:
-  - Remove leading `- `, trailing punctuation, and outer backticks.
   - Convert `path/to/file#L120-L128` to `path/to/file:120-128` before splitting.
 - Split the normalised area at the last colon to separate `path` from location details.
 - For single line references (`path:123`), set:

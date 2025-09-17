@@ -95,7 +95,7 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 ### [Severity: Blocker/Major/Minor] [Short title]
 
-- **Area:** `[file/path.ext#Lline]`
+**Area:** `[file/path.ext#Lline]`
 
 **Issue**: [Describe the problem, referencing expected behaviour or standards]
 

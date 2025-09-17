@@ -79,16 +79,16 @@ The library groups commands by PR workflow. Each markdown file contains step-by-
 
 ### Create New Review Comments
 
-#### `library/commands/pr/create-comments/prepare-comments.md`
+#### `library/commands/pr/draft-review/prepare-review.md`
 
 - **Purpose:** Collect PR context and outline a full review plan before you start drafting comments.
 - **Typical run:** Start by running `node scripts/fetch-pr-context.js` (and the comment fetcher if needed) so the workspace has up-to-date metadata, files, and diffs. The command then helps the assistant catalog issues, suggested fixes, and supporting references.
 - **Output:** Structured findings stored in the workspace (usually under `tmp/`) that are ready to be turned into actionable review comments.
 
-#### `library/commands/pr/create-comments/send-comments.md`
+#### `library/commands/pr/draft-review/create-review.md`
 
 - **Purpose:** Convert prepared review findings into individual comment bodies that GitHub can accept.
-- **Typical run:** Point this command at the findings produced by `prepare-comments.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
+- **Typical run:** Point this command at the findings produced by `prepare-review.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
 - **Output:** A CSV file containing comment drafts plus any required metadata for bulk submission.
 
 ### PR Automation Scripts
