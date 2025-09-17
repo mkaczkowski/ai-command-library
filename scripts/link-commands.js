@@ -163,6 +163,136 @@ async function createSymlink(source, destination, dryRun) {
   }
 }
 
+async function collectFilesRecursive(directory) {
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await collectFilesRecursive(fullPath)));
+    } else if (entry.isFile()) {
+      files.push(fullPath);
+    }
+  }
+  files.sort();
+  return files;
+}
+
+function flattenRelativePath(relativePath, delimiter = '__') {
+  const normalized = relativePath.split(path.sep).filter(Boolean);
+  return normalized.join(delimiter);
+}
+
+async function copyFileWithDirs(source, destination, dryRun) {
+  if (dryRun) {
+    console.log(`[dry-run] copy ${source} -> ${destination}`);
+    return;
+  }
+  await fs.mkdir(path.dirname(destination), { recursive: true });
+  await fs.copyFile(source, destination);
+}
+
+async function createFileSymlink(source, destination, dryRun) {
+  if (dryRun) {
+    console.log(`[dry-run] symlink ${destination} -> ${source}`);
+    return;
+  }
+  await fs.mkdir(path.dirname(destination), { recursive: true });
+  const linkType = process.platform === 'win32' ? 'file' : undefined;
+  try {
+    await fs.symlink(source, destination, linkType);
+  } catch (error) {
+    if (process.platform === 'win32') {
+      console.warn(`Symlink not supported at ${destination}, falling back to copy. (${error.message})`);
+      await copyFileWithDirs(source, destination, false);
+    } else {
+      throw error;
+    }
+  }
+}
+
+function splitSegments(input) {
+  if (!input) return [];
+  return String(input)
+    .split(/[/\\]/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+}
+
+function resolveFlattenOptions(flattenValue) {
+  const options = { delimiter: '__', excludePrefixes: [] };
+  if (!flattenValue || flattenValue === true) {
+    return options;
+  }
+  if (typeof flattenValue === 'object') {
+    if (typeof flattenValue.delimiter === 'string' && flattenValue.delimiter.length > 0) {
+      options.delimiter = flattenValue.delimiter;
+    }
+    if (Array.isArray(flattenValue.excludePrefixes)) {
+      options.excludePrefixes = flattenValue.excludePrefixes
+        .map((prefix) => splitSegments(prefix))
+        .filter((segments) => segments.length > 0);
+    }
+  }
+  return options;
+}
+
+function shouldPreservePath(relativePath, excludePrefixes) {
+  if (!excludePrefixes.length) return false;
+  const segments = splitSegments(relativePath);
+  return excludePrefixes.some((prefixSegments) => {
+    if (prefixSegments.length > segments.length) return false;
+    return prefixSegments.every((segment, index) => segments[index] === segment);
+  });
+}
+
+async function processFlattenMapping({ args, mapping, sourcePath, targetRoot }) {
+  const { delimiter, excludePrefixes } = resolveFlattenOptions(mapping.flatten);
+  const seen = new Set();
+  const files = await collectFilesRecursive(sourcePath);
+  for (const absoluteFile of files) {
+    const relativeToMappingRoot = path.relative(sourcePath, absoluteFile);
+    const relativeWithMapping = path.join(mapping.source, relativeToMappingRoot);
+    const flattenedName = flattenRelativePath(relativeWithMapping, delimiter);
+    if (!flattenedName) {
+      throw new Error(`Unable to compute flattened name for ${absoluteFile}`);
+    }
+    if (shouldPreservePath(relativeToMappingRoot, excludePrefixes)) {
+      if (!args.dryRun) {
+        await fs.mkdir(targetRoot, { recursive: true });
+      }
+      const legacyFlattenedPath = path.join(targetRoot, flattenedName);
+      await removeIfExists(legacyFlattenedPath, args.dryRun);
+
+      const destinationFile = path.join(targetRoot, relativeToMappingRoot);
+      await removeIfExists(destinationFile, args.dryRun);
+      if (args.mode === 'copy') {
+        await copyFileWithDirs(absoluteFile, destinationFile, args.dryRun);
+      } else {
+        await createFileSymlink(absoluteFile, destinationFile, args.dryRun);
+      }
+      continue;
+    }
+    if (seen.has(flattenedName)) {
+      throw new Error(`Flattened filename collision detected: ${flattenedName}`);
+    }
+
+    seen.add(flattenedName);
+
+    if (!args.dryRun) {
+      await fs.mkdir(targetRoot, { recursive: true });
+    }
+
+    const destinationFile = path.join(targetRoot, flattenedName);
+    await removeIfExists(destinationFile, args.dryRun);
+    if (args.mode === 'copy') {
+      await copyFileWithDirs(absoluteFile, destinationFile, args.dryRun);
+    } else {
+      await createFileSymlink(absoluteFile, destinationFile, args.dryRun);
+    }
+  }
+}
+
 export async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
 
@@ -194,15 +324,27 @@ export async function main(argv = process.argv.slice(2)) {
 
   console.log(`Linking commands for provider '${args.provider}' using mode '${args.mode}'.`);
   console.log(`Source root: ${sourceRoot}`);
-  console.log(`Destination root: ${destinationRoot}`);
 
   for (const mapping of providerConfig.mappings) {
     const sourcePath = path.join(sourceRoot, mapping.source);
-    const destinationPath = path.join(destinationRoot, mapping.target ?? mapping.source);
     if (!(await pathExists(sourcePath))) {
       throw new Error(`Missing source path: ${sourcePath}`);
     }
 
+    if (mapping.flatten) {
+      const flattenTargetRoot = mapping.target
+        ? path.join(destinationRoot, mapping.target)
+        : destinationRoot;
+      await processFlattenMapping({
+        args,
+        mapping,
+        sourcePath,
+        targetRoot: flattenTargetRoot,
+      });
+      continue;
+    }
+
+    const destinationPath = path.join(destinationRoot, mapping.target ?? mapping.source);
     await removeIfExists(destinationPath, args.dryRun);
 
     if (args.mode === 'copy') {

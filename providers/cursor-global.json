@@ -2,6 +2,11 @@
   "id": "cursor-global",
   "label": "Cursor IDE (Global)",
   "sourceRoot": "library/commands",
-  "defaultTargetDir": "~/.cursor/commands",
-  "mappings": [{ "source": "pr", "target": "pr" }]
+  "defaultTargetDir": "~/.cursor/prompts",
+  "mappings": [
+    {
+      "source": "pr",
+      "flatten": { "excludePrefixes": ["scripts"] }
+    }
+  ]
 }

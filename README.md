@@ -47,11 +47,13 @@ The example above populates `.claude/commands/pr` with the canonical PR workflow
 | --------------- | -------------------- | -------------------------------------------------------- |
 | `claude`        | `.claude/commands`   | Project-scoped commands for Claude Desktop / Claude Code |
 | `claude-global` | `~/.claude/commands` | Machine-wide Claude command catalogue                    |
-| `cursor`        | `.cursor/commands`   | Project-scoped commands for Cursor IDE                   |
-| `cursor-global` | `~/.cursor/commands` | Machine-wide Cursor command catalogue                    |
+| `cursor`        | `.cursor/prompts`    | Project-scoped commands for Cursor IDE (flattened files) |
+| `cursor-global` | `~/.cursor/prompts`  | Machine-wide Cursor command catalogue (flattened files)  |
 | `codex-global`  | `~/.codex/prompts`   | Machine-wide prompts for the Codex CLI                   |
 
 Run `npx link-ai-commands --list-providers` at any time to see bundled IDs and destinations.
+
+> **Cursor note:** Cursor keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/rewrite-comments.md` becomes `pr__enhance-review__rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
 
 ### Useful Flags
 
