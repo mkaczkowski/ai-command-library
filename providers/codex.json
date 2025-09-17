@@ -1,7 +1,0 @@
-{
-  "id": "codex",
-  "label": "Codex CLI",
-  "sourceRoot": "library/commands",
-  "defaultTargetDir": ".codex/commands",
-  "mappings": [{ "source": "pr", "target": "pr" }]
-}

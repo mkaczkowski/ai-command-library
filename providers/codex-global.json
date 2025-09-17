@@ -2,6 +2,6 @@
   "id": "codex-global",
   "label": "Codex CLI (Global)",
   "sourceRoot": "library/commands",
-  "defaultTargetDir": "~/.codex/commands",
-  "mappings": [{ "source": "pr", "target": "pr" }]
+  "defaultTargetDir": "~/.codex/prompts",
+  "mappings": [{ "source": "pr", "target": "." }]
 }
