@@ -14,7 +14,7 @@ export async function linkCommands({ providerId, destination, mode, dryRun, logg
   const providerConfig = await loadProviderConfig(providerId);
   const sourceRoot = COMMAND_SOURCE_ROOT;
   const destinationInput = destination ?? providerConfig.defaultTargetDir;
-  if (!destinationInput)        {
+  if (!destinationInput)           {
     throw new Error(`Provider '${providerId}' does not specify a default target directory.`);
   }
 
