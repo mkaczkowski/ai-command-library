@@ -67,7 +67,7 @@ Author `tmp/pr-[PR_NUMBER]-address-plan.md` using this layout (omit sections onl
 ## Comment [index]: [concise summary]
 
 - **GitHub URL:** [permalink]
-- **File & Lines:** [path#Lstart-Lend](path#Lstart-Lend) # formatted as a markdown link
+- **File & Lines:** [path#start-end](../path#start-end) # formatted as a relative markdown link
 
 ### Intent
 

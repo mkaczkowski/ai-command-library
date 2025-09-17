@@ -23,11 +23,11 @@ For each finding block under `## Findings`:
 1. Treat the heading `### [Severity] [Short title]` as metadata.
 2. Extract supporting fields: the canonical finding layout is
    - `**Area:**` `[path/to/file.ext#L123]` (range variant: `[path/to/file.ext#L120-L128]`)
-   - `**Issue**:` Paragraph describing the problem
-   - `### code (optional)` followed by a fenced block (language inferred from the opening fence)
-   - `### suggested changes (optional)` followed by a fenced block
-   - `**Recommendation**:` Requested action, typically a single sentence
-   - `**Rationale**:` Why the change matters; may include inline references
+   - `Issue:` Paragraph describing the problem
+   - `##### code (optional)` followed by a fenced block (language inferred from the opening fence)
+   - `##### suggested changes (optional)` followed by a fenced block
+   - `Recommendation:` Requested action, typically a single sentence
+   - `Rationale` Why the change matters; may include inline references
 3. Ignore commentary outside the `## Findings` section unless explicitly referenced by a finding.
 4. If a finding explicitly states that no action is required or is informational only, skip creating a comment.
 

@@ -99,23 +99,29 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 **Area:** `[file/path.ext#Lline]`
 
-**Issue**: [Describe the problem, referencing expected behaviour or standards]
+#### Issue
 
-### code (optional)
+[Describe the problem, referencing expected behaviour or standards]
+
+##### code (optional)
 
 ```[language]
 // Include only the minimum context needed to illustrate the issue
 ```
 
-### suggested changes (optional)
+##### suggested changes (optional)
 
 ```[language]
 // Provide a concrete fix, test addition, or follow-up action
 ```
 
-**Recommendation**: [Summarise the action the author should take]
+#### Recommendation
 
-**Rationale**: [Explain why the change is needed; cite patterns, docs, or risk]
+[Summarise the action the author should take]
+
+#### Rationale
+
+[Explain why the change is needed; cite patterns, docs, or risk]
 
 ### [Repeat for each finding]
 

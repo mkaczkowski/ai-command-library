@@ -26,27 +26,16 @@ Usage:
   node .claude/commands/pr/scripts/edit-pr-comments.js --mapping-file=comments.csv
 
 Options:
-  --mapping-file      Path to a CSV file with columns: id,original,rewritten
+  --mapping-file      Path to a CSV file with columns: id,rewritten
   --repo              Target repository in owner/repo format (auto-detected from git remote if omitted)
   --verbose           Enable detailed logging
   --help, -h          Show this message
 
 Mapping file example (CSV):
-id,original,rewritten
-"123456789","fix this","Let's keep the loading state consistent with the rest of the form.
+id,rewritten
+"123456789","Let's keep the loading state consistent with the rest of the form.
 
 Please reuse the existing helper instead of duplicating it."
-
-The updated comment will be formatted as:
-## Original Comment
-
-fix this
-
-## Enhanced Comment
-
-Let's keep the loading state consistent with the rest of the form.
-
-Please reuse the existing helper instead of duplicating it.
 `;
 
 /**
@@ -133,7 +122,7 @@ function parseCliArgs(argv) {
 }
 
 /**
- * Load comment mappings from a CSV file with columns: id, original, rewritten.
+ * Load comment mappings from a CSV file with columns: id, rewritten.
  * @param {string} filePath
  * @returns {Promise<Map<string, string>>}
  */
@@ -142,15 +131,13 @@ async function parseMappingFile(filePath) {
 
   const fieldValidators = [
     createIdFieldValidator('id'),
-    createStringFieldValidator('original'),
     createStringFieldValidator('rewritten'),
   ];
 
   const rowProcessor = (row) => {
-    const formattedBody = formatCommentBody(row.original, row.rewritten);
     return {
       ...row,
-      formattedBody,
+      formattedBody:row.rewritten,
     };
   };
 
@@ -167,22 +154,6 @@ async function parseMappingFile(filePath) {
   });
 
   return mapping;
-}
-
-/**
- * Format the comment body with original and rewritten content using markdown headings.
- * @param {string} original - Original comment text
- * @param {string} rewritten - Enhanced/rewritten comment text
- * @returns {string} Formatted comment body with markdown headings
- */
-function formatCommentBody(original, rewritten) {
-  return `## Original Comment
-
-${original}
-
-## Enhanced Comment
-
-${rewritten}`;
 }
 
 /**
