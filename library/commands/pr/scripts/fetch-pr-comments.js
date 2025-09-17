@@ -27,7 +27,7 @@ const ALLOWED_REACTION_NAMES = ALLOWED_REACTIONS.join(', ');
 const HELP_TEXT = `
 GitHub PR Comments Fetcher
 
-Fetches all comments from a specified pull request.
+Fetches review comments from a specified pull request. Each result represents the latest comment in a thread that passes your filters and includes an previousComments array with the earlier discussion.
 
 Usage: node fetch-pr-comments.js [--pr=123] [OPTIONS]
 
@@ -37,16 +37,17 @@ Optional:
   --author=jdoe            Only include comments from this author
   --output=filename        Output to file instead of stdout
   --reaction=name          Only include comments with the given reaction (${ALLOWED_REACTION_NAMES})
+  --include-diff-hunk      Include the original diff hunk captured with each comment
   --ignore-outdated        Skip outdated threads and comments
   --pending                Only include comments from pending reviews
   --verbose                Enable detailed logging
   --help                   Show this help message
 
 Examples:
-  # Fetch all comments from current PR in current repository
+  # Fetch review comments from current PR in current repository
   node fetch-pr-comments.js
 
-  # Fetch all comments from PR #123 in current repository
+  # Fetch review comments from PR #123 in current repository
   node fetch-pr-comments.js --pr=123
 
   # Fetch only comments with eyes reactions
@@ -60,6 +61,9 @@ Examples:
 
   # Save output to file
   node fetch-pr-comments.js --pr=789 --output=pr-comments.json --verbose
+  
+  # Include the original diff hunk with each comment
+  node .claude/commands/pr/scripts/fetch-pr-comments.js --pr=123 --include-diff-hunk
 `;
 
 /**
@@ -72,6 +76,7 @@ function parseCliArgs(argv) {
     ...createStandardArgHandlers(),
     '--ignore-outdated': (options) => ({ ...options, ignoreOutdated: true }),
     '--pending': (options) => ({ ...options, pending: true }),
+    '--include-diff-hunk': (options) => ({ ...options, includeDiffHunk: true }),
   };
 
   const flagHandlers = {
@@ -85,7 +90,7 @@ function parseCliArgs(argv) {
   const parsedOptions = parseArgs(argv, {
     argHandlers,
     flagHandlers,
-    booleanFlags: [...COMMON_BOOLEAN_FLAGS, '--ignore-outdated', '--pending'],
+    booleanFlags: [...COMMON_BOOLEAN_FLAGS, '--ignore-outdated', '--pending', '--include-diff-hunk'],
   });
 
   if (!parsedOptions.reaction) {
@@ -105,8 +110,10 @@ function parseCliArgs(argv) {
  * @param {number} prNumber
  * @returns {string}
  */
-function buildPRCommentsQuery(prNumber) {
+function buildPRCommentsQuery(prNumber, { includeDiffHunk = false } = {}) {
   const { THREADS, COMMENTS, REACTIONS } = PAGINATION_LIMITS;
+
+  const diffHunkField = includeDiffHunk ? '                  diffHunk\n' : '';
 
   return `
     query FetchPRComments($owner: String!, $repo: String!) {
@@ -134,6 +141,10 @@ function buildPRCommentsQuery(prNumber) {
                   line
                   startLine
                   outdated
+                  originalLine
+                  originalStartLine
+${diffHunkField}                  commit { oid }
+                  url
                   reactions(first: ${REACTIONS}) {
                     nodes {
                       content
@@ -155,10 +166,10 @@ function buildPRCommentsQuery(prNumber) {
  * @param {number} prNumber
  * @returns {Promise<Object>}
  */
-async function fetchPRComments(repoInfo, prNumber) {
+async function fetchPRComments(repoInfo, prNumber, { includeDiffHunk = false } = {}) {
   log('INFO', `Fetching PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
 
-  const query = buildPRCommentsQuery(prNumber);
+  const query = buildPRCommentsQuery(prNumber, { includeDiffHunk });
 
   try {
     const commandArgs = ['api', 'graphql', '-f', `query=${query}`];
@@ -193,13 +204,19 @@ function processPRData(pr, options = {}) {
     comments: [],
   };
 
-  let threadCount = 0;
+  let processedThreadCount = 0;
   let skippedOutdatedCount = 0;
 
   pr.reviewThreads?.nodes?.forEach((thread) => {
-    if (!thread.comments?.nodes?.length) return;
+    const comments = thread?.comments?.nodes ?? [];
+    if (!comments.length) {
+      return;
+    }
 
-    const lastComment = thread.comments.nodes[thread.comments.nodes.length - 1];
+    const lastComment = comments[comments.length - 1];
+    if (!lastComment) {
+      return;
+    }
 
     if (thread.isResolved) {
       log('DEBUG', `Skipping resolved thread with comment ${lastComment.id}`);
@@ -232,7 +249,12 @@ function processPRData(pr, options = {}) {
       }
     }
 
-    threadCount++;
+    const previousComments = comments.slice(0, -1).map((contextComment) => ({
+      body: contextComment.body,
+      author: contextComment.author?.login ?? 'Unknown',
+      path: contextComment.path,
+    }));
+
     result.comments.push({
       id: lastComment.fullDatabaseId,
       reviewId: lastComment.pullRequestReview?.fullDatabaseId,
@@ -241,13 +263,22 @@ function processPRData(pr, options = {}) {
       path: lastComment.path,
       startLineNumber: lastComment.startLine,
       endLineNumber: lastComment.line,
+      originalStartLineNumber: lastComment.originalStartLine,
+      originalEndLineNumber: lastComment.originalLine,
+      commitId: lastComment.commit?.oid ?? null,
+      diffHunk: lastComment.diffHunk ?? null,
+      url: lastComment.url ?? null,
+      previousComments,
     });
+
+    processedThreadCount++;
   });
 
-  log('INFO', `Processed last comments from ${threadCount} threads`);
+  log('INFO', `Processed last comments from ${processedThreadCount} threads`);
   if (options.ignoreOutdated && skippedOutdatedCount > 0) {
     log('INFO', `Skipped ${skippedOutdatedCount} outdated threads/comments`);
   }
+
   return result;
 }
 
@@ -288,7 +319,9 @@ async function main() {
       prNumber = await getCurrentPRNumber();
     }
 
-    const pr = await fetchPRComments(repoInfo, prNumber);
+    const pr = await fetchPRComments(repoInfo, prNumber, {
+      includeDiffHunk: Boolean(options.includeDiffHunk),
+    });
 
     const result = processPRData(pr, options);
 
