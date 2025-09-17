@@ -41,7 +41,7 @@ Each provider config specifies:
 
 Currently focused on GitHub PR workflows:
 
-- **pr/enhance-comments/** - Tools for rewriting and improving PR comments
+- **pr/enhance-review/** - Tools for rewriting and improving PR comments
 - **pr/draft-review/** - Tools for generating new PR comments
 - **pr/scripts/** - JavaScript utilities for GitHub API interactions
 

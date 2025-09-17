@@ -65,13 +65,13 @@ The library groups commands by PR workflow. Each markdown file contains step-by-
 
 ### Enhance Existing Comments
 
-#### `library/commands/pr/enhance-comments/rewrite-comments.md`
+#### `library/commands/pr/enhance-review/rewrite-comments.md`
 
 - **Purpose:** Rewrite existing reviewer comments so they sound collaborative while keeping the original technical request intact.
 - **Typical run:** Use `node scripts/fetch-pr-comments.js` to gather the latest review threads, then launch this command to polish each comment. If the source comment includes a markdown `AI` section, treat it as a private hint—pull guidance from it but omit the section from the rewritten response.
 - **Output:** A markdown report at `tmp/pr-[PR_NUMBER]-comments.md` ready to sanity check before sharing or exporting.
 
-#### `library/commands/pr/enhance-comments/update-comments.md`
+#### `library/commands/pr/enhance-review/update-review.md`
 
 - **Purpose:** Prepare bulk updates for existing GitHub comments after you finish rewriting them.
 - **Typical run:** Execute this command once you have refined comments in the markdown output. It guides you through generating a CSV file that maps old comment IDs to the improved text so `scripts/edit-pr-comments.js` can submit updates via the GitHub API.
