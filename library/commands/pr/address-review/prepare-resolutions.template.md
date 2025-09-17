@@ -9,14 +9,15 @@ You are a staff-level engineer responsible for transforming every unresolved ðŸ‘
 ## Phase 1: Collect Signals
 
 1. Fetch the comment payload that this workflow is scoped to:
-  ```bash
-  node {{script:pr/scripts/fetch-pr-comments.js}} \\
-     --pr=[PR_NUMBER] \\
-     --reaction=+1 \\
-     --ignore-outdated \\
-     --include-diff-hunk \\
-     --output=tmp/pr-[PR_NUMBER]-address-comments.json
-   ```
+
+```bash
+node {{script:pr/scripts/fetch-pr-comments.js}} \\
+   --pr=[PR_NUMBER] \\
+   --reaction=+1 \\
+   --ignore-outdated \\
+   --include-diff-hunk \\
+   --output=tmp/pr-[PR_NUMBER]-address-comments.json
+```
 
 ````
 - The JSON includes branch names, comment metadata, file paths, line numbers, `diffHunk`, permalinks, and an `previousComments` array containing the earlier conversation in each thread. Reload it if new reactions appear.

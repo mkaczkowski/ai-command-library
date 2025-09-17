@@ -9,9 +9,11 @@ You are a staff-level engineer and seasoned reviewer responsible for producing a
 ## Phase 1: Gather Context
 
 1. Collect the latest PR metadata, file stats, and per-file patches:
+
 ```bash
 node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
 ```
+
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level stats, and review the `files[].patch` entries for inline diffs.
 3. Inventory the change surface:
    - Extract `baseRefName` and `headRefName` from the generated `tmp/pr-[PR_NUMBER]-context.json`, then run
