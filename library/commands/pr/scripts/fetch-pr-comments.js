@@ -8,9 +8,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { log } from './utils/logger.js';
-import { ensureGhCli, runGhJson } from './utils/process.js';
-import { getCurrentPRNumber, resolveRepository } from './utils/repository.js';
+import {log} from './utils/logger.js';
+import {ensureGhCli, runGhJson} from './utils/process.js';
+import {getCurrentPRNumber, resolveRepository} from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -19,8 +19,8 @@ import {
   showHelp,
   validateArgs,
 } from './utils/cli.js';
-import { COMMON_BOOLEAN_FLAGS, PAGINATION_LIMITS } from './utils/config.js';
-import { ALLOWED_REACTIONS, mapReactionNameToContent, normalizeReactionName } from './utils/reactions.js';
+import {COMMON_BOOLEAN_FLAGS, PAGINATION_LIMITS} from './utils/config.js';
+import {ALLOWED_REACTIONS, mapReactionNameToContent, normalizeReactionName} from './utils/reactions.js';
 
 const ALLOWED_REACTION_NAMES = ALLOWED_REACTIONS.join(', ');
 
@@ -72,37 +72,37 @@ Examples:
  * @returns {Object}
  */
 function parseCliArgs(argv) {
-  const argHandlers = {
-    ...createStandardArgHandlers(),
-    '--ignore-outdated': (options) => ({ ...options, ignoreOutdated: true }),
-    '--pending': (options) => ({ ...options, pending: true }),
-    '--include-diff-hunk': (options) => ({ ...options, includeDiffHunk: true }),
-  };
+    const argHandlers = {
+        ...createStandardArgHandlers(),
+        '--ignore-outdated': (options) => ({...options, ignoreOutdated: true}),
+        '--pending': (options) => ({...options, pending: true}),
+        '--include-diff-hunk': (options) => ({...options, includeDiffHunk: true}),
+    };
 
-  const flagHandlers = {
-    '--repo': createFlagHandler('repo'),
-    '--author': createFlagHandler('author'),
-    '--pr': createFlagHandler('pr', (value) => parseInt(value.trim())),
-    '--output': createFlagHandler('output'),
-    '--reaction': createFlagHandler('reaction', normalizeReactionName),
-  };
+    const flagHandlers = {
+        '--repo': createFlagHandler('repo'),
+        '--author': createFlagHandler('author'),
+        '--pr': createFlagHandler('pr', (value) => parseInt(value.trim())),
+        '--output': createFlagHandler('output'),
+        '--reaction': createFlagHandler('reaction', normalizeReactionName),
+    };
 
-  const parsedOptions = parseArgs(argv, {
-    argHandlers,
-    flagHandlers,
-    booleanFlags: [...COMMON_BOOLEAN_FLAGS, '--ignore-outdated', '--pending', '--include-diff-hunk'],
-  });
+    const parsedOptions = parseArgs(argv, {
+        argHandlers,
+        flagHandlers,
+        booleanFlags: [...COMMON_BOOLEAN_FLAGS, '--ignore-outdated', '--pending', '--include-diff-hunk'],
+    });
 
-  if (!parsedOptions.reaction) {
-    return parsedOptions;
-  }
+    if (!parsedOptions.reaction) {
+        return parsedOptions;
+    }
 
-  const reactionContent = mapReactionNameToContent(parsedOptions.reaction);
+    const reactionContent = mapReactionNameToContent(parsedOptions.reaction);
 
-  return {
-    ...parsedOptions,
-    reactionContent,
-  };
+    return {
+        ...parsedOptions,
+        reactionContent,
+    };
 }
 
 /**
@@ -110,12 +110,12 @@ function parseCliArgs(argv) {
  * @param {number} prNumber
  * @returns {string}
  */
-function buildPRCommentsQuery(prNumber, { includeDiffHunk = false } = {}) {
-  const { THREADS, COMMENTS, REACTIONS } = PAGINATION_LIMITS;
+function buildPRCommentsQuery(prNumber, {includeDiffHunk = false} = {}) {
+    const {THREADS, COMMENTS, REACTIONS} = PAGINATION_LIMITS;
 
-  const diffHunkField = includeDiffHunk ? '                  diffHunk\n' : '';
+    const diffHunkField = includeDiffHunk ? '                  diffHunk\n' : '';
 
-  return `
+    return `
     query FetchPRComments($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
         pullRequest(number: ${prNumber}) {
@@ -166,29 +166,29 @@ ${diffHunkField}                  commit { oid }
  * @param {number} prNumber
  * @returns {Promise<Object>}
  */
-async function fetchPRComments(repoInfo, prNumber, { includeDiffHunk = false } = {}) {
-  log('INFO', `Fetching PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
+async function fetchPRComments(repoInfo, prNumber, {includeDiffHunk = false} = {}) {
+    log('INFO', `Fetching PR #${prNumber} from ${repoInfo.owner}/${repoInfo.repo}...`);
 
-  const query = buildPRCommentsQuery(prNumber, { includeDiffHunk });
+    const query = buildPRCommentsQuery(prNumber, {includeDiffHunk});
 
-  try {
-    const commandArgs = ['api', 'graphql', '-f', `query=${query}`];
-    commandArgs.push('-F', `owner=${repoInfo.owner}`);
-    commandArgs.push('-F', `repo=${repoInfo.repo}`);
+    try {
+        const commandArgs = ['api', 'graphql', '-f', `query=${query}`];
+        commandArgs.push('-F', `owner=${repoInfo.owner}`);
+        commandArgs.push('-F', `repo=${repoInfo.repo}`);
 
-    const response = await runGhJson(commandArgs, { host: repoInfo.host });
+        const response = await runGhJson(commandArgs, {host: repoInfo.host});
 
-    const pr = response.data.repository.pullRequest;
-    if (!pr) {
-      throw new Error(`PR #${prNumber} not found`);
+        const pr = response.data.repository.pullRequest;
+        if (!pr) {
+            throw new Error(`PR #${prNumber} not found`);
+        }
+
+        log('INFO', `Found PR #${prNumber}`);
+        return pr;
+    } catch (error) {
+        log('ERROR', `Failed to fetch PR: ${error.message}`);
+        throw error;
     }
-
-    log('INFO', `Found PR #${prNumber}`);
-    return pr;
-  } catch (error) {
-    log('ERROR', `Failed to fetch PR: ${error.message}`);
-    throw error;
-  }
 }
 
 /**
@@ -198,88 +198,88 @@ async function fetchPRComments(repoInfo, prNumber, { includeDiffHunk = false } =
  * @returns {Object} Processed PR data with filtered comments
  */
 function processPRData(pr, options = {}) {
-  const result = {
-    targetBranch: pr.baseRefName,
-    sourceBranch: pr.headRefName,
-    comments: [],
-  };
+    const result = {
+        targetBranch: pr.baseRefName,
+        sourceBranch: pr.headRefName,
+        comments: [],
+    };
 
-  let processedThreadCount = 0;
-  let skippedOutdatedCount = 0;
+    let processedThreadCount = 0;
+    let skippedOutdatedCount = 0;
 
-  pr.reviewThreads?.nodes?.forEach((thread) => {
-    const comments = thread?.comments?.nodes ?? [];
-    if (!comments.length) {
-      return;
-    }
+    pr.reviewThreads?.nodes?.forEach((thread) => {
+        const comments = thread?.comments?.nodes ?? [];
+        if (!comments.length) {
+            return;
+        }
 
-    const lastComment = comments[comments.length - 1];
-    if (!lastComment) {
-      return;
-    }
+        const lastComment = comments[comments.length - 1];
+        if (!lastComment) {
+            return;
+        }
 
-    if (thread.isResolved) {
-      log('DEBUG', `Skipping resolved thread with comment ${lastComment.id}`);
-      return;
-    }
+        if (thread.isResolved) {
+            log('DEBUG', `Skipping resolved thread with comment ${lastComment.id}`);
+            return;
+        }
 
-    if (options.pending && lastComment.pullRequestReview?.state !== 'PENDING') {
-      log('DEBUG', `Skipping last comment ${lastComment.id} not in pending review`);
-      return;
-    }
+        if (options.pending && lastComment.pullRequestReview?.state !== 'PENDING') {
+            log('DEBUG', `Skipping last comment ${lastComment.id} not in pending review`);
+            return;
+        }
 
-    if (options.author && lastComment.author?.login !== options.author) {
-      log('DEBUG', `Skipping last comment ${lastComment.id} from different author ${lastComment.author?.login}`);
-      return;
-    }
+        if (options.author && lastComment.author?.login !== options.author) {
+            log('DEBUG', `Skipping last comment ${lastComment.id} from different author ${lastComment.author?.login}`);
+            return;
+        }
 
-    if (options.ignoreOutdated && (thread.isOutdated || lastComment.outdated)) {
-      log('DEBUG', `Skipping outdated thread/comment ${lastComment.id}`);
-      skippedOutdatedCount++;
-      return;
-    }
+        if (options.ignoreOutdated && (thread.isOutdated || lastComment.outdated)) {
+            log('DEBUG', `Skipping outdated thread/comment ${lastComment.id}`);
+            skippedOutdatedCount++;
+            return;
+        }
 
-    if (options.reactionContent) {
-      const hasReaction = lastComment.reactions?.nodes?.some(
-        (reaction) => reaction.content === options.reactionContent
-      );
-      if (!hasReaction) {
-        log('DEBUG', `Skipping last comment ${lastComment.id} without ${options.reaction} reaction`);
-        return;
-      }
-    }
+        if (options.reactionContent) {
+            const hasReaction = lastComment.reactions?.nodes?.some(
+                (reaction) => reaction.content === options.reactionContent
+            );
+            if (!hasReaction) {
+                log('DEBUG', `Skipping last comment ${lastComment.id} without ${options.reaction} reaction`);
+                return;
+            }
+        }
 
-    const previousComments = comments.slice(0, -1).map((contextComment) => ({
-      body: contextComment.body,
-      author: contextComment.author?.login ?? 'Unknown',
-      path: contextComment.path,
-    }));
+        const previousComments = comments.slice(0, -1).map((contextComment) => ({
+            body: contextComment.body,
+            author: contextComment.author?.login ?? 'Unknown',
+            path: contextComment.path,
+        }));
 
-    result.comments.push({
-      id: lastComment.fullDatabaseId,
-      reviewId: lastComment.pullRequestReview?.fullDatabaseId,
-      body: lastComment.body,
-      author: lastComment.author?.login ?? 'Unknown',
-      path: lastComment.path,
-      startLineNumber: lastComment.startLine,
-      endLineNumber: lastComment.line,
-      originalStartLineNumber: lastComment.originalStartLine,
-      originalEndLineNumber: lastComment.originalLine,
-      commitId: lastComment.commit?.oid ?? null,
-      diffHunk: lastComment.diffHunk ?? null,
-      url: lastComment.url ?? null,
-      previousComments,
+        result.comments.push({
+            id: lastComment.fullDatabaseId,
+            reviewId: lastComment.pullRequestReview?.fullDatabaseId,
+            body: lastComment.body,
+            author: lastComment.author?.login ?? 'Unknown',
+            path: lastComment.path,
+            startLineNumber: lastComment.startLine,
+            endLineNumber: lastComment.line,
+            originalStartLineNumber: lastComment.originalStartLine,
+            originalEndLineNumber: lastComment.originalLine,
+            commitId: lastComment.commit?.oid ?? null,
+            diffHunk: lastComment.diffHunk ?? null,
+            url: lastComment.url ?? null,
+            previousComments,
+        });
+
+        processedThreadCount++;
     });
 
-    processedThreadCount++;
-  });
+    log('INFO', `Processed last comments from ${processedThreadCount} threads`);
+    if (options.ignoreOutdated && skippedOutdatedCount > 0) {
+        log('INFO', `Skipped ${skippedOutdatedCount} outdated threads/comments`);
+    }
 
-  log('INFO', `Processed last comments from ${processedThreadCount} threads`);
-  if (options.ignoreOutdated && skippedOutdatedCount > 0) {
-    log('INFO', `Skipped ${skippedOutdatedCount} outdated threads/comments`);
-  }
-
-  return result;
+    return result;
 }
 
 /**
@@ -287,58 +287,58 @@ function processPRData(pr, options = {}) {
  * @returns {Promise<void>}
  */
 async function main() {
-  try {
-    log('INFO', 'GitHub PR Comments Fetcher starting...');
+    try {
+        log('INFO', 'GitHub PR Comments Fetcher starting...');
 
-    const options = parseCliArgs(process.argv.slice(2));
+        const options = parseCliArgs(process.argv.slice(2));
 
-    if (options.help) {
-      showHelp(HELP_TEXT);
-      return;
+        if (options.help) {
+            showHelp(HELP_TEXT);
+            return;
+        }
+
+        const standardValidations = createStandardValidations();
+        const validations = [
+            standardValidations.prNumber,
+            standardValidations.repository,
+            standardValidations.outputFile,
+            standardValidations.reaction,
+        ];
+
+        validateArgs(options, validations);
+
+        await ensureGhCli();
+
+        const repoInfo = await resolveRepository(options.repo);
+        const hostInfo = repoInfo.host && repoInfo.host !== 'github.com' ? ` (${repoInfo.host})` : '';
+        log('INFO', `Target repository: ${repoInfo.owner}/${repoInfo.repo}${hostInfo}`);
+
+        let prNumber = options.pr;
+        if (!prNumber) {
+            log('INFO', 'Auto-detecting current PR number...');
+            prNumber = await getCurrentPRNumber();
+        }
+
+        const pr = await fetchPRComments(repoInfo, prNumber, {
+            includeDiffHunk: Boolean(options.includeDiffHunk),
+        });
+
+        const result = processPRData(pr, options);
+
+        const output = JSON.stringify(result, null, 2);
+
+        if (options.output) {
+            const outputPath = path.resolve(options.output);
+            fs.writeFileSync(outputPath, output, 'utf8');
+            log('INFO', `Results written to ${outputPath}`);
+            log('INFO', `Found ${result.comments.length} comments in PR #${prNumber}`);
+        } else {
+            console.log(output);
+        }
+    } catch (error) {
+        log('ERROR', `Failed to fetch PR comments: ${error.message}`);
+        process.exit(1);
     }
-
-    const standardValidations = createStandardValidations();
-    const validations = [
-      standardValidations.prNumber,
-      standardValidations.repository,
-      standardValidations.outputFile,
-      standardValidations.reaction,
-    ];
-
-    validateArgs(options, validations);
-
-    await ensureGhCli();
-
-    const repoInfo = await resolveRepository(options.repo);
-    const hostInfo = repoInfo.host && repoInfo.host !== 'github.com' ? ` (${repoInfo.host})` : '';
-    log('INFO', `Target repository: ${repoInfo.owner}/${repoInfo.repo}${hostInfo}`);
-
-    let prNumber = options.pr;
-    if (!prNumber) {
-      log('INFO', 'Auto-detecting current PR number...');
-      prNumber = await getCurrentPRNumber();
-    }
-
-    const pr = await fetchPRComments(repoInfo, prNumber, {
-      includeDiffHunk: Boolean(options.includeDiffHunk),
-    });
-
-    const result = processPRData(pr, options);
-
-    const output = JSON.stringify(result, null, 2);
-
-    if (options.output) {
-      const outputPath = path.resolve(options.output);
-      fs.writeFileSync(outputPath, output, 'utf8');
-      log('INFO', `Results written to ${outputPath}`);
-      log('INFO', `Found ${result.comments.length} comments in PR #${prNumber}`);
-    } else {
-      console.log(output);
-    }
-  } catch (error) {
-    log('ERROR', `Failed to fetch PR comments: ${error.message}`);
-    process.exit(1);
-  }
 }
 
 main();

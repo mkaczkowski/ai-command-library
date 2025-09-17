@@ -1,12 +1,12 @@
 const REACTION_CONTENT_MAP = Object.freeze({
-  '+1': 'THUMBS_UP',
-  '-1': 'THUMBS_DOWN',
-  laugh: 'LAUGH',
-  hooray: 'HOORAY',
-  confused: 'CONFUSED',
-  heart: 'HEART',
-  rocket: 'ROCKET',
-  eyes: 'EYES',
+    '+1': 'THUMBS_UP',
+    '-1': 'THUMBS_DOWN',
+    laugh: 'LAUGH',
+    hooray: 'HOORAY',
+    confused: 'CONFUSED',
+    heart: 'HEART',
+    rocket: 'ROCKET',
+    eyes: 'EYES',
 });
 
 const ALLOWED_REACTIONS = Object.freeze(Object.keys(REACTION_CONTENT_MAP));
@@ -17,11 +17,11 @@ const ALLOWED_REACTIONS = Object.freeze(Object.keys(REACTION_CONTENT_MAP));
  * @returns {string}
  */
 function normalizeReactionName(value) {
-  if (typeof value !== 'string') {
-    return '';
-  }
+    if (typeof value !== 'string') {
+        return '';
+    }
 
-  return value.trim().toLowerCase();
+    return value.trim().toLowerCase();
 }
 
 /**
@@ -30,7 +30,7 @@ function normalizeReactionName(value) {
  * @returns {string|undefined}
  */
 function mapReactionNameToContent(reactionName) {
-  return REACTION_CONTENT_MAP[reactionName];
+    return REACTION_CONTENT_MAP[reactionName];
 }
 
 /**
@@ -39,11 +39,11 @@ function mapReactionNameToContent(reactionName) {
  * @returns {boolean}
  */
 function isSupportedReaction(reaction) {
-  if (!reaction) {
-    return false;
-  }
+    if (!reaction) {
+        return false;
+    }
 
-  return Object.prototype.hasOwnProperty.call(REACTION_CONTENT_MAP, reaction);
+    return Object.prototype.hasOwnProperty.call(REACTION_CONTENT_MAP, reaction);
 }
 
-export { ALLOWED_REACTIONS, isSupportedReaction, mapReactionNameToContent, normalizeReactionName };
+export {ALLOWED_REACTIONS, isSupportedReaction, mapReactionNameToContent, normalizeReactionName};
