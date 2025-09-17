@@ -23,7 +23,9 @@ Work through the plan sequentially unless dependencies require a different order
    git add <files>
    git commit -m "Address PR comment <comment-id>: <concise summary>"
    ```
-   - Create one commit per comment (or per logical cross-cutting change when explicitly documented in the plan).
+
+   - Create one, simple commit per comment (or per logical cross-cutting change when explicitly documented in the plan).\
+   - Follow conventional commit style for the subject line.
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
 5. **Record Results:** Immediately log the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report.
@@ -37,13 +39,13 @@ Work through the plan sequentially unless dependencies require a different order
 
 1. Ensure the working tree is clean (`git status`).
 2. Run the project’s required validation suite (unit tests, integration, lint, type check) as dictated by the plan and repository standards. Document commands and outcomes.
-4. Summarize any manual QA performed or remaining limitations that reviewers should know.
+3. Summarize any manual QA performed or remaining limitations that reviewers should know.
 
 ## Phase 4: Author the Resolution Report
 
 Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep entries chronological with your commits. Use the PR URL in `tmp/pr-[PR_NUMBER]-address-comments.json` (or `prUrl` from the fetch output) to build full commit permalinks in the form `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>`.
 
-````markdown
+```markdown
 # PR Comment Resolution Report
 
 **Generated:** [current date]
@@ -80,8 +82,9 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 - [Any unresolved issues, TODOs, or items needing reviewer attention]
 
 ## Next Steps for Reviewers
+
 2. [Specific areas to focus on during review]
-````
+```
 
 ### Final Checklist
 
