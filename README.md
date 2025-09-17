@@ -47,13 +47,13 @@ The example above populates `.claude/commands/pr` with the canonical PR workflow
 | --------------- | -------------------- | -------------------------------------------------------- |
 | `claude`        | `.claude/commands`   | Project-scoped commands for Claude Desktop / Claude Code |
 | `claude-global` | `~/.claude/commands` | Machine-wide Claude command catalogue                    |
-| `cursor`        | `.cursor/prompts`    | Project-scoped commands for Cursor IDE (flattened files) |
-| `cursor-global` | `~/.cursor/prompts`  | Machine-wide Cursor command catalogue (flattened files)  |
-| `codex-global`  | `~/.codex/prompts`   | Machine-wide prompts for the Codex CLI                   |
+| `cursor`        | `.cursor/commands`   | Project-scoped commands for Cursor IDE                   |
+| `cursor-global` | `~/.cursor/commands` | Machine-wide Cursor command catalogue                    |
+| `codex-global`  | `~/.codex/prompts`   | Machine-wide Codex prompt catalogue (flattened files)    |
 
 Run `npx link-ai-commands --list-providers` at any time to see bundled IDs and destinations.
 
-> **Cursor note:** Cursor keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/rewrite-comments.md` becomes `pr__enhance-review__rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
+> **Codex note:** Codex keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/rewrite-comments.md` becomes `pr__enhance-review__rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
 
 ### Script References
 
@@ -65,12 +65,12 @@ example:
 node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 ```
 
-Links to `.claude/commands/pr/scripts/fetch-pr-comments.js` for Claude, `.cursor/prompts/scripts/fetch-pr-comments.js`
+Links to `.claude/commands/pr/scripts/fetch-pr-comments.js` for Claude, `.cursor/commands/pr/scripts/fetch-pr-comments.js`
 for Cursor, and `~/.codex/prompts/pr/scripts/fetch-pr-comments.js` when syncing the Codex catalogue.
 
 - Use `{{path:commandsRoot}}` whenever instructions refer to the location of synced prompts. The linker resolves it to
-  `.claude/commands` for project-scoped Claude commands, `~/.claude/commands` for global installs, `.cursor/prompts`
-  for Cursor projects, and so on.
+  `.claude/commands` for project-scoped Claude commands, `~/.claude/commands` for global installs, `.cursor/commands`
+  for Cursor projects, and `~/.codex/prompts` for the Codex CLI catalogue.
 
 ### Useful Flags
 

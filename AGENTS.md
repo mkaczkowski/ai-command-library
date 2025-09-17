@@ -8,7 +8,8 @@ This file provides guidance when working with code in this repository.
 
 - `npm run lint` - Runs ESLint across the JavaScript sources
 - `npx link-ai-commands --provider claude` - Links AI commands to `.claude/commands`
-- `npx link-ai-commands --provider cursor` - Links flattened commands to `.cursor/prompts`
+- `npx link-ai-commands --provider cursor` - Links AI commands to `.cursor/commands`
+- `npx link-ai-commands --provider codex-global` - Links flattened commands to `~/.codex/prompts`
 - `npx link-ai-commands --help` - Show CLI usage and options
 - `npx link-ai-commands --list-providers` - Show available provider configurations
 

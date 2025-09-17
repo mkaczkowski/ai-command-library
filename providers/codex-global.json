@@ -1,10 +1,10 @@
 {
   "id": "codex-global",
   "label": "Codex CLI (Global)",
-  "sourceRoot": "library/commands",
   "defaultTargetDir": "~/.codex/prompts",
-  "mappings": [{ "source": "pr", "target": "pr" }],
-  "displayPaths": {
-    "commandsRoot": "~/.codex/prompts"
+  "flatten": {
+    "excludePrefixes": [
+      "scripts"
+    ]
   }
 }
