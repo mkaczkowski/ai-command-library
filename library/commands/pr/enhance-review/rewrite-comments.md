@@ -16,7 +16,7 @@ node .claude/commands/pr/scripts/fetch-pr-comments.js --ignore-outdated --reacti
 
 Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Review the repository README and any project documentation included alongside the code to keep recommendations accurate.
 
-## Phase 2: Rewriting Guidelines``
+## Phase 2: Enhancing Guidelines
 
 ### Tone and Style:
 
