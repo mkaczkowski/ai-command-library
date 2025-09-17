@@ -3,5 +3,5 @@
   "label": "Codex CLI (Global)",
   "sourceRoot": "library/commands",
   "defaultTargetDir": "~/.codex/prompts",
-  "mappings": [{ "source": "pr", "target": "." }]
+  "mappings": [{ "source": "pr", "target": "pr" }]
 }

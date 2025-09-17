@@ -46,4 +46,4 @@ node .claude/commands/pr/scripts/edit-pr-comments.js --mapping-file=tmp/pr-[PR_N
 
 To use this prompt:
 
-- Execute `update-comments.md` with the path to the markdown file containing the enhanced comments.
+- Execute `update-review.md` with the path to the markdown file containing the enhanced comments.
