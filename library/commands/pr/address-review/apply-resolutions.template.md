@@ -22,10 +22,10 @@ Work through the plan sequentially unless dependencies require a different order
 
    ```bash
    git add <files>
-   git commit -m "Address PR comment <comment-id>: <concise summary>"
+   git commit -m "Address PR comment <comment-id>: <title>"
    ```
 
-   - Create one, simple commit per comment (or per logical cross-cutting change when explicitly documented in the plan).\
+   - Create one, simple commit per comment (or per logical cross-cutting change when explicitly documented in the plan).
    - Follow conventional commit style for the subject line.
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
