@@ -3,12 +3,11 @@ import { combineDisplayPath } from './path-utils.js';
 const SCRIPT_PLACEHOLDER_PATTERN = /\{\{\s*script:([^}]+)\s*\}\}/g;
 const PATH_PLACEHOLDER_PATTERN = /\{\{\s*path:([^}]+)\s*\}\}/g;
 
-export function replaceMarkdownPlaceholders(content, {
-  resolveScriptPath,
-  destinationDisplay,
-  commandsRootDisplay,
-  providerId,
-}) {
+/** Replaces markdown placeholders with provider-aware values. */
+export function replaceMarkdownPlaceholders(
+  content,
+  { resolveScriptPath, destinationDisplay, commandsRootDisplay, providerId }
+) {
   let hasDynamicContent = false;
 
   let replaced = content.replace(SCRIPT_PLACEHOLDER_PATTERN, (_, rawPath) => {

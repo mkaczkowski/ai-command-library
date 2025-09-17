@@ -1,6 +1,7 @@
 import os from 'os';
 import path from 'path';
 
+/** Expands a path that may reference the current user's home directory. */
 export function expandHomeDir(targetPath) {
   if (!targetPath) return targetPath;
   if (targetPath === '~') return os.homedir();
@@ -11,6 +12,7 @@ export function expandHomeDir(targetPath) {
   return targetPath;
 }
 
+/** Splits a path into trimmed, non-empty segments. */
 export function splitSegments(input) {
   if (!input) return [];
   return String(input)
@@ -19,11 +21,13 @@ export function splitSegments(input) {
     .filter(Boolean);
 }
 
+/** Flattens path segments into a single delimiter-joined string. */
 export function flattenRelativePath(relativePath, delimiter = '__') {
   const normalized = splitSegments(relativePath);
   return normalized.join(delimiter);
 }
 
+/** Replaces .template.md suffixes with .md for destination paths. */
 export function stripTemplateExtension(relativePath) {
   if (relativePath.endsWith('.template.md')) {
     return `${relativePath.slice(0, -'.template.md'.length)}.md`;
@@ -31,6 +35,7 @@ export function stripTemplateExtension(relativePath) {
   return relativePath;
 }
 
+/** Normalizes flatten mapping options into a usable structure. */
 export function resolveFlattenOptions(flattenValue) {
   const options = { delimiter: '__', excludePrefixes: [] };
   if (!flattenValue || flattenValue === true) {
@@ -49,6 +54,7 @@ export function resolveFlattenOptions(flattenValue) {
   return options;
 }
 
+/** Checks whether a path should retain its directory structure. */
 export function shouldPreservePath(relativePath, excludePrefixes) {
   if (!excludePrefixes.length) return false;
   const segments = splitSegments(relativePath);
@@ -58,6 +64,7 @@ export function shouldPreservePath(relativePath, excludePrefixes) {
   });
 }
 
+/** Combines a destination display root with a relative path. */
 export function combineDisplayPath(destinationDisplay, relativePath) {
   const normalizedRoot = destinationDisplay ? destinationDisplay.replace(/\\/g, '/') : '';
   const normalizedRelative = relativePath ? relativePath.replace(/\\/g, '/') : '';

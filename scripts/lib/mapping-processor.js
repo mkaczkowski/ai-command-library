@@ -1,21 +1,22 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 import {
-  splitSegments,
   flattenRelativePath,
-  stripTemplateExtension,
   resolveFlattenOptions,
   shouldPreservePath,
+  splitSegments,
+  stripTemplateExtension,
 } from './path-utils.js';
 import {
   collectFilesRecursive,
-  removeIfExists,
   copyFileWithDirs,
   createFileSymlink,
+  removeIfExists,
   writeFileWithDirs,
 } from './fs-utils.js';
 import { replaceMarkdownPlaceholders } from './placeholders.js';
 
+/** Processes provider mappings and transfers files to the destination. */
 export async function processMappings({
   mappings,
   providerConfig,
@@ -72,6 +73,7 @@ export async function processMappings({
   }
 }
 
+/** Handles a mapping that preserves directory structure. */
 async function processStandardMapping({
   mapping,
   providerConfig,
@@ -109,6 +111,7 @@ async function processStandardMapping({
   }
 }
 
+/** Handles a mapping that flattens directory structure. */
 async function processFlattenMapping({
   mapping,
   providerConfig,
@@ -182,6 +185,7 @@ async function processFlattenMapping({
   }
 }
 
+/** Transfers an individual file according to mode and placeholders. */
 async function transferFile({
   providerConfig,
   sourceFile,
@@ -227,6 +231,7 @@ async function transferFile({
   await createFileSymlink(sourceFile, destinationFile, { dryRun, logger });
 }
 
+/** Builds a resolver that maps source script paths to destination paths. */
 function createDestinationResolver(providerConfig) {
   const providerId = providerConfig.id ?? 'unknown';
   const mappings = providerConfig.mappings ?? [];
@@ -250,15 +255,11 @@ function createDestinationResolver(providerConfig) {
           return stripTemplateExtension(combined);
         }
         const flattenInput = remainder ? `${mappingSource}/${remainder}` : mappingSource;
-        const flattenedName = stripTemplateExtension(
-          flattenRelativePath(flattenInput, options.delimiter)
-        );
+        const flattenedName = stripTemplateExtension(flattenRelativePath(flattenInput, options.delimiter));
         const targetBase = mapping.target ? splitSegments(mapping.target).join('/') : '';
         return targetBase ? `${targetBase}/${flattenedName}` : flattenedName;
       }
     }
-    throw new Error(
-      `Unable to resolve script placeholder '${relativePath}' for provider '${overrideProviderId}'.`
-    );
+    throw new Error(`Unable to resolve script placeholder '${relativePath}' for provider '${overrideProviderId}'.`);
   };
 }

@@ -1,17 +1,11 @@
 import path from 'path';
 import { COMMAND_SOURCE_ROOT } from './paths.js';
 import { expandHomeDir } from './path-utils.js';
-import { loadProviderConfig, buildDefaultMappings } from './providers.js';
+import { buildDefaultMappings, loadProviderConfig } from './providers.js';
 import { processMappings } from './mapping-processor.js';
 
 /** Orchestrates linking commands for a given provider. */
-export async function linkCommands({
-  providerId,
-  destination,
-  mode,
-  dryRun,
-  logger = console,
-}) {
+export async function linkCommands({ providerId, destination, mode, dryRun, logger = console }) {
   const supportedModes = new Set(['copy', 'symlink']);
   if (!supportedModes.has(mode)) {
     throw new Error(`Unsupported mode '${mode}'. Use copy or symlink.`);

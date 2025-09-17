@@ -2,11 +2,13 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { PROVIDERS_ROOT } from './paths.js';
 
+/** Reads a JSON file and returns the parsed object. */
 async function readJSON(filePath) {
   const raw = await fs.readFile(filePath, 'utf8');
   return JSON.parse(raw);
 }
 
+/** Clones provider-level flatten configuration to avoid mutation. */
 function cloneFlattenConfig(flattenValue) {
   if (!flattenValue || flattenValue === true) return flattenValue;
   if (typeof flattenValue !== 'object') return flattenValue;
@@ -20,6 +22,7 @@ function cloneFlattenConfig(flattenValue) {
   return clone;
 }
 
+/** Lists available provider configurations to stdout. */
 export async function listProviders(logger = console) {
   const entries = await fs.readdir(PROVIDERS_ROOT);
   const providers = [];
@@ -39,6 +42,7 @@ export async function listProviders(logger = console) {
   }
 }
 
+/** Loads a provider configuration by identifier. */
 export async function loadProviderConfig(providerId) {
   const configPath = path.join(PROVIDERS_ROOT, `${providerId}.json`);
   try {
@@ -49,6 +53,7 @@ export async function loadProviderConfig(providerId) {
   return readJSON(configPath);
 }
 
+/** Generates default mappings when none are defined in config. */
 export async function buildDefaultMappings(sourceRoot, providerConfig) {
   const entries = await fs.readdir(sourceRoot, { withFileTypes: true });
   const flattenConfig = providerConfig?.flatten;
