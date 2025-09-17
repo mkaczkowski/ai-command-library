@@ -39,7 +39,7 @@ This would improve the overall code readability and maintain consistent document
 Once the CSV is generated, run the script:
 
 ```bash
-node .claude/commands/pr/scripts/edit-pr-comments.js --mapping-file=tmp/pr-[PR_NUMBER]-comments.csv
+node {{script:pr/scripts/edit-pr-comments.js}} --mapping-file=tmp/pr-[PR_NUMBER]-comments.csv
 ```
 
 ## Usage

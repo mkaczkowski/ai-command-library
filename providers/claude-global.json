@@ -3,5 +3,8 @@
   "label": "Claude Desktop / Claude Code (Global)",
   "sourceRoot": "library/commands",
   "defaultTargetDir": "~/.claude/commands",
-  "mappings": [{ "source": "pr", "target": "pr" }]
+  "mappings": [{ "source": "pr", "target": "pr" }],
+  "displayPaths": {
+    "commandsRoot": "~/.claude/commands"
+  }
 }

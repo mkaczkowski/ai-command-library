@@ -11,7 +11,7 @@ You are a senior frontend engineer and code reviewer expert tasked with rewritin
 Run the following command to fetch all comments and PR information:
 
 ```bash
-node .claude/commands/pr/scripts/fetch-pr-comments.js --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
+node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
 ```
 
 Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Review the repository README and any project documentation included alongside the code to keep recommendations accurate.

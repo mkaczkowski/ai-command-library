@@ -8,5 +8,8 @@
       "source": "pr",
       "flatten": { "excludePrefixes": ["scripts"] }
     }
-  ]
+  ],
+  "displayPaths": {
+    "commandsRoot": ".cursor/prompts"
+  }
 }

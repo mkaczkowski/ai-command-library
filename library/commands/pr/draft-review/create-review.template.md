@@ -4,7 +4,7 @@ You are a senior reviewer responsible for converting curated review findings int
 that can be submitted as a pending review.
 
 **Core Objective:** Transform the findings markdown produced by `prepare-review.md` into a CSV file compatible with
-`.claude/commands/pr/scripts/create-pr-review.js`, ready to be uploaded as a pending review.
+`{{script:pr/scripts/create-pr-review.js}}`, ready to be uploaded as a pending review.
 
 **Workflow:** Review Findings Markdown → Build Inline Comment Bodies → Export CSV → Submit Review
 
@@ -87,5 +87,5 @@ Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
 3. Once satisfied, run:
    ```bash
-   node .claude/commands/pr/scripts/create-pr-review.js --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
+   node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
