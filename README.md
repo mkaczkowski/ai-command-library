@@ -54,10 +54,12 @@ npx link-ai-commands --provider claude --dry-run
 ## Command Catalogue
 
 ### Enhance Existing Comments
+
 - `library/commands/pr/enhance-comments/rewrite-comments.md` — rewrites GitHub PR feedback in a collaborative voice ready for bulk upload.
 - `library/commands/pr/enhance-comments/update-comments.md` — generates CSV mappings so improved comments can be pushed back to GitHub via the helper script.
 
 ### Create New Review Comments
+
 - `library/commands/pr/create-comments/prepare-comments.md` — plans a full PR review, producing structured findings from fetched context.
 - `library/commands/pr/create-comments/send-comments.md` — converts review findings into CSV rows usable by the pending review submission script.
 
