@@ -19,6 +19,7 @@ Work through the plan sequentially unless dependencies require a different order
 2. **Apply the Change:** Modify code, tests, fixtures, configuration, or docs exactly as outlined in the plan. Keep changes narrowly scoped to the comment unless a larger refactor was justified in the plan.
 3. **Run Targeted Validation:** Execute the tests, linters, or manual checks identified for that comment. Capture command output and note pass/fail status.
 4. **Stage and Commit:**
+
    ```bash
    git add <files>
    git commit -m "Address PR comment <comment-id>: <concise summary>"
@@ -28,6 +29,7 @@ Work through the plan sequentially unless dependencies require a different order
    - Follow conventional commit style for the subject line.
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
+
 5. **Record Results:** Immediately log the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report.
 
 ### Handling Cross-Cutting Tasks
