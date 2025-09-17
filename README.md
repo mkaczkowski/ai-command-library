@@ -91,6 +91,20 @@ The library groups commands by PR workflow. Each markdown file contains step-by-
 - **Typical run:** Point this command at the findings produced by `prepare-review.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
 - **Output:** A CSV file containing comment drafts plus any required metadata for bulk submission.
 
+### Address Review Feedback
+
+#### `library/commands/pr/address-review/prepare-resolutions.md`
+
+- **Purpose:** Build an actionable resolution plan for every unresolved 👍 review comment without touching code yet.
+- **Typical run:** Refresh comment data with `node scripts/fetch-pr-comments.js --reaction=+1 --ignore-outdated --include-diff-hunk` (and optionally `node scripts/fetch-pr-context.js` for richer metadata), study linked standards, then document the steps needed to satisfy each reviewer.
+- **Output:** A markdown playbook saved to `tmp/pr-[PR_NUMBER]-address-plan.md` cataloguing required code/doc changes, validation, and open questions per comment.
+
+#### `library/commands/pr/address-review/apply-resolutions.md`
+
+- **Purpose:** Execute the approved plan, implement the fixes, and capture validation results for reviewers.
+- **Typical run:** Follow the plan from `prepare-resolutions.md`, apply each change, stage commits that reference the associated comment, and record validation outcomes as you go.
+- **Output:** A detailed report at `tmp/pr-[PR_NUMBER]-address-report.md` summarizing commits, tests, and any follow-up work tied to each resolved comment.
+
 ### PR Automation Scripts
 
 The `library/commands/pr/scripts/` folder contains Node.js helpers that automate API calls the markdown commands rely on:
