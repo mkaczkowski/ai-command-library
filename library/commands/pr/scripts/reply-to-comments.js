@@ -68,7 +68,13 @@ async function main() {
     const mappings = await parseResolvedMappings(csvPath);
     log('INFO', `Loaded ${mappings.length} comment mappings from CSV`);
 
-    log('INFO', `Replying to ${mappings.length} comment(s) in ${repo.owner}/${repo.repo}`);
+    // Extract PR number for API calls
+    const prNumber = options.pr || extractPrNumberFromCsvPath(csvPath);
+    if (!prNumber) {
+      throw new Error('PR number is required for posting replies. Provide --pr or ensure CSV path contains PR number.');
+    }
+
+    log('INFO', `Replying to ${mappings.length} comment(s) in ${repo.owner}/${repo.repo} (PR #${prNumber})`);
     const dryRun = Boolean(options.dryRun);
     if (dryRun) {
       log('INFO', 'Dry run enabled — no replies will be sent.');
@@ -93,7 +99,7 @@ async function main() {
             log('DEBUG', `Thread URL: ${htmlUrl}`);
           }
         } else {
-          await sendReply(repo, targetId, body);
+          await sendReply(repo, targetId, body, prNumber);
           log('INFO', `✔ Replied to ${commentId}`);
         }
         successes++;
@@ -160,6 +166,12 @@ function buildDefaultAddressResolvedCsvPath(prNumber) {
   return path.join('tmp', `pr-${numeric}-address-resolved.csv`);
 }
 
+function extractPrNumberFromCsvPath(csvPath) {
+  const filename = path.basename(csvPath);
+  const match = filename.match(/^pr-(\d+)-address-resolved\.csv$/);
+  return match ? Number(match[1]) : null;
+}
+
 async function parseResolvedMappings(filePath) {
   const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = ADDRESS_RESOLVED_CSV_CONFIG;
 
@@ -195,10 +207,10 @@ async function resolveReplyTarget(repo, commentId, cache) {
   return info;
 }
 
-async function sendReply(repo, targetCommentId, body) {
+async function sendReply(repo, targetCommentId, body, prNumber) {
   log('DEBUG', `Posting reply to comment ${targetCommentId}`);
-  const payload = `${JSON.stringify({ body })}\n`;
-  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/comments/${targetCommentId}/replies`;
+  const payload = `${JSON.stringify({ body, in_reply_to: Number(targetCommentId) })}\n`;
+  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/comments`;
 
   await runGh(['api', '--method', 'POST', endpoint, '--input', '-'], {
     input: payload,
