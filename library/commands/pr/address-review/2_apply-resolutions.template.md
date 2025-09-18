@@ -113,3 +113,5 @@ The CSV is the hand-off artifact for downstream automation that will post replie
 - [ ] Report saved to `tmp/pr-[PR_NUMBER]-address-report.md`
 - [ ] CSV saved to `tmp/pr-[PR_NUMBER]-address-resolved.csv`
 - [ ] Outstanding blockers documented in "Remaining Concerns"
+
+Once this checklist is complete, hand the resolution report and commits back to the reviewer for final review.
