@@ -16,7 +16,7 @@ import {
   createStandardArgHandlers,
   createStandardValidations,
   parseArgs,
-  showHelp,
+  handleHelp,
   validateArgs,
 } from './utils/cli.js';
 import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
@@ -55,10 +55,7 @@ async function main() {
 
     const options = parseCliArgs(process.argv.slice(2));
 
-    if (options.help) {
-      showHelp(HELP_TEXT);
-      return;
-    }
+    handleHelp(options, HELP_TEXT);
 
     const standardValidations = createStandardValidations();
     const validations = [standardValidations.prNumber, standardValidations.repository, standardValidations.outputFile];
@@ -89,13 +86,12 @@ async function main() {
       const outputPath = path.resolve(options.output);
       fs.writeFileSync(outputPath, output, 'utf8');
       log('INFO', `Results written to ${outputPath}`);
-      console.log(`Saved PR context for #${prNumber} to ${outputPath}`);
+      log('INFO', `Saved PR context for #${prNumber} to ${outputPath}`);
     } else {
-      console.log(output);
+      process.stdout.write(`${output}\n`);
     }
   } catch (error) {
     log('ERROR', `Failed to fetch PR context: ${error.message}`);
-    console.error(error.message);
     process.exit(1);
   }
 }
