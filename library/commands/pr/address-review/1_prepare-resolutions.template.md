@@ -10,34 +10,34 @@ You are a staff-level engineer responsible for converting each unresolved GitHub
 
 1. Fetch the comment payload covered by this workflow:
 
-    ```bash
-    node {{script:pr/scripts/fetch-pr-comments.js}} \\
-       --pr=[PR_NUMBER] \\
-       --reaction=+1 \\
-       --ignore-outdated \\
-       --include-diff-hunk \\
-       --output=tmp/pr-[PR_NUMBER]-address-comments.json
-    ```
+   ```bash
+   node {{script:pr/scripts/fetch-pr-comments.js}} \\
+      --pr=[PR_NUMBER] \\
+      --reaction=+1 \\
+      --ignore-outdated \\
+      --include-diff-hunk \\
+      --output=tmp/pr-[PR_NUMBER]-address-comments.json
+   ```
 
-    - The JSON includes branch names, comment metadata, file paths, line numbers, `diffHunk`, permalinks, and a `previousComments` array containing the earlier conversation in each thread.
+   - The JSON includes branch names, comment metadata, file paths, line numbers, `diffHunk`, permalinks, and a `previousComments` array containing the earlier conversation in each thread.
 
 2. (Optional) Pull enriched PR context for surrounding diffs, commits, and metadata when you need a canonical snapshot or lack reliable local history:
 
-    ```bash
-    node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
-    ```
+   ```bash
+   node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+   ```
 
-    - Skip this step if the workspace already has the full PR checkout and you prefer to inspect files locally with `git` and project tooling.
+   - Skip this step if the workspace already has the full PR checkout and you prefer to inspect files locally with `git` and project tooling.
 
 3. Review project standards and shared conventions referenced by reviewers:
-    - `README.md`
-    - `/docs/**`
-    - Prior implementations under the same directory
+   - `README.md`
+   - `/docs/**`
+   - Prior implementations under the same directory
 
 4. Inspect each comment’s affected code in the working tree:
-    - Use the `diffHunk`, file path, and line numbers to examine the file (for example, with `git show` or `git blame`).
-    - Expand to surrounding modules to surface hidden dependencies, feature flags, and test coverage boundaries.
-    - Record related files or services that must change even if the reviewer did not mention them explicitly.
+   - Use the `diffHunk`, file path, and line numbers to examine the file (for example, with `git show` or `git blame`).
+   - Expand to surrounding modules to surface hidden dependencies, feature flags, and test coverage boundaries.
+   - Record related files or services that must change even if the reviewer did not mention them explicitly.
 
 ## Phase 2: Synthesize Resolution Strategies
 

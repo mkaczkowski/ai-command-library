@@ -134,7 +134,6 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 - [Optional improvements or questions that are non-blocking]
 - [Docs or tests to add, or manual checks to run]
-
 ````
 
 ### Severity Guidance

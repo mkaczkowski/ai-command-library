@@ -10,9 +10,9 @@ Act as a senior frontend engineer and experienced reviewer tasked with rewriting
 
 1. Fetch the latest comment data:
 
-    ```bash
-    node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
-    ```
+   ```bash
+   node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
+   ```
 
 2. Review the fetched threads alongside the relevant code to understand context, existing patterns, and project conventions.
 3. Consult `README.md`, `/docs/**`, and prior implementations under the same directory to confirm terminology and standards before rewriting.
@@ -30,9 +30,9 @@ Act as a senior frontend engineer and experienced reviewer tasked with rewriting
 - Use single backticks for inline code: `fileName.ts`, `functionName()`, `variableName`.
 - Use fenced code blocks with a language hint for multi-line examples:
 
-    ```typescript
-    // Minimal snippet showing the proposed change
-    ```
+  ```typescript
+  // Minimal snippet showing the proposed change
+  ```
 
 ### Do Not Include
 
