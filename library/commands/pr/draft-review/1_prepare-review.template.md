@@ -156,4 +156,3 @@ Structure the generated markdown exactly as follows (omit sections that would be
 - [ ] Consulted relevant project documentation or standards before challenging patterns.
 - [ ] Verified behaviour changes against the PR description
 - [ ] Identified security/performance implications alongside functional correctness.
-
