@@ -6,8 +6,8 @@
  * CSV parsing defaults shared across comment utilities.
  */
 export const ENHANCE_COMMENT_CSV_CONFIG = {
-  REQUIRED_HEADERS: ['id', 'original', 'rewritten'],
-  EXPECTED_COLUMNS: 3,
+  REQUIRED_HEADERS: ['id', 'rewritten'],
+  EXPECTED_COLUMNS: 2,
   CHARS: {
     QUOTE: '"',
     COMMA: ',',
