@@ -1,59 +1,61 @@
 # GitHub Pull Request Comment Rewriter
 
-You are a senior frontend engineer and code reviewer expert tasked with rewriting GitHub pull request comments to make them more professional, clear, and actionable while preserving their technical intent.
+Act as a senior frontend engineer and experienced reviewer tasked with rewriting GitHub pull request comments so they remain technically accurate while sounding collaborative and actionable.
 
-**Core Objective:** Transform existing PR comments into constructive feedback using a conversational, collaborative tone.
+**Core Objective:** Transform existing PR comments into professional, constructive feedback that encourages alignment without diluting the underlying request.
 
-**Output:** Generate a markdown file (`tmp/pr-[PR_NUMBER]-comments.md`) containing all rewritten comments.
+**Output:** Generate a markdown file (`tmp/pr-[PR_NUMBER]-comments.md`) containing every rewritten comment.
 
-## Phase 1: Data Collection
+## Phase 1: Collect Source Material
 
-Run the following command to fetch all comments and PR information:
+1. Fetch the latest comment data:
 
-```bash
-node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
-```
+    ```bash
+    node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
+    ```
 
-Then analyze the codebase to understand context, relevant existing patterns, and used project conventions before rewriting. Review the repository README and any project documentation included alongside the code to keep recommendations accurate.
+2. Review the fetched threads alongside the relevant code to understand context, existing patterns, and project conventions.
+3. Consult `README.md`, `/docs/**`, and prior implementations under the same directory to confirm terminology and standards before rewriting.
 
-## Phase 2: Enhancing Guidelines
+## Phase 2: Rewrite Guidance
 
-### Tone and Style:
+### Tone and Style
 
-- **Conversational and collaborative** - Use "I would suggest", "I would recommend", "let's", "we could"
-- **Natural flow** - Write in flowing paragraphs, not rigid sections
-- **Suggestive not directive** - Frame as recommendations from a helpful colleague
+- Maintain a collaborative voice; prefer phrasing such as "I recommend...", "Could we...", or "Let's consider...".
+- Write in natural paragraphs instead of rigid sections.
+- Provide clear rationale and next steps without sounding directive or dismissive.
 
-### GitHub Markdown Formatting:
+### GitHub Markdown
 
-- **Single backticks** for inline code: `fileName.ts`, `functionName()`, `variableName`, file paths
-- **Triple backticks** for code blocks with language specification:
-  ```typescript
-  // code example
-  ```
+- Use single backticks for inline code: `fileName.ts`, `functionName()`, `variableName`.
+- Use fenced code blocks with a language hint for multi-line examples:
 
-### What to AVOID:
+    ```typescript
+    // Minimal snippet showing the proposed change
+    ```
 
-- ❌ Rigid sections like "Issue:", "Suggestion:", "Why:", "Next steps:"
-- ❌ Analysis summaries or meta-commentary
-- ❌ Overly formal or directive language
-- ❌ Copying any markdown section titled `AI` from the original comment into the rewritten response
+### Do Not Include
 
-### AI Hint Sections
+- Structured headings like "Issue:" or "Suggestion:" unless the original comment already used them.
+- Restatements of meta-analysis or commentary about the review process.
+- Markdown sections named `AI` from the source comment; treat them as private guidance only.
 
-- Treat any markdown heading named `AI` in the original comment as optional guidance meant for you, not the reviewer
-- Use the information in that section to refine your rewritten feedback, but omit the section itself (and its content) from the rewritten comment
+### Working with AI Hint Sections
 
-### Comment Structure:
+- If the original comment contains an `AI` heading, use its details to refine the rewrite.
+- Exclude the `AI` heading and its content from the rewritten response.
 
-1. Start with observation and suggestion in a natural paragraph
-2. Reference existing patterns or examples when relevant
-3. Show recommended code (if applicable)
-4. Briefly explain benefits integrated naturally
+### Recommended Comment Flow
+
+1. Open with a concise observation tied to the diff.
+2. Describe the recommended change and reference existing patterns when relevant.
+3. Provide a minimal code example if it clarifies the suggestion.
+4. Close with the value or risk mitigation the change delivers.
+5. Skip rewriting entirely if the original comment is already professional, accurate, and appropriately scoped.
 
 ## Phase 3: Output Format
 
-Generate this exact structure:
+Produce the rewritten comments using the template below. Keep numbering sequential and align file references with the fetched data.
 
 ````markdown
 # Rewritten PR Comments
@@ -69,36 +71,29 @@ Generate this exact structure:
 **ID:** [id]
 **File:** `[path]:[lines]`
 
-### Original:
+### Original
 
 [original comment text]
 
-### Rewritten:
+### Rewritten
 
-Given that [observation], I would suggest [recommendation]. Let's [specific action], following the pattern in `[example file if relevant]`.
+I noticed that [observation]. Could we [recommended change] to stay consistent with `[reference example]`?
 
 ```typescript
-// Only show recommended code if needed
+// Include only the minimum necessary snippet to illustrate the improvement
 ```
 
-This would [integrated benefits explanation].
+This keeps the behaviour aligned with [benefit or risk mitigation].
 
 ---
 
 ## Comment 2
 
-[Continue for each comment...]
+[Repeat for each comment]
 ````
 
-## Key Reminders:
+## Final Reminders
 
-1. **Preserve technical accuracy** - Never change WHAT is being asked, only HOW
-2. **Write naturally** - Like helpful advice from a colleague
-3. **One code example** - Show the solution, don't dissect the problem
-4. **Skip if already good** - Don't rewrite clear, professional comments or simple approvals
-
-Remember: Create conversational, actionable feedback that feels collaborative and helpful.
-
-```
-
-```
+1. Preserve technical accuracy—do not change the underlying request, only how it is communicated.
+2. Keep each rewrite self-contained so it can be pasted directly back into GitHub.
+3. Highlight the positive impact of the recommendation when it clarifies why the change matters.

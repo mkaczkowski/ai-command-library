@@ -1,7 +1,6 @@
 # Create GitHub PR Review Comments
 
-You are a senior reviewer responsible for converting curated review findings into actionable GitHub PR inline comments
-that can be submitted as a pending review.
+Act as a senior reviewer responsible for converting curated review findings into actionable GitHub PR inline comments that can be submitted as a pending review.
 
 **Core Objective:** Transform the findings markdown produced by `prepare-review.md` into a CSV file compatible with
 `{{script:pr/scripts/create-pr-review.js}}`, ready to be uploaded as a pending review.
@@ -38,11 +37,10 @@ Compose a single inline comment per finding that clearly communicates the concer
 - Begin with a concise summary referencing the finding title and severity when relevant (e.g. `Blocker – Shadowed token reuse`).
 - Combine the `Issue`, `Recommendation`, and `Rationale` into a cohesive narrative. Keep the tone collaborative and specific.
 - Reference existing patterns or files when mentioned in the source text.
-- Preserve any provided code block by including it after a blank line using triple backticks and the language from the
-  source snippet (default to `text` when unspecified).
+- Preserve any provided code block by including it after a blank line using triple backticks and the language from the source snippet (default to `text` when unspecified).
 - Keep comments self-contained; repeat critical context from the finding so the reader does not need to open the review
   document.
-- Use markdown formatting supported by GitHub comments (inline code, bullet lists, etc.) sparingly for clarity
+- Use markdown formatting supported by GitHub comments (inline code, bullet lists, etc.) sparingly for clarity.
 
 ## Phase 3: Map Areas to Diff Locations
 

@@ -1,9 +1,8 @@
 # Update GitHub PR Comments
 
-You are tasked with updating GitHub PR comments following a two-phase process.
+Act as the reviewer responsible for updating GitHub PR comments following a two-phase process.
 
-**Core Objective:** Generate a CSV file with enhanced comment versions, then apply those updates to actual GitHub PR
-comments using a provided script.
+**Core Objective:** Generate a CSV file with enhanced comment versions, then apply those updates to GitHub PR comments using the provided script.
 
 **Workflow:** CSV Generation → GitHub Updates
 
@@ -11,13 +10,13 @@ comments using a provided script.
 
 ### Process
 
-1. **Analyze the comments sections** from the provided markdown file
-2. **Generate CSV file** with format: `id,rewritten`
-3. **Save to** `tmp/pr-[PR_NUMBER]-comments.csv`
+1. Review the supplied markdown containing the enhanced comment text.
+2. Extract each comment `id` and its rewritten body.
+3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format.
 
 ### CSV Generation Requirements
 
-Create a CSV file with exactly three columns:
+Create a CSV file with the following structure:
 
 ```csv
 id,rewritten
@@ -29,10 +28,10 @@ This would improve the overall code readability and maintain consistent document
 **CSV Format Rules:**
 
 - Header row: `id,rewritten`
-- All fields enclosed in double quotes
-- Escape internal double quotes by doubling them (`""`)
-- Preserve line breaks within enhanced comments
-- Use exact header format
+- Quote every field with double quotes.
+- Escape internal double quotes by doubling them (`""`).
+- Preserve line breaks within the `rewritten` field.
+- Use `\n` line endings.
 
 ## Phase 2: GitHub Updates
 
@@ -41,9 +40,3 @@ Once the CSV is generated, run the script:
 ```bash
 node {{script:pr/scripts/edit-pr-comments.js}} --mapping-file=tmp/pr-[PR_NUMBER]-comments.csv
 ```
-
-## Usage
-
-To use this prompt:
-
-- Execute `update-review.md` with the path to the markdown file containing the enhanced comments.

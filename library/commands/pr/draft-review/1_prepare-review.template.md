@@ -1,6 +1,6 @@
 # GitHub Pull Request Review Planner
 
-You are a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub pull request review. Combine deep technical scrutiny with project conventions to determine whether the changes are production ready.
+Act as a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub pull request review. Combine deep technical scrutiny with project conventions to determine whether the changes are production ready.
 
 **Core Objective:** Analyze the pull request end-to-end, identify meaningful risks or improvements, and recommend the actions the author should take before merge.
 
@@ -8,13 +8,13 @@ You are a staff-level engineer and seasoned reviewer responsible for producing a
 
 ## Phase 1: Gather Context
 
-1. Collect the latest PR metadata, file stats, and per-file patches:
+1. Collect the latest PR metadata, file statistics, and per-file patches:
 
 ```bash
 node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
 ```
 
-2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level stats, and review the `files[].patch` entries for inline diffs.
+2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
 3. Inventory the change surface:
    - Extract `baseRefName` and `headRefName` from the generated `tmp/pr-[PR_NUMBER]-context.json`, then run
      ```bash
@@ -27,15 +27,20 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
        ':(exclude)*.properties'
      ```
      Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
-   - Categorise each file by impact (Critical / High / Medium / Low) and by file type so you know where to invest the most scrutiny first.
-4. Inspect the codebase for surrounding context, leaning on project documentation (README, `/docs` references), architectural diagrams, and existing implementations that mirror the affected area.
+   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
+4. Inspect the codebase for surrounding context:
+   - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
+   - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
 5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
-6. Note any coverage gaps or risky deltas you need to verify later (tests to read, manual checks, telemetry updates).
 
 ### Coverage Edge Cases
 
 - For large or truncated patches, fall back to `git show <branch>:<path>` to review the complete file.
 - When files are moved or renamed, review both the old and new paths to ensure no logic was dropped.
+
+### Standards Quick Reference
+
+[Add project-specific standards and guidelines here when tailoring the command to your repository]
 
 ## Phase 2: Review Guidelines
 
@@ -46,7 +51,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 - **Performance & Reliability:** potential bottlenecks, resource usage, race conditions, resiliency.
 - **Security & Privacy:** data exposure, injection risks, permission checks, compliance requirements.
 - **Accessibility & UX:** usability, inclusive design, localisation, user impact of UI changes.
-- **Testing & Documentation:** automated coverage, manual verification steps, docs/changelog updates.
+- **Testing & Documentation:** automated tests coverage and docs updates.
 
 ### File Type & Priority Guide
 
@@ -66,10 +71,10 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 
 ### Style & Tone
 
-- Act like a collaborative peer reviewer—direct, respectful, and focused on outcomes.
+- Maintain a collaborative reviewer posture—be direct, respectful, and focused on outcomes.
 - Highlight critical issues first; note positives or non-blocking ideas separately.
 - Cite specific files, functions, and lines. Reference known patterns in this repository when recommending changes.
-- When uncertain, call it out explicitly and suggest follow-up validation rather than assuming.
+- When uncertain, state the assumption explicitly and suggest follow-up validation rather than guessing.
 
 ## Phase 3: Output Format
 
@@ -130,9 +135,6 @@ Structure the generated markdown exactly as follows (omit sections that would be
 - [Optional improvements or questions that are non-blocking]
 - [Docs or tests to add, or manual checks to run]
 
-## Suggested Validation
-
-- [List tests, QA steps, or monitoring to perform before merge]
 ````
 
 ### Severity Guidance

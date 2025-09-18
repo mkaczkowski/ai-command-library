@@ -1,6 +1,6 @@
 # PR Comment Resolution Executor
 
-You are the implementation lead responsible for addressing every unresolved 👍 GitHub PR review comment identified in `prepare-resolutions.md` and delivering production-ready fixes.
+Act as the implementation lead responsible for addressing each unresolved GitHub PR review comment with a +1 reaction identified in `prepare-resolutions.md` and producing production-ready fixes.
 
 **Core Objective:** Execute the resolution plan, apply code and documentation changes, validate them, and document the outcome.
 
@@ -8,7 +8,7 @@ You are the implementation lead responsible for addressing every unresolved 👍
 
 ## Phase 1: Rehydrate Context
 
-1. Read the latest plan produced by `prepare-resolutions.md` (`tmp/pr-[PR_NUMBER]-address-plan.md`). Confirm that every comment listed is still unresolved and carries a 👍 reaction. Update or re-run the plan if the PR changed significantly.
+1. Read the latest plan produced by `prepare-resolutions.md` (`tmp/pr-[PR_NUMBER]-address-plan.md`). Confirm that every comment listed remains unresolved and still carries a +1 reaction. Update or regenerate the plan if the PR changed significantly.
 2. Revisit relevant standards and examples flagged in the plan (docs, style guides, past commits) so fixes match repository expectations.
 
 ## Phase 2: Implement Comment-by-Comment
@@ -16,7 +16,7 @@ You are the implementation lead responsible for addressing every unresolved 👍
 Work through the plan sequentially unless dependencies require a different order. For each comment:
 
 1. **Inspect the Code:** Open the target file(s) and adjacent modules. Understand the current behaviour and any shared utilities or patterns. Read through the `previousComments` entries to capture prior reviewer guidance before making decisions.
-2. **Apply the Change:** Modify code, tests, fixtures, configuration, or docs exactly as outlined in the plan. Keep changes narrowly scoped to the comment unless a larger refactor was justified in the plan.
+2. **Apply the Change:** Modify code, tests, fixtures, configuration, or documentation exactly as outlined in the plan. Keep changes narrowly scoped to the comment unless a larger refactor is warranted and already documented.
 3. **Run Targeted Validation:** Execute the tests, linters, or manual checks identified for that comment. Capture command output and note pass/fail status.
 4. **Stage and Commit:**
 
@@ -30,12 +30,12 @@ Work through the plan sequentially unless dependencies require a different order
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
 
-5. **Record Results:** Immediately log the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report. Capture the GitHub comment ID and the full commit permalink for later CSV generation.
+5. **Record Results:** Immediately document the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report. Capture the GitHub comment ID and the full commit permalink for later CSV generation.
 
 ### Handling Cross-Cutting Tasks
 
 - When a single change resolves multiple comments, note every affected comment explicitly in the commit message body and the final report.
-- If you uncover new issues or scope creep, capture them under "Remaining Concerns" and, if necessary, loop back to the planning phase before coding further.
+- If you uncover new issues or scope increases, document them under "Remaining Concerns" and, if necessary, return to the planning phase before coding further.
 
 ## Phase 3: Verification & Clean-Up
 
@@ -85,7 +85,7 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 
 ## Next Steps for Reviewers
 
-2. [Specific areas to focus on during review]
+1. [Specific areas to focus on during review]
 ```
 
 ## Phase 5: Generate Resolved Comment CSV
