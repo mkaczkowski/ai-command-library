@@ -4,7 +4,7 @@ You are the implementation lead responsible for addressing every unresolved 👍
 
 **Core Objective:** Execute the resolution plan, apply code and documentation changes, validate them, and document the outcome.
 
-**Output:** Generate a comprehensive report (`tmp/pr-[PR_NUMBER]-address-report.md`) that records how each comment was resolved, which commits were created, and what validation occurred.
+**Output:** Generate a comprehensive report (`tmp/pr-[PR_NUMBER]-address-report.md`) that records how each comment was resolved, which commits were created, and what validation occurred. Additionally produce a CSV (`tmp/pr-[PR_NUMBER]-address-resolved.csv`) mapping the resolved comment IDs to the commits that address them.
 
 ## Phase 1: Rehydrate Context
 
@@ -30,7 +30,7 @@ Work through the plan sequentially unless dependencies require a different order
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
 
-5. **Record Results:** Immediately log the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report.
+5. **Record Results:** Immediately log the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report. Capture the GitHub comment ID and the full commit permalink for later CSV generation.
 
 ### Handling Cross-Cutting Tasks
 
@@ -88,11 +88,29 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 2. [Specific areas to focus on during review]
 ```
 
+## Phase 5: Generate Resolved Comment CSV
+
+1. Consolidate the recorded comment IDs and associated commit permalinks gathered during implementation.
+2. Save the CSV to `tmp/pr-[PR_NUMBER]-address-resolved.csv`.
+
+### CSV Format Requirements
+
+- Header row: `commentId,commitUrl`
+- All fields enclosed in double quotes
+- Escape internal double quotes by doubling them (`""`)
+- Use full commit permalinks in the format `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>`
+
+```csv
+commentId,commitUrl
+"2351166366","https://github.com/example/repo/pull/123/commits/abcdef1234567890"
+```
+
+The CSV is the hand-off artifact for downstream automation that will post replies to the original GitHub comments.
+
 ### Final Checklist
 
 - [ ] Working tree clean (`git status` shows no changes)
 - [ ] All commits ready for push
 - [ ] Report saved to `tmp/pr-[PR_NUMBER]-address-report.md`
+- [ ] CSV saved to `tmp/pr-[PR_NUMBER]-address-resolved.csv`
 - [ ] Outstanding blockers documented in "Remaining Concerns"
-
-Hand the report and commits back to the reviewer once the checklist is complete.

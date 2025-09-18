@@ -53,7 +53,7 @@ The example above populates `.claude/commands/pr` with the canonical PR workflow
 
 Run `npx link-ai-commands --list-providers` at any time to see bundled IDs and destinations.
 
-> **Codex note:** Codex keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/rewrite-comments.md` becomes `pr__enhance-review__rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
+> **Codex note:** Codex keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/1_rewrite-comments.md` becomes `pr__enhance-review__1_rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
 
 ### Script References
 
@@ -84,7 +84,7 @@ The library groups commands by PR workflow. Each markdown template (`*.template.
 
 ### Enhance Existing Comments
 
-#### `library/commands/pr/enhance-review/rewrite-comments.template.md`
+#### `pr/enhance-review/1_rewrite-comments.template.md`
 
 - **Purpose:** Rewrite existing reviewer comments so they sound collaborative while keeping the original technical request intact.
 - **Typical run:** Use `node scripts/fetch-pr-comments.js` to gather the latest review threads, then launch this command to polish each comment. If the source comment includes a markdown `AI` section, treat it as a private hint—pull guidance from it but omit the section from the rewritten response.
@@ -103,7 +103,7 @@ flowchart TD
     Decide -->|No| Share[Manual review or async feedback]
 ```
 
-#### `library/commands/pr/enhance-review/update-review.template.md`
+#### `pr/enhance-review/2_update-review.template.md`
 
 - **Purpose:** Prepare bulk updates for existing GitHub comments after you finish rewriting them.
 - **Typical run:** Execute this command once you have refined comments in the markdown output. It guides you through generating a CSV file that maps old comment IDs to the improved text so `scripts/edit-pr-comments.js` can submit updates via the GitHub API.
@@ -120,7 +120,7 @@ flowchart TD
 
 ### Create New Review Comments
 
-#### `library/commands/pr/draft-review/prepare-review.template.md`
+#### `pr/draft-review/1_prepare-review.template.md`
 
 - **Purpose:** Collect PR context and outline a full review plan before you start drafting comments.
 - **Typical run:** Start by running `node scripts/fetch-pr-context.js` (and the comment fetcher if needed) so the workspace has up-to-date metadata, files, and diffs. The command then helps the assistant catalog issues, suggested fixes, and supporting references.
@@ -137,7 +137,7 @@ flowchart TD
     Output --> Handoff[Move to create-review to craft comment CSV]
 ```
 
-#### `library/commands/pr/draft-review/create-review.template.md`
+#### `pr/draft-review/2_create-review.template.md`
 
 - **Purpose:** Convert prepared review findings into individual comment bodies that GitHub can accept.
 - **Typical run:** Point this command at the findings produced by `prepare-review.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
@@ -156,7 +156,7 @@ flowchart TD
 
 ### Address Review Feedback
 
-#### `library/commands/pr/address-review/prepare-resolutions.template.md`
+#### `pr/address-review/1_prepare-resolutions.template.md`
 
 - **Purpose:** Build an actionable resolution plan for every unresolved 👍 review comment without touching code yet.
 - **Typical run:** Refresh comment data with `node scripts/fetch-pr-comments.js --reaction=+1 --ignore-outdated --include-diff-hunk` (and optionally `node scripts/fetch-pr-context.js` for richer metadata), study linked standards, then document the steps needed to satisfy each reviewer.
@@ -173,7 +173,7 @@ flowchart TD
     Document --> Execute[Hand off to apply-resolutions for implementation]
 ```
 
-#### `library/commands/pr/address-review/apply-resolutions.template.md`
+#### `pr/address-review/2_apply-resolutions.template.md`
 
 - **Purpose:** Execute the approved plan, implement the fixes, and capture validation results for reviewers.
 - **Typical run:** Follow the plan from `prepare-resolutions.md`, apply each change, stage commits that reference the associated comment, and record validation outcomes as you go.
