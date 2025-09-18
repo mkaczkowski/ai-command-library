@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 
 export function normalizeRepositoryPath(filePath) {
@@ -60,4 +61,17 @@ export function shouldIncludeFile(detail, blocklist = { fileNames: new Set(), di
   }
 
   return true;
+}
+
+export function resolveExistingPath(filePath) {
+  if (typeof filePath !== 'string' || filePath.trim() === '') {
+    throw new Error('File path cannot be empty');
+  }
+
+  const absolutePath = path.resolve(filePath);
+  if (!fs.existsSync(absolutePath)) {
+    throw new Error(`File not found: ${absolutePath}`);
+  }
+
+  return absolutePath;
 }

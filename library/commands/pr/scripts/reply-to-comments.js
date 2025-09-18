@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
 import path from 'path';
 import { log } from './utils/logger.js';
 import { ensureGhCli, runGh, runGhJson } from './utils/process.js';
@@ -15,13 +14,14 @@ import {
 } from './utils/cli.js';
 import { ADDRESS_RESOLVED_CSV_CONFIG, COMMON_BOOLEAN_FLAGS } from './utils/config.js';
 import { createNumericIdFieldValidator, createUrlFieldValidator, parseCSVFile } from './utils/csv.js';
+import { resolveExistingPath } from './utils/fileSystem.js';
 
 const HELP_TEXT = `
 Reply to GitHub PR review comments using commit mappings from a CSV file.
 
 Usage:
-  node {{script:pr/scripts/reply-to-comments.js}} --pr=<number>
-  node {{script:pr/scripts/reply-to-comments.js}} --csv=tmp/pr-123-address-resolved.csv
+  node reply-to-comments.js --pr=<number>
+  node reply-to-comments.js --csv=tmp/pr-123-address-resolved.csv
 
 Options:
   --pr               Pull request number used to locate tmp/pr-[PR]-address-resolved.csv
@@ -60,7 +60,6 @@ async function main() {
     validateArgs(options, validations);
 
     const csvPath = resolveCsvPath(options);
-    const csvReference = buildResolutionReference(options, csvPath);
 
     await ensureGhCli();
 
@@ -72,10 +71,10 @@ async function main() {
     const mappings = await parseResolvedMappings(csvPath);
     log('INFO', `Loaded ${mappings.length} comment mappings from CSV`);
 
-    console.log(`Replying to ${mappings.length} comment(s) in ${repo.owner}/${repo.repo}`);
+    log('INFO', `Replying to ${mappings.length} comment(s) in ${repo.owner}/${repo.repo}`);
     const dryRun = Boolean(options.dryRun);
     if (dryRun) {
-      console.log('Dry run enabled — no replies will be sent.');
+      log('INFO', 'Dry run enabled — no replies will be sent.');
     }
 
     let successes = 0;
@@ -89,22 +88,21 @@ async function main() {
           log('DEBUG', `Comment ${commentId} is a reply; targeting thread root ${targetId}`);
         }
 
-        const body = buildReplyBody(commitUrl, csvReference);
+        const body = buildReplyBody(commitUrl);
 
         if (dryRun) {
-          console.log(`→ [dry-run] ${commentId} → ${targetId} (${commitUrl})`);
+          log('INFO', `→ [dry-run] ${commentId} → ${targetId} (${commitUrl})`);
           if (htmlUrl) {
             log('DEBUG', `Thread URL: ${htmlUrl}`);
           }
         } else {
           await sendReply(repo, targetId, body);
-          console.log(`✔ Replied to ${commentId}`);
+          log('INFO', `✔ Replied to ${commentId}`);
         }
         successes++;
       } catch (error) {
         failures++;
-        console.error(`✖ Failed to reply to ${commentId}: ${error.message}`);
-        log('ERROR', `Failed to reply to ${commentId}`, { error: error.message });
+        log('ERROR', `✖ Failed to reply to ${commentId}: ${error.message}`, { error: error.message });
       }
     }
 
@@ -114,7 +112,6 @@ async function main() {
     }
   } catch (error) {
     log('ERROR', `Script failed: ${error.message}`);
-    console.error(error.message);
     process.exit(1);
   }
 }
@@ -140,26 +137,30 @@ function parseCliArgs(argv) {
 
 function resolveCsvPath(options) {
   if (options.csv) {
-    const resolved = path.resolve(options.csv);
-    if (!fs.existsSync(resolved)) {
-      throw new Error(`CSV file not found: ${resolved}`);
-    }
-    return resolved;
+    return resolveExistingPath(options.csv);
   }
 
-  const derivedPath = path.resolve(`tmp/pr-${options.pr}-address-resolved.csv`);
-  if (!fs.existsSync(derivedPath)) {
-    throw new Error(`Expected CSV at ${derivedPath}. Provide --csv to specify an alternate location.`);
+  const derivedPath = buildDefaultAddressResolvedCsvPath(options.pr);
+  try {
+    return resolveExistingPath(derivedPath);
+  } catch (error) {
+    const absoluteDerivedPath = path.resolve(derivedPath);
+    throw new Error(`Expected CSV at ${absoluteDerivedPath}. Provide --csv to specify an alternate location.`);
   }
-  return derivedPath;
 }
 
-function buildResolutionReference(options, csvPath) {
-  if (options.csv) {
-    const relative = path.relative(process.cwd(), csvPath);
-    return relative || path.basename(csvPath);
+function buildDefaultAddressResolvedCsvPath(prNumber) {
+  const normalized = String(prNumber ?? '').trim();
+  if (!normalized) {
+    throw new Error('PR number is required to locate the resolved CSV');
   }
-  return `tmp/pr-${options.pr}-address-resolved.csv`;
+
+  const numeric = Number(normalized);
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    throw new Error('PR number must be a positive number');
+  }
+
+  return path.join('tmp', `pr-${numeric}-address-resolved.csv`);
 }
 
 async function parseResolvedMappings(filePath) {
@@ -210,8 +211,8 @@ async function sendReply(repo, targetCommentId, body) {
   log('DEBUG', `Reply posted to ${targetCommentId}`);
 }
 
-function buildReplyBody(commitUrl, csvReference) {
-  return `Thanks for the review—addressed in ${commitUrl}.\n\nResolution mapping: \`${csvReference}\``;
+function buildReplyBody(commitUrl) {
+  return `Done ${commitUrl}`;
 }
 
 main();

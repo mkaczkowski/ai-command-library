@@ -192,6 +192,12 @@ flowchart TD
     Wrap -->|No| Loop[Return to implement for remaining feedback]
 ```
 
+#### `pr/address-review/3_reply-to-comments.template.md`
+
+- **Purpose:** Close the loop with reviewers by replying to every resolved comment with the commit that addressed it and a pointer back to the resolution log.
+- **Typical run:** After generating `tmp/pr-[PR_NUMBER]-address-resolved.csv`, run `node reply-to-comments.js --pr=[PR_NUMBER] --dry-run` to preview replies, then rerun without `--dry-run` (and pass `--repo` for GitHub Enterprise). The script validates comment IDs, targets the thread root when required, and posts courteous acknowledgements via `gh api`.
+- **Output:** Replies posted directly on GitHub review threads (no new local file) with console confirmation for each comment.
+
 ### PR Automation Scripts
 
 The `library/commands/pr/scripts/` folder contains Node.js helpers that automate API calls the markdown commands rely on:
@@ -200,6 +206,7 @@ The `library/commands/pr/scripts/` folder contains Node.js helpers that automate
 - `fetch-pr-context.js` gathers supplemental PR metadata (files, commits, participants) so commands can reference the latest state.
 - `create-pr-review.js` submits the prepared comment CSV as a pending GitHub review.
 - `edit-pr-comments.js` updates existing review comments based on the CSV produced by the update workflow.
+- `reply-to-comments.js` posts commit-linked acknowledgements back to review comments using the address-resolved CSV.
 
 Run these scripts with `node scripts/<script-name> [options]`. Use `--help` on any script to inspect supported flags.
 

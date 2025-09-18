@@ -23,7 +23,7 @@ const HELP_TEXT = `
 Create a pending GitHub PR review populated with inline comments supplied via CSV.
 
 Usage:
-  node .claude/commands/pr/scripts/create-pr-review.js --comments-file=comments.csv [options]
+  node create-pr-review.js --comments-file=comments.csv [options]
 
 Options:
   --comments-file        Path to a CSV file describing review comments (required)
@@ -82,7 +82,7 @@ async function main() {
     const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
     log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
     log('INFO', `Target PR number: ${prNumber}`);
-    console.log(`Creating pending review on PR #${prNumber} with ${comments.length} comment(s)`);
+    log('INFO', `Creating pending review on PR #${prNumber} with ${comments.length} comment(s)`);
 
     const reviewBody = resolveReviewBody(options);
     const payload = buildReviewPayload({
@@ -94,7 +94,6 @@ async function main() {
     await submitReview(repo, prNumber, payload);
   } catch (error) {
     log('ERROR', `Script failed: ${error.message}`);
-    console.error(error.message);
     process.exit(1);
   }
 }
@@ -260,7 +259,7 @@ async function submitReview(repo, prNumber, payload) {
 
   const reviewId = response.id || response.node_id || 'unknown';
   const state = response.state || 'pending';
-  console.log(`✔ Created pending review ${reviewId} (state: ${state})`);
+  log('INFO', `✔ Created pending review ${reviewId} (state: ${state})`);
 }
 
 main();

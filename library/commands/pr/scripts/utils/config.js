@@ -17,6 +17,14 @@ export const ENHANCE_COMMENT_CSV_CONFIG = {
 };
 
 /**
+ * CSV layout generated when mapping resolved comments to commits.
+ */
+export const ADDRESS_RESOLVED_CSV_CONFIG = {
+  REQUIRED_HEADERS: ['commentId', 'commitUrl'],
+  EXPECTED_COLUMNS: 2,
+};
+
+/**
  * CSV layout expected when creating review comments.
  */
 export const REVIEW_COMMENT_CSV_CONFIG = {

@@ -1,6 +1,6 @@
-import fs from 'fs';
 import { enableVerboseLogging, log } from './logger.js';
 import { ALLOWED_REACTIONS, isSupportedReaction } from './reactions.js';
+import { resolveExistingPath } from './fileSystem.js';
 
 const HELP_HINT = 'Use --help for usage information.';
 
@@ -160,7 +160,8 @@ function createStandardValidations() {
           return false;
         }
         try {
-          return fs.existsSync(filePath);
+          resolveExistingPath(filePath);
+          return true;
         } catch (error) {
           log('ERROR', `Error validating mapping file path: ${error.message}`);
           return false;

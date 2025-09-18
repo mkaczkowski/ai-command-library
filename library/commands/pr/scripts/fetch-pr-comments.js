@@ -63,7 +63,7 @@ Examples:
   node fetch-pr-comments.js --pr=789 --output=pr-comments.json --verbose
   
   # Include the original diff hunk with each comment
-  node .claude/commands/pr/scripts/fetch-pr-comments.js --pr=123 --include-diff-hunk
+  node fetch-pr-comments.js --pr=123 --include-diff-hunk
 `;
 
 /**
@@ -333,7 +333,7 @@ async function main() {
       log('INFO', `Results written to ${outputPath}`);
       log('INFO', `Found ${result.comments.length} comments in PR #${prNumber}`);
     } else {
-      console.log(output);
+      process.stdout.write(`${output}\n`);
     }
   } catch (error) {
     log('ERROR', `Failed to fetch PR comments: ${error.message}`);

@@ -10,12 +10,11 @@ You are an AI engineer responsible for closing out GitHub PR review threads with
 Run the automation helper to post replies (append `--dry-run` first if you want a preview):
 
 ```bash
-node {{script:pr/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
+node reply-to-comments.js --pr=[PR_NUMBER]
 ```
 
 - Include `--dry-run` to preview replies without posting and `--csv=<path>` if the file lives outside `tmp/`.
 - The script double-checks that each `commentId` maps to the top-level review comment before calling the API, keeping within GitHub’s `pulls/comments/{id}/replies` constraints.
-- Replies include the commit URL plus a reference to the CSV path so teammates can audit the full mapping later.
 - Watch the console output for `✔` markers. If any entry fails, fix the data (typoed ID, revoked auth, etc.) and rerun for the remaining rows.
 
 ## Spot-Check on GitHub

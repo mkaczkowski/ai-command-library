@@ -23,7 +23,7 @@ const HELP_TEXT = `
 Update existing GitHub PR comments with new content.
 
 Usage:
-  node .claude/commands/pr/scripts/edit-pr-comments.js --mapping-file=comments.csv
+  node scripts/edit-pr-comments.js --mapping-file=comments.csv
 
 Options:
   --mapping-file      Path to a CSV file with columns: id,rewritten
@@ -71,7 +71,7 @@ async function main() {
     const repo = await resolveRepository(options.repo);
     const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
     log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
-    console.log(`Updating ${mappings.size} comment(s) in ${repo.owner}/${repo.repo}`);
+    log('INFO', `Updating ${mappings.size} comment(s) in ${repo.owner}/${repo.repo}`);
 
     let failures = 0;
     let successes = 0;
@@ -80,12 +80,11 @@ async function main() {
         log('DEBUG', `Updating comment ${commentId}`, { bodyLength: body.length });
         await updateComment(repo, commentId, body);
         successes++;
-        console.log(`✔ Updated ${commentId}`);
+        log('INFO', `✔ Updated ${commentId}`);
         log('DEBUG', `Successfully updated comment ${commentId}`);
       } catch (error) {
         failures++;
-        console.error(`✖ Failed to update ${commentId}: ${error.message}`);
-        log('ERROR', `Failed to update comment ${commentId}`, { error: error.message });
+        log('ERROR', `✖ Failed to update ${commentId}: ${error.message}`, { error: error.message });
       }
     }
 
@@ -95,7 +94,6 @@ async function main() {
     }
   } catch (error) {
     log('ERROR', `Script failed: ${error.message}`);
-    console.error(error.message);
     process.exit(1);
   }
 }

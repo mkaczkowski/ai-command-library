@@ -292,6 +292,68 @@ function createOptionalPositiveIntegerFieldValidator(fieldName) {
   };
 }
 
+function createNumericIdFieldValidator(fieldName = 'id') {
+  return (value) => {
+    const trimmedValue = String(value).trim();
+    if (!trimmedValue) {
+      return {
+        isValid: false,
+        error: `${fieldName} cannot be empty`,
+      };
+    }
+
+    if (!/^[0-9]+$/.test(trimmedValue)) {
+      return {
+        isValid: false,
+        error: `${fieldName} must be numeric`,
+      };
+    }
+
+    return {
+      isValid: true,
+      fieldName,
+      value: trimmedValue,
+    };
+  };
+}
+
+function createUrlFieldValidator(fieldName) {
+  return (value) => {
+    if (typeof value !== 'string') {
+      return {
+        isValid: false,
+        error: `${fieldName} must be a string`,
+      };
+    }
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+      return {
+        isValid: false,
+        error: `${fieldName} cannot be empty`,
+      };
+    }
+
+    try {
+      const parsed = new URL(trimmedValue);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error('URL must use http or https');
+      }
+    } catch (error) {
+      return {
+        isValid: false,
+        error: `${fieldName} must be a valid HTTP(S) URL`,
+      };
+    }
+
+    return {
+      isValid: true,
+      fieldName,
+      value: trimmedValue,
+    };
+  };
+}
+
 export {
   parseCSVContent,
   validateCSVHeaders,
@@ -300,4 +362,6 @@ export {
   createIdFieldValidator,
   createStringFieldValidator,
   createOptionalPositiveIntegerFieldValidator,
+  createNumericIdFieldValidator,
+  createUrlFieldValidator,
 };
