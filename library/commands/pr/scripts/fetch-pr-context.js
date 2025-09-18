@@ -16,7 +16,7 @@ import {
   createStandardArgHandlers,
   createStandardValidations,
   parseArgs,
-  showHelp,
+  handleHelp,
   validateArgs,
 } from './utils/cli.js';
 import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
@@ -55,10 +55,7 @@ async function main() {
 
     const options = parseCliArgs(process.argv.slice(2));
 
-    if (options.help) {
-      showHelp(HELP_TEXT);
-      return;
-    }
+    handleHelp(options, HELP_TEXT);
 
     const standardValidations = createStandardValidations();
     const validations = [standardValidations.prNumber, standardValidations.repository, standardValidations.outputFile];

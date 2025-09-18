@@ -16,7 +16,7 @@ import {
   createStandardArgHandlers,
   createStandardValidations,
   parseArgs,
-  showHelp,
+  handleHelp,
   validateArgs,
 } from './utils/cli.js';
 import { COMMON_BOOLEAN_FLAGS, PAGINATION_LIMITS } from './utils/config.js';
@@ -292,10 +292,7 @@ async function main() {
 
     const options = parseCliArgs(process.argv.slice(2));
 
-    if (options.help) {
-      showHelp(HELP_TEXT);
-      return;
-    }
+    handleHelp(options, HELP_TEXT);
 
     const standardValidations = createStandardValidations();
     const validations = [

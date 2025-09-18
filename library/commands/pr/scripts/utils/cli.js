@@ -127,6 +127,12 @@ function showHelp(helpText) {
   process.exit(0);
 }
 
+function handleHelp(options, helpText) {
+  if (options?.help) {
+    showHelp(helpText);
+  }
+}
+
 /**
  * Create standard validation objects for common CLI arguments.
  * @returns {Object} Object containing standard validation functions
@@ -172,4 +178,12 @@ function createStandardValidations() {
   };
 }
 
-export { parseArgs, createStandardArgHandlers, createFlagHandler, validateArgs, showHelp, createStandardValidations };
+export {
+  parseArgs,
+  createStandardArgHandlers,
+  createFlagHandler,
+  validateArgs,
+  showHelp,
+  createStandardValidations,
+  handleHelp,
+};

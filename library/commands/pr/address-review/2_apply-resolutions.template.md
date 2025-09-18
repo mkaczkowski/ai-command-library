@@ -104,6 +104,7 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 commentId,commitUrl
 "2351166366","https://github.com/example/repo/pull/123/commits/abcdef1234567890"
 ```
+
 The CSV is the hand-off artifact for downstream automation that will post replies to the original GitHub comments.
 
 ### Final Checklist
