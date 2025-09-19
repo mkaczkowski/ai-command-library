@@ -20,11 +20,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
      ```bash
      BASE_REF=$(jq -r '.baseRefName' tmp/pr-[PR_NUMBER]-context.json)
      HEAD_REF=$(jq -r '.headRefName' tmp/pr-[PR_NUMBER]-context.json)
-     git diff --name-only "${BASE_REF}...${HEAD_REF}" \
-       ':(exclude)yarn.lock' \
-       ':(exclude)package-lock.json' \
-       ':(exclude)pnpm-lock.yaml' \
-       ':(exclude)*.properties'
+     git diff --name-only "${BASE_REF}...${HEAD_REF}" ':(exclude)yarn.lock' ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml' ':(exclude)*.properties'
      ```
      Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
    - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
@@ -100,6 +96,10 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 ## Findings
 
+[If no issues found, state: "No issues found - this implementation meets quality standards."]
+
+[If issues exist, list them as follows:]
+
 ### [Severity: Blocker/Major/Minor] [Short title]
 
 **Area:** `[file/path.ext#Lline]`
@@ -133,7 +133,8 @@ Structure the generated markdown exactly as follows (omit sections that would be
 ## Additional Observations
 
 - [Optional improvements or questions that are non-blocking]
-- [Docs or tests to add, or manual checks to run]
+- [Future enhancement suggestions]
+- [Docs or tests to consider for future development]
 ````
 
 ### Severity Guidance

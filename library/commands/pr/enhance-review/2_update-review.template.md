@@ -30,8 +30,8 @@ This would improve the overall code readability and maintain consistent document
 - Header row: `id,rewritten`
 - Quote every field with double quotes.
 - Escape internal double quotes by doubling them (`""`).
-- Preserve line breaks within the `rewritten` field.
-- Use `\n` line endings.
+- Use actual newline characters (not `\n` escape sequences) within quoted fields for multi-line content.
+- `\n` (Unix-style) line endings between CSV rows.
 
 ## Phase 2: GitHub Updates
 

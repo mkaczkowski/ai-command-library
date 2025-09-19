@@ -10,12 +10,14 @@ Stop writing the same AI prompts over and over. Get a library of proven commands
 ## 💡 Why This Matters
 
 Every developer faces the same challenges:
+
 - 🔄 **Repetitive AI interactions** - Writing similar prompts for code reviews, documentation, and PR management
 - 🎯 **Inconsistent results** - Different team members get different quality from AI tools
 - ⏰ **Time waste** - Recreating prompts and workflows across projects
 - 🤝 **No collaboration** - Can't easily share effective AI commands with your team
 
 This library solves all of that. You get:
+
 - 📦 **Pre-built workflows** for common development tasks
 - 🔧 **Consistent setup** across all your favorite AI tools
 - 👥 **Team collaboration** with shared command libraries
@@ -26,6 +28,7 @@ This library solves all of that. You get:
 Get your first AI command working in under 2 minutes:
 
 ### Option 1: Direct Usage (No Installation)
+
 ```bash
 # For Claude Desktop/Code
 npx @mkaczkowski/ai-command-library -p claude
@@ -38,6 +41,7 @@ npx @mkaczkowski/ai-command-library -p codex-global
 ```
 
 ### Option 2: Install & Link
+
 ```bash
 # 1. Install
 npm install -D @mkaczkowski/ai-command-library
@@ -47,7 +51,9 @@ npx link-ai-commands --provider claude
 ```
 
 ### Try your first workflow
+
 Now you have powerful PR review commands in your AI tool! Try asking Claude:
+
 > "Use the PR review enhancement workflow to improve my code review comments"
 
 🎉 **Success!** Your AI tools now have access to professional-grade command workflows.
@@ -67,6 +73,7 @@ library/commands/         ← Proven command templates
 ```
 
 **Key concepts:**
+
 - 📝 **Commands** - Markdown files with step-by-step AI instructions
 - 🔧 **Providers** - Your AI tools (Claude, Cursor, Codex)
 - 🔗 **Linking** - Copying commands to where your tools can find them
@@ -77,47 +84,60 @@ library/commands/         ← Proven command templates
 The library works with all major AI development tools. Pick your setup:
 
 ### 🧠 Claude Desktop / Claude Code
+
 **Best for:** Individual developers, project-specific commands
+
 ```bash
 npx link-ai-commands --provider claude
 ```
+
 - **Result:** Commands appear in `.claude/commands/`
 - **What you get:** PR workflows accessible via Claude's command palette
 
 ### 💻 Cursor IDE
+
 **Best for:** Teams using Cursor, integrated development
+
 ```bash
 npx link-ai-commands --provider cursor
 ```
+
 - **Result:** Commands appear in `.cursor/commands/`
 - **What you get:** AI commands directly in your IDE
 
 ### ⚙️ Codex CLI
+
 **Best for:** Terminal workflows, automation scripts
+
 ```bash
 npx link-ai-commands --provider codex-global
 ```
+
 - **Result:** Commands appear in `~/.codex/prompts/`
 - **What you get:** Command-line AI automation
 
 ### 🔧 Advanced Options
 
 **Link to custom location:**
+
 ```bash
 npx link-ai-commands --provider claude --destination ./my-commands
 ```
 
 **Use symlinks (live updates):**
+
 ```bash
 npx link-ai-commands --provider claude --mode symlink
 ```
 
 **Preview before linking:**
+
 ```bash
 npx link-ai-commands --provider claude --dry-run
 ```
 
 **See all available providers:**
+
 ```bash
 npx link-ai-commands --list-providers
 ```
@@ -132,19 +152,20 @@ npx link-ai-commands --list-providers
 ### ⚡ Alternative Installation
 
 Install directly from GitHub:
+
 ```bash
 npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 ```
 
 > 📋 **Provider Reference Table**
 
-| Provider | Destination | Best For                         |
-|----------|------------|----------------------------------|
-| `claude` | `.claude/commands` | Project-specific Claude commands |
+| Provider        | Destination          | Best For                         |
+| --------------- | -------------------- | -------------------------------- |
+| `claude`        | `.claude/commands`   | Project-specific Claude commands |
 | `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
-| `cursor` | `.cursor/commands` | Project-specific Cursor commands |
-| `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup        |
-| `codex-global` | `~/.codex/prompts` | Terminal-based AI workflows      |
+| `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
+| `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
+| `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
 > 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review__1_rewrite-comments.md`) while scripts stay in folders. The linker prevents naming conflicts.
 
@@ -163,6 +184,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 ```
 
 **Path placeholders:**
+
 - `{{script:path/to/script.js}}` - References helper scripts
 - `{{path:commandsRoot}}` - References the commands directory
 
@@ -179,6 +201,7 @@ Ready-to-use workflows that solve real development problems. Each workflow inclu
 **Solution:** Transform blunt feedback into collaborative, constructive guidance while preserving all technical requirements.
 
 **What you get:**
+
 - ✨ Professional, collaborative tone
 - 🎯 Same technical accuracy
 - 👥 Better team relationships
@@ -237,6 +260,7 @@ flowchart TD
 **Solution:** AI-powered systematic review that catches issues you might miss and generates professional, actionable comments.
 
 **What you get:**
+
 - 🔍 Comprehensive issue detection
 - 📝 Professional, helpful comment text
 - ⚡ Faster review process
@@ -298,6 +322,7 @@ flowchart TD
 **Solution:** Structured approach to analyzing, implementing, and tracking resolution of all review feedback.
 
 **What you get:**
+
 - 📋 Systematic tracking of all feedback
 - ✅ Nothing gets missed or forgotten
 - 🎯 Appropriate responses to reviewers
