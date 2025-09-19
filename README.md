@@ -1,96 +1,217 @@
-# AI Command Library
+# 🚀 AI Command Library
 
-Reusable AI agent commands and helper scripts that plug into Claude Desktop, Cursor, Codex, and other tooling. The project ships a provider-agnostic command catalogue plus a CLI that syncs commands into the correct provider-specific folders.
+Stop writing the same AI prompts over and over. Get a library of proven commands for code reviews, PR management, and development workflows that work seamlessly across Claude, Cursor, and Codex.
 
-## Features
+**✅ One install → Works everywhere**
+**⚡ Ready-to-use PR workflows**
+**🔄 Auto-sync across tools**
+**📚 Battle-tested commands**
 
-- Canonical command source under `library/commands/` shared by all providers (markdown stored as `*.template.md`)
-- Provider metadata (`providers/*.json`) that maps source folders to destinations
-- Node-based CLI (`link-ai-commands`) for copying or symlinking commands into tool-specific directories
-- GitHub PR utilities for fetching context, preparing feedback, and updating comments
+## 💡 Why This Matters
 
-## Prerequisites
+Every developer faces the same challenges:
+- 🔄 **Repetitive AI interactions** - Writing similar prompts for code reviews, documentation, and PR management
+- 🎯 **Inconsistent results** - Different team members get different quality from AI tools
+- ⏰ **Time waste** - Recreating prompts and workflows across projects
+- 🤝 **No collaboration** - Can't easily share effective AI commands with your team
 
-- Node.js 22 or newer
-- npm 10+
-- [GitHub CLI](https://cli.github.com/) for the PR helpers; authenticate with `gh auth login` and ensure the `repo` scope is granted. Enterprise users can set `GH_HOST` or pass `--repo` to the scripts.
+This library solves all of that. You get:
+- 📦 **Pre-built workflows** for common development tasks
+- 🔧 **Consistent setup** across all your favorite AI tools
+- 👥 **Team collaboration** with shared command libraries
+- ⚡ **Instant productivity** - no more prompt engineering from scratch
 
-## Installation
+## ⚡ Quick Start
 
+Get your first AI command working in under 2 minutes:
+
+### 1. Install
 ```bash
 npm install -D @mkaczkowski/ai-command-library
 ```
 
-The package publishes the CLI as a binary named `link-ai-commands`.
+### 2. Link to your AI tool
+```bash
+# For Claude Desktop/Code
+npx link-ai-commands --provider claude
 
-If you prefer installing straight from GitHub:
+# For Cursor IDE
+npx link-ai-commands --provider cursor
 
+# For Codex CLI
+npx link-ai-commands --provider codex-global
+```
+
+### 3. Try your first workflow
+Now you have powerful PR review commands in your AI tool! Try asking Claude:
+> "Use the PR review enhancement workflow to improve my code review comments"
+
+🎉 **Success!** Your AI tools now have access to professional-grade command workflows.
+
+## 🛠 How It Works
+
+Think of this as a **shared library for AI prompts**. Instead of each developer writing their own prompts, you get:
+
+```
+library/commands/         ← Proven command templates
+       ↓
+  link-ai-commands        ← Smart sync tool
+       ↓
+    .claude/commands/     ← Ready to use in Claude
+    .cursor/commands/     ← Ready to use in Cursor
+    ~/.codex/prompts/     ← Ready to use in Codex
+```
+
+**Key concepts:**
+- 📝 **Commands** - Markdown files with step-by-step AI instructions
+- 🔧 **Providers** - Your AI tools (Claude, Cursor, Codex)
+- 🔗 **Linking** - Copying commands to where your tools can find them
+- 🤖 **Scripts** - Helper utilities for GitHub API integration
+
+## 🎯 Choose Your AI Tool
+
+The library works with all major AI development tools. Pick your setup:
+
+### 🧠 Claude Desktop / Claude Code
+**Best for:** Individual developers, project-specific commands
+```bash
+npx link-ai-commands --provider claude
+```
+- **Result:** Commands appear in `.claude/commands/`
+- **What you get:** PR workflows accessible via Claude's command palette
+
+### 💻 Cursor IDE
+**Best for:** Teams using Cursor, integrated development
+```bash
+npx link-ai-commands --provider cursor
+```
+- **Result:** Commands appear in `.cursor/commands/`
+- **What you get:** AI commands directly in your IDE
+
+### ⚙️ Codex CLI
+**Best for:** Terminal workflows, automation scripts
+```bash
+npx link-ai-commands --provider codex-global
+```
+- **Result:** Commands appear in `~/.codex/prompts/`
+- **What you get:** Command-line AI automation
+
+### 🔧 Advanced Options
+
+**Link to custom location:**
+```bash
+npx link-ai-commands --provider claude --destination ./my-commands
+```
+
+**Use symlinks (live updates):**
+```bash
+npx link-ai-commands --provider claude --mode symlink
+```
+
+**Preview before linking:**
+```bash
+npx link-ai-commands --provider claude --dry-run
+```
+
+**See all available providers:**
+```bash
+npx link-ai-commands --list-providers
+```
+
+## 📋 Prerequisites
+
+- **Node.js 22+** and **npm 10+**
+- **[GitHub CLI](https://cli.github.com/)** for PR workflows
+  - Run `gh auth login` and ensure `repo` scope is granted
+  - Enterprise users: set `GH_HOST` or use `--repo` flags
+
+### ⚡ Alternative Installation
+
+Install directly from GitHub:
 ```bash
 npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 ```
 
-## Linking Commands
+> 📋 **Provider Reference Table**
 
-`link-ai-commands` copies or symlinks everything under `library/commands/` into the folders your AI tools expect. Run it from a project root after adding the package (or globally once the CLI is installed).
+| Provider | Destination | Best For                         |
+|----------|------------|----------------------------------|
+| `claude` | `.claude/commands` | Project-specific Claude commands |
+| `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
+| `cursor` | `.cursor/commands` | Project-specific Cursor commands |
+| `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup        |
+| `codex-global` | `~/.codex/prompts` | Terminal-based AI workflows      |
 
-### Quick Start
+> 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review__1_rewrite-comments.md`) while scripts stay in folders. The linker prevents naming conflicts.
 
-```bash
-npx link-ai-commands --provider claude
-```
+## 🔄 Script Integration
 
-The example above populates `.claude/commands/pr` with the canonical PR workflows.
-
-### Provider Defaults
-
-| Provider id     | Default destination  | Typical use case                                         |
-| --------------- | -------------------- | -------------------------------------------------------- |
-| `claude`        | `.claude/commands`   | Project-scoped commands for Claude Desktop / Claude Code |
-| `claude-global` | `~/.claude/commands` | Machine-wide Claude command catalogue                    |
-| `cursor`        | `.cursor/commands`   | Project-scoped commands for Cursor IDE                   |
-| `cursor-global` | `~/.cursor/commands` | Machine-wide Cursor command catalogue                    |
-| `codex-global`  | `~/.codex/prompts`   | Machine-wide Codex prompt catalogue (flattened files)    |
-
-Run `npx link-ai-commands --list-providers` at any time to see bundled IDs and destinations.
-
-> **Codex note:** Codex keeps prompts flat. Markdown commands are flattened into filenames joined with `__` (for example `pr/enhance-review/1_rewrite-comments.md` becomes `pr__enhance-review__1_rewrite-comments.md`), while helper scripts stay grouped under `scripts/`. If two flattened commands would clash, the linker aborts so you can rename them.
-
-### Script References
-
-Commands that instruct agents to run helper scripts should reference the canonical path using the placeholder syntax
-`{{script:<relative-source-path>}}`. During linking the placeholder resolves to the provider’s actual destination. For
-example:
+Commands can reference helper scripts using placeholder syntax that works across all providers:
 
 ```bash
+# This works everywhere:
 node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
+
+# Resolves to:
+# Claude: .claude/commands/pr/scripts/fetch-pr-comments.js
+# Cursor: .cursor/commands/pr/scripts/fetch-pr-comments.js
+# Codex: ~/.codex/prompts/pr/scripts/fetch-pr-comments.js
 ```
 
-Links to `.claude/commands/pr/scripts/fetch-pr-comments.js` for Claude, `.cursor/commands/pr/scripts/fetch-pr-comments.js`
-for Cursor, and `~/.codex/prompts/pr/scripts/fetch-pr-comments.js` when syncing the Codex catalogue.
+**Path placeholders:**
+- `{{script:path/to/script.js}}` - References helper scripts
+- `{{path:commandsRoot}}` - References the commands directory
 
-- Use `{{path:commandsRoot}}` whenever instructions refer to the location of synced prompts. The linker resolves it to
-  `.claude/commands` for project-scoped Claude commands, `~/.claude/commands` for global installs, `.cursor/commands`
-  for Cursor projects, and `~/.codex/prompts` for the Codex CLI catalogue.
+## 📋 Common Workflows
 
-### Useful Flags
+Ready-to-use workflows that solve real development problems. Each workflow includes commands plus helper scripts for GitHub integration.
 
-- `--destination <dir>` sends the files somewhere else (relative paths resolve from the current directory).
-- `--mode symlink` keeps a live link to the library instead of copying files. On Windows, the CLI automatically falls back to copy mode if junctions are unavailable.
-- `--dry-run` prints the planned actions without touching the filesystem — combine it with any other flags to preview results.
+> 💡 **How to use:** After linking commands to your AI tool, reference these workflows in your conversations. Helper scripts gather the data your AI needs to provide accurate, actionable guidance.
 
-## Command Catalogue
+### 🔧 Enhance Existing Comments
 
-The library groups commands by PR workflow. Each markdown template (`*.template.md`) contains step-by-step instructions intended for an AI assistant. During linking the `.template` suffix is removed so providers receive plain `.md` files. Run the linked helper scripts first so the command has the data it expects.
+**Problem:** Your code review comments are technically accurate but sound harsh or overly critical.
 
-### Enhance Existing Comments
+**Solution:** Transform blunt feedback into collaborative, constructive guidance while preserving all technical requirements.
 
-#### `pr/enhance-review/1_rewrite-comments.template.md`
+**What you get:**
+- ✨ Professional, collaborative tone
+- 🎯 Same technical accuracy
+- 👥 Better team relationships
+- ⚡ Consistent review quality
 
-- **Purpose:** Rewrite existing reviewer comments so they sound collaborative while keeping the original technical request intact.
-- **Typical run:** Use `node scripts/fetch-pr-comments.js` to gather the latest review threads, then launch this command to polish each comment. If the source comment includes a markdown `AI` section, treat it as a private hint—pull guidance from it but omit the section from the rewritten response.
-- **Output:** A markdown report at `tmp/pr-[PR_NUMBER]-comments.md` ready to sanity check before sharing or exporting.
+#### Step 1: Rewrite Comments (`pr/enhance-review/1_rewrite-comments.md`)
 
-#### Flow
+**When to use:** After writing initial review comments but before posting them.
+
+```bash
+# First, gather existing comments
+node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
+
+# Then ask your AI:
+# "Use the comment enhancement workflow to improve my review tone"
+```
+
+**What happens:** Your AI reads your draft comments and rewrites them to sound more collaborative while keeping all technical points intact.
+
+**Output:** Polished comments ready for posting (`tmp/pr-[PR_NUMBER]-comments.md`)
+
+#### Step 2: Update Comments (`pr/enhance-review/2_update-review.md`)
+
+**When to use:** After reviewing and approving your enhanced comments.
+
+```bash
+# Generate update instructions for GitHub
+# (Your AI will guide you through this)
+
+# Apply the updates
+node {{script:pr/scripts/edit-pr-comments.js}} --pr=123
+```
+
+**What happens:** Your enhanced comments replace the original ones on GitHub, automatically maintaining the same technical accuracy with better tone.
+
+<details>
+<summary>📊 <strong>Workflow Diagram</strong></summary>
 
 ```mermaid
 flowchart TD
@@ -103,30 +224,54 @@ flowchart TD
     Decide -->|No| Share[Manual review or async feedback]
 ```
 
-#### `pr/enhance-review/2_update-review.template.md`
+</details>
 
-- **Purpose:** Prepare bulk updates for existing GitHub comments after you finish rewriting them.
-- **Typical run:** Execute this command once you have refined comments in the markdown output. It guides you through generating a CSV file that maps old comment IDs to the improved text so `scripts/edit-pr-comments.js` can submit updates via the GitHub API.
-- **Output:** CSV rows that the `edit-pr-comments.js` script turns into actual comment edits.
+### ✍️ Create New Review Comments
 
-#### Flow
+**Problem:** You need to provide a thorough code review but don't want to miss important issues or spend hours crafting detailed feedback.
 
-```mermaid
-flowchart TD
-    Parse[Read enhanced markdown and extract comments]
-    Parse --> CSV[Generate CSV]
-    CSV -->|Yes| Script[Update GitHub comments]
+**Solution:** AI-powered systematic review that catches issues you might miss and generates professional, actionable comments.
+
+**What you get:**
+- 🔍 Comprehensive issue detection
+- 📝 Professional, helpful comment text
+- ⚡ Faster review process
+- 🎯 Consistent review quality across your team
+
+#### Step 1: Prepare Review (`pr/draft-review/1_prepare-review.md`)
+
+**When to use:** When you need to review a new PR thoroughly.
+
+```bash
+# Gather PR context and changes
+node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
+
+# Then ask your AI:
+# "Use the review preparation workflow to analyze this PR"
 ```
 
-### Create New Review Comments
+**What happens:** Your AI systematically reviews the entire PR, cataloging potential issues, improvements, and positive points.
 
-#### `pr/draft-review/1_prepare-review.template.md`
+**Output:** Structured findings ready to convert into GitHub comments (`tmp/pr-[PR_NUMBER]-findings.md`)
 
-- **Purpose:** Collect PR context and outline a full review plan before you start drafting comments.
-- **Typical run:** Start by running `node scripts/fetch-pr-context.js` (and the comment fetcher if needed) so the workspace has up-to-date metadata, files, and diffs. The command then helps the assistant catalog issues, suggested fixes, and supporting references.
-- **Output:** Structured findings stored in the workspace (usually under `tmp/`) that are ready to be turned into actionable review comments.
+#### Step 2: Create Review (`pr/draft-review/2_create-review.md`)
 
-#### Flow
+**When to use:** After preparing your review findings.
+
+```bash
+# Generate GitHub-ready comments
+# (Your AI will guide you through this)
+
+# Post the review to GitHub
+node {{script:pr/scripts/create-pr-review.js}} --pr=123
+```
+
+**What happens:** Your AI converts findings into polished GitHub comments with proper file/line mappings.
+
+**Output:** Professional review comments posted to GitHub
+
+<details>
+<summary>📊 <strong>Workflow Diagram</strong></summary>
 
 ```mermaid
 flowchart TD
@@ -134,35 +279,71 @@ flowchart TD
     Context --> Inspect[Study patches, docs, and neighbouring code]
     Inspect --> Analyze[Assess risks, gaps, and strengths across files]
     Analyze --> Output[Generate structured plan]
-    Output --> Handoff[Move to create-review to craft comment CSV]
-```
-
-#### `pr/draft-review/2_create-review.template.md`
-
-- **Purpose:** Convert prepared review findings into individual comment bodies that GitHub can accept.
-- **Typical run:** Point this command at the findings produced by `prepare-review.md`. It walks through generating reviewer-friendly language, maps each note to its file and line, and shapes the result into the CSV schema consumed by `scripts/create-pr-review.js`.
-- **Output:** A CSV file containing comment drafts plus any required metadata for bulk submission.
-
-#### Flow
-
-```mermaid
-flowchart TD
-    Parse[Load findings markdown and iterate over each issue]
-    Parse --> Craft[Compose concise, inline comments]
+    Output --> Craft[Compose concise, inline comments]
     Craft --> Map[Align paths and line numbers with PR diffs]
     Map --> Export[Export comments to CSV]
     Export --> RunScript[Create pending PR review]
 ```
 
-### Address Review Feedback
+</details>
 
-#### `pr/address-review/1_prepare-resolutions.template.md`
+### 🔄 Address Review Feedback
 
-- **Purpose:** Build an actionable resolution plan for every unresolved 👍 review comment without touching code yet.
-- **Typical run:** Refresh comment data with `node scripts/fetch-pr-comments.js --reaction=+1 --ignore-outdated --include-diff-hunk` (and optionally `node scripts/fetch-pr-context.js` for richer metadata), study linked standards, then document the steps needed to satisfy each reviewer.
-- **Output:** A markdown playbook saved to `tmp/pr-[PR_NUMBER]-address-plan.md` cataloguing required code/doc changes, validation, and open questions per comment.
+**Problem:** You have review feedback to address but need to ensure you handle every comment systematically and respond appropriately.
 
-#### Flow
+**Solution:** Structured approach to analyzing, implementing, and tracking resolution of all review feedback.
+
+**What you get:**
+- 📋 Systematic tracking of all feedback
+- ✅ Nothing gets missed or forgotten
+- 🎯 Appropriate responses to reviewers
+- ⚡ Faster resolution cycles
+
+#### Step 1: Plan Resolutions (`pr/address-review/1_prepare-resolutions.md`)
+
+**When to use:** When you have unresolved review comments to address.
+
+```bash
+# Get latest feedback with reactions
+node {{script:pr/scripts/fetch-pr-comments.js}} --reaction=+1 --ignore-outdated --include-diff-hunk --pr=123
+
+# Then ask your AI:
+# "Use the resolution planning workflow to address this feedback"
+```
+
+**What happens:** Your AI creates a systematic plan for addressing each piece of feedback.
+
+**Output:** Implementation plan with validation steps (`tmp/pr-[PR_NUMBER]-address-plan.md`)
+
+#### Step 2: Implement Changes (`pr/address-review/2_apply-resolutions.md`)
+
+**When to use:** After your resolution plan is approved.
+
+```bash
+# Follow your AI-generated plan to implement changes
+# (Your AI will guide you through each step)
+```
+
+**What happens:** Your AI helps you implement each planned change and validates the results.
+
+**Output:** Detailed resolution report with commit references (`tmp/pr-[PR_NUMBER]-address-report.md`)
+
+#### Step 3: Reply to Comments (`pr/address-review/3_reply-to-comments.md`)
+
+**When to use:** After implementing fixes to close the feedback loop.
+
+```bash
+# Reply to resolved comments with commit references
+node {{script:pr/scripts/reply-to-comments.js}} --pr=123 --dry-run
+
+# When ready, apply the replies
+node {{script:pr/scripts/reply-to-comments.js}} --pr=123
+```
+
+**What happens:** Courteous acknowledgments are posted to each resolved comment thread with links to the implementing commits.
+
+<details>
+<summary>📊 <strong>Complete Address Workflow</strong></summary>
 
 ```mermaid
 flowchart TD
@@ -170,55 +351,82 @@ flowchart TD
     Gather --> Study[Review diffs, standards, and previous discussion]
     Study --> Strategize[Define fixes, validation, and sequencing per comment]
     Strategize --> Document[Write implementation plan]
-    Document --> Execute[Hand off to apply-resolutions for implementation]
-```
-
-#### `pr/address-review/2_apply-resolutions.template.md`
-
-- **Purpose:** Execute the approved plan, implement the fixes, and capture validation results for reviewers.
-- **Typical run:** Follow the plan from `prepare-resolutions.md`, apply each change, stage commits that reference the associated comment, and record validation outcomes as you go.
-- **Output:** A detailed report at `tmp/pr-[PR_NUMBER]-address-report.md` summarizing commits, tests, and any follow-up work tied to each resolved comment.
-
-#### Flow
-
-```mermaid
-flowchart TD
-    Reconfirm[Load implementation plan]
-    Reconfirm --> Implement[Apply fixes, docs, and tests per planned steps]
+    Document --> Implement[Apply fixes, docs, and tests per planned steps]
     Implement --> Validate[Run targeted checks]
     Validate --> Report[Generate final report]
-    Report --> Wrap{Everything resolved?}
-    Wrap -->|Yes| Share[Push commits and report back to reviewers]
-    Wrap -->|No| Loop[Return to implement for remaining feedback]
+    Report --> Reply[Reply to comments with commit references]
+    Reply --> Wrap{Everything resolved?}
+    Wrap -->|Yes| Share[Push commits and close feedback loop]
+    Wrap -->|No| Loop[Return to implement remaining feedback]
 ```
 
-#### `pr/address-review/3_reply-to-comments.template.md`
+</details>
 
-- **Purpose:** Close the loop with reviewers by replying to every resolved comment with the commit that addressed it and a pointer back to the resolution log.
-- **Typical run:** After generating `tmp/pr-[PR_NUMBER]-address-resolved.csv`, run `node reply-to-comments.js --pr=[PR_NUMBER] --dry-run` to preview replies, then rerun without `--dry-run` (and pass `--repo` for GitHub Enterprise). The script validates comment IDs, targets the thread root when required, and posts courteous acknowledgements via `gh api`.
-- **Output:** Replies posted directly on GitHub review threads (no new local file) with console confirmation for each comment.
+## 🤖 Helper Scripts Reference
 
-### PR Automation Scripts
+The workflows above use helper scripts to integrate with GitHub. These scripts handle API calls, data processing, and file management automatically.
 
-The `library/commands/pr/scripts/` folder contains Node.js helpers that automate API calls the markdown commands rely on:
+<details>
+<summary><strong>📥 Data Fetching Scripts</strong></summary>
 
-- `fetch-pr-comments.js` retrieves review comments with options for ignoring outdated threads or filtering by reaction.
-- `fetch-pr-context.js` gathers supplemental PR metadata (files, commits, participants) so commands can reference the latest state.
-- `create-pr-review.js` submits the prepared comment CSV as a pending GitHub review.
-- `edit-pr-comments.js` updates existing review comments based on the CSV produced by the update workflow.
-- `reply-to-comments.js` posts commit-linked acknowledgements back to review comments using the address-resolved CSV.
+- **`fetch-pr-comments.js`** - Get review comments with filtering options
+- **`fetch-pr-context.js`** - Gather PR metadata, files, commits, and participants
 
-Run these scripts with `node scripts/<script-name> [options]`. Use `--help` on any script to inspect supported flags.
+```bash
+# Examples
+node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123 --reaction=+1
+node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
+```
 
-## Automating Syncs
+</details>
 
-- Add `link-ai-commands --provider <id>` to your project's `postinstall` script so command folders stay up to date.
-- In multi-tool environments, run the CLI once per provider target.
-- CI pipelines can execute the CLI during build steps to verify the destination folders exist before publishing artifacts.
+<details>
+<summary><strong>📤 GitHub Integration Scripts</strong></summary>
 
-## Development
+- **`create-pr-review.js`** - Submit comment CSV as GitHub review
+- **`edit-pr-comments.js`** - Update existing comments with enhanced versions
+- **`reply-to-comments.js`** - Post resolution acknowledgments to comment threads
 
-Clone and install dependencies:
+```bash
+# Examples
+node {{script:pr/scripts/create-pr-review.js}} --pr=123
+node {{script:pr/scripts/edit-pr-comments.js}} --pr=123
+node {{script:pr/scripts/reply-to-comments.js}} --pr=123 --dry-run
+```
+
+</details>
+
+> 💡 **Tip:** All scripts support `--help` to show available options and usage examples.
+
+## 🔄 Automation & Integration
+
+### Keep Commands Updated
+
+Add automatic syncing to your project workflow:
+
+```json
+{
+  "scripts": {
+    "postinstall": "link-ai-commands --provider claude"
+  }
+}
+```
+
+### Multi-Tool Setup
+
+Using multiple AI tools? Run once per provider:
+
+```bash
+npx link-ai-commands --provider claude    # For Claude
+npx link-ai-commands --provider cursor    # For Cursor
+npx link-ai-commands --provider codex-global  # For Codex
+```
+
+## 🛠 Development & Contributing
+
+Want to contribute or customize the library? Here's how to get started:
+
+### Setup
 
 ```bash
 git clone https://github.com/mkaczkowski/ai-command-library.git
@@ -226,42 +434,64 @@ cd ai-command-library
 npm install
 ```
 
-Run linting and formatting checks:
+### Code Quality
+
+Run checks before committing:
 
 ```bash
-npm run lint
-npm run format:check
+npm run lint           # Check code style
+npm run format:check   # Verify formatting
 ```
 
-Automatically fix lint issues and apply formatting:
+Auto-fix issues:
 
 ```bash
-npm run lint:fix
-npm run format
+npm run lint:fix       # Fix linting issues
+npm run format         # Apply consistent formatting
 ```
 
-### Releasing
-
-1. Update `CHANGELOG.md` and bump the version in `package.json`.
-2. Run `npm run release` to verify linting and formatting.
-3. Publish with `npm publish --access public` (requires an npm token with publish rights).
-4. Push the release commit and tag to GitHub.
-
-## Repository Layout
+### 📁 Repository Structure
 
 ```
 ai-command-library/
-├── library/commands/      # Canonical command source
-├── providers/             # Provider mapping metadata
-├── scripts/link-commands.js
-└── bin/link-ai-commands.js
+├── library/commands/      # 📝 Canonical command source (your templates)
+├── providers/             # ⚙️ Provider configurations (claude.json, cursor.json)
+├── scripts/               # 🔧 Core linking logic
+└── bin/                   # 📦 CLI entry point
 ```
 
-## Support & Feedback
+### 🚀 Release Process
 
-- Report bugs and feature requests via [GitHub issues](https://github.com/mkaczkowski/ai-command-library/issues).
-- Security reports should follow the guidance in [`SECURITY.md`](SECURITY.md).
+1. **Update:** Bump version in `package.json` and update `CHANGELOG.md`
+2. **Verify:** Run `npm run release` to check linting and formatting
+3. **Publish:** `npm publish --access public` (requires NPM_TOKEN env var)
+4. **Tag:** Push the release commit and tag to GitHub
 
-## License
+## 🤝 Support & Community
+
+### 🐛 Found an Issue?
+
+- **Bug reports:** [GitHub Issues](https://github.com/mkaczkowski/ai-command-library/issues)
+- **Feature requests:** [GitHub Issues](https://github.com/mkaczkowski/ai-command-library/issues)
+- **Security concerns:** Follow guidance in [`SECURITY.md`](SECURITY.md)
+
+### 💡 Need Help?
+
+- Check the workflows above for common use cases
+- Review script help with `--help` flag
+- Search existing issues for solutions
+
+### 🎯 Contributing
+
+- Add new command workflows
+- Improve existing templates
+- Enhance provider support
+- Update documentation
+
+---
+
+## 📄 License
 
 Released under the [MIT License](LICENSE).
+
+**Happy coding!** 🚀
