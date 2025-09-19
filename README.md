@@ -25,24 +25,28 @@ This library solves all of that. You get:
 
 Get your first AI command working in under 2 minutes:
 
-### 1. Install
-```bash
-npm install -D @mkaczkowski/ai-command-library
-```
-
-### 2. Link to your AI tool
+### Option 1: Direct Usage (No Installation)
 ```bash
 # For Claude Desktop/Code
-npx link-ai-commands --provider claude
+npx @mkaczkowski/ai-command-library -p claude
 
 # For Cursor IDE
-npx link-ai-commands --provider cursor
+npx @mkaczkowski/ai-command-library -p cursor
 
 # For Codex CLI
-npx link-ai-commands --provider codex-global
+npx @mkaczkowski/ai-command-library -p codex-global
 ```
 
-### 3. Try your first workflow
+### Option 2: Install & Link
+```bash
+# 1. Install
+npm install -D @mkaczkowski/ai-command-library
+
+# 2. Link to your AI tool
+npx link-ai-commands --provider claude
+```
+
+### Try your first workflow
 Now you have powerful PR review commands in your AI tool! Try asking Claude:
 > "Use the PR review enhancement workflow to improve my code review comments"
 
