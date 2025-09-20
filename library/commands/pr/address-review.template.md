@@ -1,3 +1,6 @@
+---
+description: "Plan, implement, and close the loop on fixes for GitHub PR review feedback."
+---
 # GitHub PR Comment Resolution Workflow
 
 Act as the senior software engineer responsible for addressing GitHub PR feedback and closing the loop with reviewers.
@@ -242,6 +245,6 @@ node {{script:pr/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
 
 If the resolved comment CSV lives somewhere else, add `--csv=<path>` to point the script at the correct file.
 
-### Continue?
+### Final Output
 
-After posting replies, confirm with the user whether additional follow-up is needed (e.g. rerunning Step 2 for new feedback). If not, conclude the workflow.
+After completing the workflow, provide a brief summary describing the updated comment status

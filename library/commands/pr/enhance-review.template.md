@@ -1,3 +1,6 @@
+---
+description: "Rewrite GitHub PR review comments to make them collaborative and actionable."
+---
 # GitHub Pull Request Comment Enhancement Workflow
 
 Act as a senior frontend engineer and experienced reviewer responsible for improving existing GitHub PR review comments.

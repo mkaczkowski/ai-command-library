@@ -1,3 +1,6 @@
+---
+description: "Produce an expert GitHub PR review with actionable inline findings."
+---
 # GitHub Pull Request Review Workflow
 
 Act as a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub PR review.
