@@ -1,3 +1,7 @@
+---
+description: 'Produce an expert GitHub PR review with actionable inline findings.'
+---
+
 # GitHub Pull Request Review Workflow
 
 Act as a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub PR review.
@@ -17,15 +21,20 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 ```
 
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
+
+   **Expected JSON structure:**
+
+   ```json
+   {
+     "branches": { "base": { "ref": "main" }, "head": { "ref": "feature-branch" } },
+     "files": [{ "filename": "path/to/file", "patch": "diff content" }]
+   }
+   ```
+
 3. Inventory the change surface:
-   - Extract `baseRefName` and `headRefName` from the generated JSON, then run
-     ```bash
-     BASE_REF=$(jq -r '.baseRefName' tmp/pr-[PR_NUMBER]-context.json)
-     HEAD_REF=$(jq -r '.headRefName' tmp/pr-[PR_NUMBER]-context.json)
-     git diff --name-only "${BASE_REF}...${HEAD_REF}" ':(exclude)yarn.lock' ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml' ':(exclude)*.properties'
-     ```
-     Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
-   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
+   - Review the `files` array in the PR context JSON to understand all changed files
+   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort
+   - Use the `additions`, `deletions`, and `status` fields to inform your impact assessment
 4. Inspect the codebase for surrounding context:
    - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
    - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
@@ -102,7 +111,7 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 [If issues exist, list them as follows:]
 
-### [Severity: Blocker/Major/Minor] [Short title]
+### 1. [Severity: Blocker/Major/Minor] [Short title]
 
 **Area:** `[file/path.ext#Lline]`
 
@@ -146,15 +155,9 @@ Structure the generated markdown exactly as follows (omit sections that would be
 - [ ] Verified behaviour changes against the PR description.
 - [ ] Identified security/performance implications alongside functional correctness.
 
-### Continue?
-
-Before progressing, ask the user: **"Continue to Step 2 (Create Review Comments)?"**. If they choose not to continue, pause here and share the findings markdown for manual follow-up.
-
-## Step 2: Create Review Comments
+### Phase 5: Understand the Source Markdown
 
 Convert curated findings into actionable inline PR comments and prepare them for submission.
-
-### Phase 1: Understand the Source Markdown
 
 #### Input File
 
@@ -176,7 +179,7 @@ For each finding block under `## Findings`:
 3. Ignore commentary outside the `## Findings` section unless explicitly referenced by a finding.
 4. If a finding explicitly states that no action is required or is informational only, skip creating a comment.
 
-### Phase 2: Craft Review Comment Bodies
+### Phase 6: Craft Review Comment Bodies
 
 Compose a single inline comment per finding that clearly communicates the concern and desired change.
 
@@ -187,7 +190,7 @@ Compose a single inline comment per finding that clearly communicates the concer
 - Keep comments self-contained; repeat critical context from the finding so the reader does not need to open the review document.
 - Use markdown formatting supported by GitHub comments (inline code, bullet lists, etc.) sparingly for clarity.
 
-### Phase 3: Map Areas to Diff Locations
+### Phase 7: Map Areas to Diff Locations
 
 When converting the `Area` field to CSV columns:
 
@@ -206,14 +209,60 @@ When converting the `Area` field to CSV columns:
 - If the area points to multiple disjoint locations, create separate comment rows for each unique location.
 - Preserve the relative ordering of findings from the source markdown.
 
-### Phase 4: CSV Output Specification
+**Important:** Provide either a `position` value OR `line`/`startLine` values for each comment, not both
+
+### Phase 8: CSV Output Specification
+
+#### Recommended automation
+
+1. Capture the review output in `tmp/pr-[PR_NUMBER]-review-comments.json` using the column names from the CSV header as keys.
+
+   ```json
+   [
+     {
+       "path": "src/components/Card.tsx",
+       "body": "Blocker – Shadowed token reuse. I noticed ...",
+       "line": 128,
+       "startLine": 120,
+       "side": "RIGHT",
+       "startSide": "RIGHT"
+     }
+   ]
+   ```
+
+2. Generate the CSV with the helper script (it handles quoting, embedded fences, and blank optional fields):
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-review-comments.json \
+     --output=tmp/pr-[PR_NUMBER]-review-comments.csv \
+     --schema=review
+   ```
+
+   The script also accepts a top-level `comments` array if you prefer `{ "comments": [ ... ] }` JSON.
+
+#### Manual fallback
 
 Generate a CSV file with the exact header order:
 
-```csv
+````csv
 path,position,body,line,startLine,side,startSide
 "src/components/Card.tsx","","Blocker – Shadowed token reuse. I noticed ...","128","120","RIGHT","RIGHT"
+"src/utils/helpers.js","45","Major – Missing error handling
+
+This function doesn't validate input parameters or handle potential errors. Consider adding validation:
+
+```javascript
+function processData(data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid data provided');
+  }
+  // existing logic...
+}
 ```
+
+This prevents runtime crashes and improves debugging.","","","RIGHT",""
+````
 
 **CSV rules:**
 
@@ -224,15 +273,19 @@ path,position,body,line,startLine,side,startSide
 
 Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be provided in context).
 
-### Phase 5: Finalise and Submit
+### Continue?
+
+Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here.
+
+## Step 2: Finalise and Submit
 
 1. Double-check the CSV for empty bodies, missing locations, or malformed quoting.
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
-3. Once satisfied, run:
+
+**Important:** Use only the provided scripts for creating and sending data to GitHub. GitHub CLI should be used exclusively for fetching and reading data.
+
+3. Once satisfied, run the provided script:
+
    ```bash
    node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
-
-### Continue?
-
-Before running the submission script, ask the user: **"Submit these review comments to GitHub now?"**. If they are not ready, stop here and leave the CSV for later use.

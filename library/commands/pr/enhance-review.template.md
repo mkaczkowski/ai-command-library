@@ -1,3 +1,7 @@
+---
+description: 'Rewrite GitHub PR review comments to make them collaborative and actionable.'
+---
+
 # GitHub Pull Request Comment Enhancement Workflow
 
 Act as a senior frontend engineer and experienced reviewer responsible for improving existing GitHub PR review comments.
@@ -20,6 +24,18 @@ Transform existing PR comments so they remain technically accurate while soundin
 3. Consult `README.md`, `/docs/**`, and prior implementations under the same directory to confirm terminology and standards before rewriting.
 
 ### Phase 2: Rewrite Guidance
+
+#### ⚠️ CRITICAL: AI Hint Processing
+
+**ALWAYS check for AI hint sections before rewriting any comment.**
+
+- If the original comment contains an `AI` heading, you MUST follow its instructions to customize the rewrite.
+- Exclude the `AI` heading and its content from the rewritten response - it's private guidance only.
+
+**Common AI Hint Examples:**
+
+- `AI: focus on security concerns` → Emphasize security aspects in the rewrite
+- `AI: simplify for junior developers` → Use simpler language and add more explanation
 
 #### Tone and Style
 
@@ -72,6 +88,7 @@ Produce the rewritten comments using the template below. Keep numbering sequenti
 
 **ID:** [id]
 **File:** `[path]:[lines]`
+**AI Hint:** [Note any AI hint found, or "None"]
 
 ### Original
 
@@ -108,9 +125,33 @@ Convert the enhanced comments into a CSV and apply the updates to GitHub.
 
 1. Review the supplied markdown containing the enhanced comment text.
 2. Extract each comment `id` and its rewritten body.
-3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format.
+3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format (generate the CSV with `node {{script:pr/scripts/generate-comment-csv.js}}`).
 
 #### CSV Generation Requirements
+
+**Recommended automation**
+
+1. Prepare `tmp/pr-[PR_NUMBER]-comments.json` with the rewritten comment bodies:
+
+   ```json
+   [
+     {
+       "id": "2351166366",
+       "rewritten": "I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact."
+     }
+   ]
+   ```
+
+2. Convert the JSON to CSV with the helper script (ensures quoting and preserves multiline markdown):
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-comments.json \
+     --output=tmp/pr-[PR_NUMBER]-comments.csv \
+     --schema=enhance
+   ```
+
+**Manual fallback**
 
 Create a CSV file with the following structure:
 

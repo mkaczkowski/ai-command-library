@@ -1,7 +1,7 @@
 {
   "name": "@mkaczkowski/ai-command-library",
-  "version": "0.4.5",
-  "description": "Reusable AI agent commands packaged for Claude, Cursor, Codex and similar tooling.",
+  "version": "0.4.7",
+  "description": "Reusable AI agent commands packaged for Claude, Cursor, Copilot, Codex and similar tooling.",
   "type": "module",
   "bin": {
     "link-ai-commands": "bin/link-ai-commands.js"
@@ -40,6 +40,7 @@
     "claude",
     "cursor",
     "codex",
+    "copilot",
     "github"
   ],
   "license": "MIT",

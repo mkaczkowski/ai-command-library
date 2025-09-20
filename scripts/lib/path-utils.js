@@ -27,10 +27,10 @@ export function flattenRelativePath(relativePath, delimiter = '__') {
   return normalized.join(delimiter);
 }
 
-/** Replaces .template.md suffixes with .md for destination paths. */
-export function stripTemplateExtension(relativePath) {
+/** Replaces .template.md suffixes with the configured markdown extension. */
+export function stripTemplateExtension(relativePath, replacementExtension = '.md') {
   if (relativePath.endsWith('.template.md')) {
-    return `${relativePath.slice(0, -'.template.md'.length)}.md`;
+    return `${relativePath.slice(0, -'.template.md'.length)}${replacementExtension}`;
   }
   return relativePath;
 }

@@ -1,6 +1,6 @@
 # 🚀 AI Command Library
 
-Stop writing the same AI prompts over and over. Get a library of proven commands for code reviews, PR management, and development workflows that work seamlessly across Claude, Cursor, and Codex.
+Stop writing the same AI prompts over and over. Get a library of proven commands for code reviews, PR management, and development workflows that work seamlessly across Claude, Cursor, Copilot, and Codex.
 
 **✅ One install → Works everywhere**
 **⚡ Ready-to-use PR workflows**
@@ -36,6 +36,9 @@ npx @mkaczkowski/ai-command-library -p claude
 # For Cursor IDE
 npx @mkaczkowski/ai-command-library -p cursor
 
+# For GitHub Copilot Workspace
+npx @mkaczkowski/ai-command-library -p copilot
+
 # For Codex CLI
 npx @mkaczkowski/ai-command-library -p codex-global
 ```
@@ -69,13 +72,14 @@ library/commands/         ← Proven command templates
        ↓
     .claude/commands/     ← Ready to use in Claude
     .cursor/commands/     ← Ready to use in Cursor
+    .github/prompts/      ← Ready to use in Copilot
     ~/.codex/prompts/     ← Ready to use in Codex
 ```
 
 **Key concepts:**
 
 - 📝 **Commands** - Markdown files with step-by-step AI instructions
-- 🔧 **Providers** - Your AI tools (Claude, Cursor, Codex)
+- 🔧 **Providers** - Your AI tools (Claude, Cursor, Copilot, Codex)
 - 🔗 **Linking** - Copying commands to where your tools can find them
 - 🤖 **Scripts** - Helper utilities for GitHub API integration
 
@@ -104,6 +108,17 @@ npx link-ai-commands --provider cursor
 
 - **Result:** Commands appear in `.cursor/commands/`
 - **What you get:** AI commands directly in your IDE
+
+### 🤖 GitHub Copilot Workspace
+
+**Best for:** Developers using GitHub Copilot with shared project workflows
+
+```bash
+npx link-ai-commands --provider copilot
+```
+
+- **Result:** Commands appear in `.github/prompts/`
+- **What you get:** Flattened `.prompt.md` files ready for Copilot Workspace
 
 ### ⚙️ Codex CLI
 
@@ -165,9 +180,11 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 | `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
 | `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
 | `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
+| `copilot`       | `.github/prompts`    | Project-specific Copilot prompts |
 | `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
-> 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
+> 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
+> 📝 **Special note for Copilot:** Prompts are flattened to hyphenated names ending in `.prompt.md`, while `scripts/` keep their directory structure.
 
 ## 🔄 Script Integration
 
@@ -180,6 +197,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 # Resolves to:
 # Claude: .claude/commands/pr/scripts/fetch-pr-comments.js
 # Cursor: .cursor/commands/pr/scripts/fetch-pr-comments.js
+# Copilot: .github/prompts/pr/scripts/fetch-pr-comments.js
 # Codex: ~/.codex/prompts/pr/scripts/fetch-pr-comments.js
 ```
 
@@ -207,7 +225,7 @@ Ready-to-use workflows that solve real development problems. Each workflow inclu
 - 👥 Better team relationships
 - ⚡ Consistent review quality
 
-#### Step 1: Rewrite Comments (`pr/enhance-review/enhance-review.md` — Step 1)
+#### Step 1: Rewrite Comments (`pr/enhance-review.md` — Step 1)
 
 **When to use:** After writing initial review comments but before posting them.
 
@@ -223,7 +241,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 
 **Output:** Polished comments ready for posting (`tmp/pr-[PR_NUMBER]-comments.md`)
 
-#### Step 2: Update Comments (`pr/enhance-review/enhance-review.md` — Step 2)
+#### Step 2: Update Comments (`pr/enhance-review.md` — Step 2)
 
 **When to use:** After reviewing and approving your enhanced comments.
 
@@ -266,7 +284,7 @@ flowchart TD
 - ⚡ Faster review process
 - 🎯 Consistent review quality across your team
 
-#### Step 1: Prepare Review (`pr/draft-review/draft-review.md` — Step 1)
+#### Step 1: Prepare Review (`pr/draft-review.md` — Step 1)
 
 **When to use:** When you need to review a new PR thoroughly.
 
@@ -282,7 +300,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 
 **Output:** Structured findings ready to convert into GitHub comments (`tmp/pr-[PR_NUMBER]-findings.md`)
 
-#### Step 2: Create Review (`pr/draft-review/draft-review.md` — Step 2)
+#### Step 2: Create Review (`pr/draft-review.md` — Step 2)
 
 **When to use:** After preparing your review findings.
 
@@ -328,7 +346,7 @@ flowchart TD
 - 🎯 Appropriate responses to reviewers
 - ⚡ Faster resolution cycles
 
-#### Step 1: Plan Resolutions (`pr/address-review/address-review.md` — Step 1)
+#### Step 1: Plan Resolutions (`pr/address-review.md` — Step 1)
 
 **When to use:** When you have unresolved review comments to address.
 
@@ -344,7 +362,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --reaction=+1 --ignore-outdated 
 
 **Output:** Implementation plan with validation steps (`tmp/pr-[PR_NUMBER]-address-plan.md`)
 
-#### Step 2: Implement Changes (`pr/address-review/address-review.md` — Step 2)
+#### Step 2: Implement Changes (`pr/address-review.md` — Step 2)
 
 **When to use:** After your resolution plan is approved.
 
@@ -357,7 +375,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --reaction=+1 --ignore-outdated 
 
 **Output:** Detailed resolution report with commit references (`tmp/pr-[PR_NUMBER]-address-report.md`)
 
-#### Step 3: Reply to Comments (`pr/address-review/address-review.md` — Step 3)
+#### Step 3: Reply to Comments (`pr/address-review.md` — Step 3)
 
 **When to use:** After implementing fixes to close the feedback loop.
 

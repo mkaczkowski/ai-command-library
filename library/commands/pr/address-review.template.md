@@ -1,3 +1,7 @@
+---
+description: 'Plan, implement, and close the loop on fixes for GitHub PR review feedback.'
+---
+
 # GitHub PR Comment Resolution Workflow
 
 Act as the senior software engineer responsible for addressing GitHub PR feedback and closing the loop with reviewers.
@@ -208,6 +212,28 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 1. Consolidate the recorded comment IDs and associated commit permalinks gathered during implementation.
 2. Save the CSV to `tmp/pr-[PR_NUMBER]-address-resolved.csv`.
 
+**Recommended automation**
+
+1. Create `tmp/pr-[PR_NUMBER]-address-resolved.json` with the recorded mappings:
+
+   ```json
+   [
+     {
+       "commentId": "2351166366",
+       "commitUrl": "https://github.com/example/repo/pull/123/commits/abcdef1234567890"
+     }
+   ]
+   ```
+
+2. Convert it to CSV with the helper script:
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-address-resolved.json \
+     --output=tmp/pr-[PR_NUMBER]-address-resolved.csv \
+     --schema=resolved
+   ```
+
 **CSV Format Requirements**
 
 - Header row: `commentId,commitUrl`
@@ -242,6 +268,6 @@ node {{script:pr/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
 
 If the resolved comment CSV lives somewhere else, add `--csv=<path>` to point the script at the correct file.
 
-### Continue?
+### Final Output
 
-After posting replies, confirm with the user whether additional follow-up is needed (e.g. rerunning Step 2 for new feedback). If not, conclude the workflow.
+After completing the workflow, provide a brief summary describing the updated comment status

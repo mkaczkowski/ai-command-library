@@ -364,4 +364,48 @@ export {
   createOptionalPositiveIntegerFieldValidator,
   createNumericIdFieldValidator,
   createUrlFieldValidator,
+  stringifyCsvRows,
 };
+
+/**
+ * Convert structured row data into CSV content matching the supplied headers.
+ * @param {Object[]} rows - Array of row objects keyed by header names
+ * @param {string[]} headers - Ordered list of CSV headers
+ * @returns {string} CSV content terminated with a newline
+ */
+function stringifyCsvRows(rows, headers) {
+  if (!Array.isArray(headers) || headers.length === 0) {
+    throw new Error('CSV headers cannot be empty');
+  }
+
+  const csvRows = [headers.join(',')];
+
+  for (const row of rows) {
+    const fields = headers.map((header) => formatCsvField(row?.[header]));
+    csvRows.push(fields.join(','));
+  }
+
+  return `${csvRows.join('\n')}\n`;
+}
+
+function formatCsvField(value) {
+  const normalized = normalizeCsvValue(value);
+  const escaped = normalized.replace(/"/g, '""');
+  return `"${escaped}"`;
+}
+
+function normalizeCsvValue(value) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : '';
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+
+  return String(value);
+}

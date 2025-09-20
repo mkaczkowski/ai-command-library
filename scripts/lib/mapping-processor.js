@@ -87,6 +87,7 @@ async function processStandardMapping({
   state,
   resolveDestinationRelativePath,
 }) {
+  const markdownExtension = providerConfig?.markdownExtension ?? '.md';
   const targetBase = path.join(destinationRoot, mapping.target ?? mapping.source);
   await removeIfExists(targetBase, { dryRun, logger });
   const files = await collectFilesRecursive(sourcePath);
@@ -94,7 +95,7 @@ async function processStandardMapping({
     const relativeToMappingRoot = path.relative(sourcePath, absoluteFile);
     const relativeSegments = splitSegments(relativeToMappingRoot);
     const normalizedRelative = relativeSegments.join('/');
-    const destinationRelative = stripTemplateExtension(normalizedRelative);
+    const destinationRelative = stripTemplateExtension(normalizedRelative, markdownExtension);
     const destinationFile = path.join(targetBase, ...destinationRelative.split('/'));
     await transferFile({
       providerConfig,
@@ -126,6 +127,7 @@ async function processFlattenMapping({
   resolveDestinationRelativePath,
 }) {
   const { delimiter, excludePrefixes } = resolveFlattenOptions(mapping.flatten);
+  const markdownExtension = providerConfig?.markdownExtension ?? '.md';
   const seen = new Set();
   const mappingSourceSegments = splitSegments(mapping.source ?? '');
   const files = await collectFilesRecursive(sourcePath);
@@ -139,8 +141,8 @@ async function processFlattenMapping({
       throw new Error(`Unable to compute flattened name for ${absoluteFile}`);
     }
 
-    const destinationRelativePreserved = stripTemplateExtension(normalizedRelative);
-    const destinationRelativeFlattened = stripTemplateExtension(flattenedName);
+    const destinationRelativePreserved = stripTemplateExtension(normalizedRelative, markdownExtension);
+    const destinationRelativeFlattened = stripTemplateExtension(flattenedName, markdownExtension);
 
     if (shouldPreservePath(normalizedRelative, excludePrefixes)) {
       const legacyFlattenedPath = path.join(targetRoot, flattenedName);
@@ -235,6 +237,7 @@ async function transferFile({
 function createDestinationResolver(providerConfig) {
   const providerId = providerConfig.id ?? 'unknown';
   const mappings = providerConfig.mappings ?? [];
+  const markdownExtension = providerConfig?.markdownExtension ?? '.md';
   return (relativePath, overrideProviderId = providerId) => {
     const normalized = splitSegments(relativePath).join('/');
     for (const mapping of mappings) {
@@ -245,17 +248,20 @@ function createDestinationResolver(providerConfig) {
         if (!mapping.flatten) {
           const targetBase = mapping.target ? splitSegments(mapping.target).join('/') : mappingSource;
           const combined = remainder ? `${targetBase}/${remainder}` : targetBase;
-          return stripTemplateExtension(combined);
+          return stripTemplateExtension(combined, markdownExtension);
         }
         const options = resolveFlattenOptions(mapping.flatten);
         if (shouldPreservePath(remainder, options.excludePrefixes)) {
           const targetBase = mapping.target ? splitSegments(mapping.target).join('/') : '';
-          if (!targetBase) return stripTemplateExtension(remainder);
+          if (!targetBase) return stripTemplateExtension(remainder, markdownExtension);
           const combined = remainder ? `${targetBase}/${remainder}` : targetBase;
-          return stripTemplateExtension(combined);
+          return stripTemplateExtension(combined, markdownExtension);
         }
         const flattenInput = remainder ? `${mappingSource}/${remainder}` : mappingSource;
-        const flattenedName = stripTemplateExtension(flattenRelativePath(flattenInput, options.delimiter));
+        const flattenedName = stripTemplateExtension(
+          flattenRelativePath(flattenInput, options.delimiter),
+          markdownExtension
+        );
         const targetBase = mapping.target ? splitSegments(mapping.target).join('/') : '';
         return targetBase ? `${targetBase}/${flattenedName}` : flattenedName;
       }
