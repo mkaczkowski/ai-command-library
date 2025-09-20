@@ -12,8 +12,8 @@ import {
   createFlagHandler,
   createStandardArgHandlers,
   createStandardValidations,
-  parseArgs,
   handleHelp,
+  parseArgs,
   validateArgs,
 } from './utils/cli.js';
 import { COMMON_BOOLEAN_FLAGS, REVIEW_COMMENT_CSV_CONFIG } from './utils/config.js';
@@ -251,5 +251,31 @@ async function submitReview(repo, prNumber, payload) {
   const state = response.state || 'pending';
   log('INFO', `✔ Created pending review ${reviewId} (state: ${state})`);
 }
+
+/*async function checkForPendingReview(repo, prNumber) {
+  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews`;
+
+  try {
+    const reviews = await runGhJson(['api', endpoint], { host: repo.host });
+
+    // Find pending reviews by current user
+    const pendingReviews = reviews.filter(
+      (review) =>
+        (review.state === 'PENDING' && review.user.login === process.env.GITHUB_USER) ||
+        review.user.login === process.env.USER
+    );
+
+    return pendingReviews.length > 0 ? pendingReviews[0] : null;
+  } catch (error) {
+    log('WARN', `Could not check for existing reviews: ${error.message}`);
+    return null;
+  }
+}
+
+async function deletePendingReview(repo, prNumber, reviewId) {
+  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews/${reviewId}`;
+
+  await runGhJson(['api', '--method', 'DELETE', endpoint], { host: repo.host });
+}*/
 
 main();
