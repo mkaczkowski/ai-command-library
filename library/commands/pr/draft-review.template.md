@@ -146,15 +146,9 @@ Structure the generated markdown exactly as follows (omit sections that would be
 - [ ] Verified behaviour changes against the PR description.
 - [ ] Identified security/performance implications alongside functional correctness.
 
-### Continue?
-
-Before progressing, ask the user: **"Continue to Step 2 (Create Review Comments)?"**. If they choose not to continue, pause here and share the findings markdown for manual follow-up.
-
-## Step 2: Create Review Comments
+### Phase 5: Understand the Source Markdown
 
 Convert curated findings into actionable inline PR comments and prepare them for submission.
-
-### Phase 1: Understand the Source Markdown
 
 #### Input File
 
@@ -176,7 +170,7 @@ For each finding block under `## Findings`:
 3. Ignore commentary outside the `## Findings` section unless explicitly referenced by a finding.
 4. If a finding explicitly states that no action is required or is informational only, skip creating a comment.
 
-### Phase 2: Craft Review Comment Bodies
+### Phase 6: Craft Review Comment Bodies
 
 Compose a single inline comment per finding that clearly communicates the concern and desired change.
 
@@ -187,7 +181,7 @@ Compose a single inline comment per finding that clearly communicates the concer
 - Keep comments self-contained; repeat critical context from the finding so the reader does not need to open the review document.
 - Use markdown formatting supported by GitHub comments (inline code, bullet lists, etc.) sparingly for clarity.
 
-### Phase 3: Map Areas to Diff Locations
+### Phase 7: Map Areas to Diff Locations
 
 When converting the `Area` field to CSV columns:
 
@@ -206,7 +200,7 @@ When converting the `Area` field to CSV columns:
 - If the area points to multiple disjoint locations, create separate comment rows for each unique location.
 - Preserve the relative ordering of findings from the source markdown.
 
-### Phase 4: CSV Output Specification
+### Phase 8: CSV Output Specification
 
 Generate a CSV file with the exact header order:
 
@@ -224,15 +218,15 @@ path,position,body,line,startLine,side,startSide
 
 Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be provided in context).
 
-### Phase 5: Finalise and Submit
+### Continue?
+
+Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here and leave the CSV for later use.
+
+## Step 2: Finalise and Submit
 
 1. Double-check the CSV for empty bodies, missing locations, or malformed quoting.
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
 3. Once satisfied, run:
    ```bash
-   node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
+   node .claude/commands/pr/scripts/create-pr-review.js --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
-
-### Continue?
-
-Before running the submission script, ask the user: **"Submit these review comments to GitHub now?"**. If they are not ready, stop here and leave the CSV for later use.
