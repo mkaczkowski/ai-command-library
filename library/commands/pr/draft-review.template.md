@@ -237,7 +237,7 @@ Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be
 
 ### Continue?
 
-Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here and leave the CSV for later use.
+Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here.
 
 ## Step 2: Finalise and Submit
 
