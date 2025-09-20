@@ -17,14 +17,19 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 ```
 
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
+
+   **Expected JSON structure:**
+   ```json
+   {
+     "branches": { "base": { "ref": "main" }, "head": { "ref": "feature-branch" } },
+     "files": [{ "filename": "path/to/file", "patch": "diff content" }]
+   }
+   ```
 3. Inventory the change surface:
-   - Extract `baseRefName` and `headRefName` from the generated JSON, then run
+   - Extract changed files using the utility script:
      ```bash
-     BASE_REF=$(jq -r '.baseRefName' tmp/pr-[PR_NUMBER]-context.json)
-     HEAD_REF=$(jq -r '.headRefName' tmp/pr-[PR_NUMBER]-context.json)
-     git diff --name-only "${BASE_REF}...${HEAD_REF}" ':(exclude)yarn.lock' ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml' ':(exclude)*.properties'
+     node {{script:pr/scripts/list-changed-files.js}} --context=tmp/pr-[PR_NUMBER]-context.json --output=tmp/pr-[PR_NUMBER]-files.txt
      ```
-     Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
    - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
 4. Inspect the codebase for surrounding context:
    - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
@@ -204,10 +209,24 @@ When converting the `Area` field to CSV columns:
 
 Generate a CSV file with the exact header order:
 
-```csv
+````csv
 path,position,body,line,startLine,side,startSide
 "src/components/Card.tsx","","Blocker – Shadowed token reuse. I noticed ...","128","120","RIGHT","RIGHT"
+"src/utils/helpers.js","45","Major – Missing error handling
+
+This function doesn't validate input parameters or handle potential errors. Consider adding validation:
+
+```javascript
+function processData(data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid data provided');
+  }
+  // existing logic...
+}
 ```
+
+This prevents runtime crashes and improves debugging.","","","RIGHT",""
+````
 
 **CSV rules:**
 
@@ -228,5 +247,5 @@ Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
 3. Once satisfied, run:
    ```bash
-   node .claude/commands/pr/scripts/create-pr-review.js --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
+   node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
