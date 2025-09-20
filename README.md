@@ -180,7 +180,7 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 | `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
 | `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
 | `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
-| `copilot`       | `.github/prompts`    | Project-specific Copilot prompts  |
+| `copilot`       | `.github/prompts`    | Project-specific Copilot prompts |
 | `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
 > 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
