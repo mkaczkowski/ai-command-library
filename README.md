@@ -72,7 +72,7 @@ library/commands/         ← Proven command templates
        ↓
     .claude/commands/     ← Ready to use in Claude
     .cursor/commands/     ← Ready to use in Cursor
-    .copilot/commands/    ← Ready to use in Copilot
+    .github/prompts/      ← Ready to use in Copilot
     ~/.codex/prompts/     ← Ready to use in Codex
 ```
 
@@ -117,8 +117,8 @@ npx link-ai-commands --provider cursor
 npx link-ai-commands --provider copilot
 ```
 
-- **Result:** Commands appear in `.copilot/commands/`
-- **What you get:** Copilot-friendly command palette entries
+- **Result:** Commands appear in `.github/prompts/`
+- **What you get:** Flattened `.prompt.md` files ready for Copilot Workspace
 
 ### ⚙️ Codex CLI
 
@@ -180,10 +180,11 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 | `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
 | `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
 | `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
-| `copilot`       | `.copilot/commands`  | Project-specific Copilot commands |
+| `copilot`       | `.github/prompts`    | Project-specific Copilot prompts  |
 | `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
 > 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
+> 📝 **Special note for Copilot:** Prompts are flattened to hyphenated names ending in `.prompt.md`, while `scripts/` keep their directory structure.
 
 ## 🔄 Script Integration
 
@@ -196,7 +197,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 # Resolves to:
 # Claude: .claude/commands/pr/scripts/fetch-pr-comments.js
 # Cursor: .cursor/commands/pr/scripts/fetch-pr-comments.js
-# Copilot: .copilot/commands/pr/scripts/fetch-pr-comments.js
+# Copilot: .github/prompts/pr/scripts/fetch-pr-comments.js
 # Codex: ~/.codex/prompts/pr/scripts/fetch-pr-comments.js
 ```
 
