@@ -167,7 +167,7 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 | `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
 | `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
-> 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review__1_rewrite-comments.md`) while scripts stay in folders. The linker prevents naming conflicts.
+> 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
 
 ## 🔄 Script Integration
 
@@ -207,7 +207,7 @@ Ready-to-use workflows that solve real development problems. Each workflow inclu
 - 👥 Better team relationships
 - ⚡ Consistent review quality
 
-#### Step 1: Rewrite Comments (`pr/enhance-review/1_rewrite-comments.md`)
+#### Step 1: Rewrite Comments (`pr/enhance-review/enhance-review.md` — Step 1)
 
 **When to use:** After writing initial review comments but before posting them.
 
@@ -223,7 +223,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 
 **Output:** Polished comments ready for posting (`tmp/pr-[PR_NUMBER]-comments.md`)
 
-#### Step 2: Update Comments (`pr/enhance-review/2_update-review.md`)
+#### Step 2: Update Comments (`pr/enhance-review/enhance-review.md` — Step 2)
 
 **When to use:** After reviewing and approving your enhanced comments.
 
@@ -266,7 +266,7 @@ flowchart TD
 - ⚡ Faster review process
 - 🎯 Consistent review quality across your team
 
-#### Step 1: Prepare Review (`pr/draft-review/1_prepare-review.md`)
+#### Step 1: Prepare Review (`pr/draft-review/draft-review.md` — Step 1)
 
 **When to use:** When you need to review a new PR thoroughly.
 
@@ -282,7 +282,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 
 **Output:** Structured findings ready to convert into GitHub comments (`tmp/pr-[PR_NUMBER]-findings.md`)
 
-#### Step 2: Create Review (`pr/draft-review/2_create-review.md`)
+#### Step 2: Create Review (`pr/draft-review/draft-review.md` — Step 2)
 
 **When to use:** After preparing your review findings.
 
@@ -328,7 +328,7 @@ flowchart TD
 - 🎯 Appropriate responses to reviewers
 - ⚡ Faster resolution cycles
 
-#### Step 1: Plan Resolutions (`pr/address-review/1_prepare-resolutions.md`)
+#### Step 1: Plan Resolutions (`pr/address-review/address-review.md` — Step 1)
 
 **When to use:** When you have unresolved review comments to address.
 
@@ -344,7 +344,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --reaction=+1 --ignore-outdated 
 
 **Output:** Implementation plan with validation steps (`tmp/pr-[PR_NUMBER]-address-plan.md`)
 
-#### Step 2: Implement Changes (`pr/address-review/2_apply-resolutions.md`)
+#### Step 2: Implement Changes (`pr/address-review/address-review.md` — Step 2)
 
 **When to use:** After your resolution plan is approved.
 
@@ -357,7 +357,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --reaction=+1 --ignore-outdated 
 
 **Output:** Detailed resolution report with commit references (`tmp/pr-[PR_NUMBER]-address-report.md`)
 
-#### Step 3: Reply to Comments (`pr/address-review/3_reply-to-comments.md`)
+#### Step 3: Reply to Comments (`pr/address-review/address-review.md` — Step 3)
 
 **When to use:** After implementing fixes to close the feedback loop.
 

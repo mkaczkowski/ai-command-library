@@ -1,0 +1,238 @@
+# GitHub Pull Request Review Workflow
+
+Act as a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub PR review.
+
+**Core Objective:** Analyze the pull request end-to-end, document meaningful findings, and convert them into actionable inline comments ready for submission.
+
+## Step 1: Prepare Review Findings
+
+Systematically evaluate the PR and capture structured findings that reflect risks, improvements, and positives.
+
+### Phase 1: Gather Context
+
+1. Collect the latest PR metadata, file statistics, and per-file patches:
+
+```bash
+node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+```
+
+2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
+3. Inventory the change surface:
+   - Extract `baseRefName` and `headRefName` from the generated JSON, then run
+     ```bash
+     BASE_REF=$(jq -r '.baseRefName' tmp/pr-[PR_NUMBER]-context.json)
+     HEAD_REF=$(jq -r '.headRefName' tmp/pr-[PR_NUMBER]-context.json)
+     git diff --name-only "${BASE_REF}...${HEAD_REF}" ':(exclude)yarn.lock' ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml' ':(exclude)*.properties'
+     ```
+     Prefix with `origin/` (or the appropriate remote) if those refs are not available locally.
+   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
+4. Inspect the codebase for surrounding context:
+   - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
+   - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
+5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
+
+#### Coverage Edge Cases
+
+- For large or truncated patches, fall back to `git show <branch>:<path>` to review the complete file.
+- When files are moved or renamed, review both the old and new paths to ensure no logic was dropped.
+
+#### Standards Quick Reference
+
+[Add project-specific standards and guidelines here when tailoring the command to your repository]
+
+### Phase 2: Review Guidelines
+
+#### What to Evaluate
+
+- **Correctness & Safety:** logic, edge cases, failure handling, backward compatibility, data integrity.
+- **Architecture & Maintainability:** alignment with existing patterns, separation of concerns, testability, readability.
+- **Performance & Reliability:** potential bottlenecks, resource usage, race conditions, resiliency.
+- **Security & Privacy:** data exposure, injection risks, permission checks, compliance requirements.
+- **Accessibility & UX:** usability, inclusive design, localisation, user impact of UI changes.
+- **Testing & Documentation:** automated tests coverage and docs updates.
+
+#### File Type & Priority Guide
+
+- **Components & business logic:** Validate correctness, state management patterns, and regression risk.
+- **Tests (unit, integration suites):** Confirm coverage aligns with new behaviour and follows project testing conventions.
+- **Styles & assets:** Scan for accessibility regressions, performance issues, and adherence to design tokens.
+- **Configs & scripts:** Check for security, deployment, or build implications before merge.
+- **Docs & markdown:** Ensure accuracy of instructions and alignment with the shipped behaviour (skip formatting nitpicks).
+
+#### Common Failure Modes to Flag
+
+- Missing dependency lists or cleanup in React hooks and other subscription-style utilities.
+- Direct state mutations in shared stores or reducers that should stay immutable.
+- Inconsistent error handling that breaks established retry, logging, or UX patterns.
+- Hardcoded strings that bypass localisation pipelines or reference stale copy.
+- Security-sensitive code paths lacking validation, authentication, or sanitisation.
+
+#### Style & Tone
+
+- Maintain a collaborative reviewer posture—be direct, respectful, and focused on outcomes.
+- Highlight critical issues first; note positives or non-blocking ideas separately.
+- Cite specific files, functions, and lines. Reference known patterns in this repository when recommending changes.
+- When uncertain, state the assumption explicitly and suggest follow-up validation rather than guessing.
+
+### Phase 3: Output Format
+
+Structure the generated markdown exactly as follows (omit sections that would be empty and state explicitly when no issues are found):
+
+````markdown
+# PR Review Feedback
+
+**Generated:** [current date]
+**PR:** #[number] — [title]
+**Author:** [login]
+**Branches:** [source] → [target]
+**Recommendation:** [Approve | Comment | Request changes]
+**Confidence:** [High | Medium | Low]
+
+---
+
+## Overview
+
+- [One-line summary of the changes]
+- [Biggest risk or area of focus]
+- [Notable strengths worth preserving]
+
+## Findings
+
+[If no issues found, state: "No issues found - this implementation meets quality standards."]
+
+[If issues exist, list them as follows:]
+
+### [Severity: Blocker/Major/Minor] [Short title]
+
+**Area:** `[file/path.ext#Lline]`
+
+#### Issue
+
+[Describe the problem, referencing expected behaviour or standards]
+
+##### code (optional)
+
+```[language]
+// Include only the minimum context needed to illustrate the issue
+```
+
+##### suggested changes (optional)
+
+```[language]
+// Provide a concrete fix, test addition, or follow-up action
+```
+
+#### Recommendation
+
+[Summarise the action the author should take]
+
+#### Rationale
+
+[Explain why the change is needed; cite patterns, docs, or risk]
+
+### [Repeat for each finding]
+
+## Additional Observations
+
+- [Optional improvements or questions that are non-blocking]
+- [Future enhancement suggestions]
+- [Docs or tests to consider for future development]
+````
+
+### Phase 4: Analysis Checklist
+
+- [ ] Reviewed every changed file (excluding autogenerated artefacts) and documented skips with rationale.
+- [ ] Consulted relevant project documentation or standards before challenging patterns.
+- [ ] Verified behaviour changes against the PR description.
+- [ ] Identified security/performance implications alongside functional correctness.
+
+### Continue?
+
+Before progressing, ask the user: **"Continue to Step 2 (Create Review Comments)?"**. If they choose not to continue, pause here and share the findings markdown for manual follow-up.
+
+## Step 2: Create Review Comments
+
+Convert curated findings into actionable inline PR comments and prepare them for submission.
+
+### Phase 1: Understand the Source Markdown
+
+#### Input File
+
+- Path will be supplied when the command is executed (typically `tmp/pr-[PR_NUMBER]-review.md`).
+- The document follows the structure defined in Step 1, especially the `## Findings` section where each `###` heading represents an actionable piece of feedback.
+
+#### Parsing Requirements
+
+For each finding block under `## Findings`:
+
+1. Treat the heading `### [Severity] [Short title]` as metadata.
+2. Extract supporting fields: the canonical finding layout is
+   - `**Area:**` `[path/to/file.ext#L123]` (range variant: `[path/to/file.ext#L120-L128]`)
+   - `Issue:` Paragraph describing the problem
+   - `##### code (optional)` followed by a fenced block (language inferred from the opening fence)
+   - `##### suggested changes (optional)` followed by a fenced block
+   - `Recommendation:` Requested action, typically a single sentence
+   - `Rationale` Why the change matters; may include inline references
+3. Ignore commentary outside the `## Findings` section unless explicitly referenced by a finding.
+4. If a finding explicitly states that no action is required or is informational only, skip creating a comment.
+
+### Phase 2: Craft Review Comment Bodies
+
+Compose a single inline comment per finding that clearly communicates the concern and desired change.
+
+- Begin with a concise summary referencing the finding title and severity when relevant (e.g. `Blocker – Shadowed token reuse`).
+- Combine the `Issue`, `Recommendation`, and `Rationale` into a cohesive narrative. Keep the tone collaborative and specific.
+- Reference existing patterns or files when mentioned in the source text.
+- Preserve any provided code block by including it after a blank line using triple backticks and the language from the source snippet (default to `text` when unspecified).
+- Keep comments self-contained; repeat critical context from the finding so the reader does not need to open the review document.
+- Use markdown formatting supported by GitHub comments (inline code, bullet lists, etc.) sparingly for clarity.
+
+### Phase 3: Map Areas to Diff Locations
+
+When converting the `Area` field to CSV columns:
+
+- Strip formatting markers from the extracted `Area` value:
+  - Convert `path/to/file#L120-L128` to `path/to/file:120-128` before splitting.
+- Split the normalised area at the last colon to separate `path` from location details.
+- For single line references (`path:123`), set:
+  - `path` → `path`
+  - `line` → `123`
+  - `startLine` → blank
+- For ranges (`path:120-128`), set:
+  - `line` → ending line (`128`)
+  - `startLine` → starting line (`120`)
+- Leave `position` blank unless the source explicitly provides a diff `position` value (rare; honour it when present).
+- Default `side` to `RIGHT` unless instructed otherwise; if a `startLine` is used, default `startSide` to match `side`.
+- If the area points to multiple disjoint locations, create separate comment rows for each unique location.
+- Preserve the relative ordering of findings from the source markdown.
+
+### Phase 4: CSV Output Specification
+
+Generate a CSV file with the exact header order:
+
+```csv
+path,position,body,line,startLine,side,startSide
+"src/components/Card.tsx","","Blocker – Shadowed token reuse. I noticed ...","128","120","RIGHT","RIGHT"
+```
+
+**CSV rules:**
+
+- Quote every field with double quotes.
+- Escape internal quotes by doubling them (`""`).
+- Preserve intentional line breaks inside the `body` field.
+- Ensure the file uses `\n` line endings.
+
+Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be provided in context).
+
+### Phase 5: Finalise and Submit
+
+1. Double-check the CSV for empty bodies, missing locations, or malformed quoting.
+2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
+3. Once satisfied, run:
+   ```bash
+   node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
+   ```
+
+### Continue?
+
+Before running the submission script, ask the user: **"Submit these review comments to GitHub now?"**. If they are not ready, stop here and leave the CSV for later use.
