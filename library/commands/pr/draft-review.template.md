@@ -111,7 +111,7 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 [If issues exist, list them as follows:]
 
-### [Severity: Blocker/Major/Minor] [Short title]
+### 1. [Severity: Blocker/Major/Minor] [Short title]
 
 **Area:** `[file/path.ext#Lline]`
 
@@ -209,6 +209,8 @@ When converting the `Area` field to CSV columns:
 - If the area points to multiple disjoint locations, create separate comment rows for each unique location.
 - Preserve the relative ordering of findings from the source markdown.
 
+**Important:** Provide either a `position` value OR `line`/`startLine` values for each comment, not both
+
 ### Phase 8: CSV Output Specification
 
 Generate a CSV file with the exact header order:
@@ -249,7 +251,11 @@ Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**
 
 1. Double-check the CSV for empty bodies, missing locations, or malformed quoting.
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
-3. Once satisfied, run:
+
+**Important:** Use only the provided scripts for creating and sending data to GitHub. GitHub CLI should be used exclusively for fetching and reading data.
+
+3. Once satisfied, run the provided script:
+
    ```bash
    node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
