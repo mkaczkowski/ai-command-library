@@ -212,6 +212,28 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 1. Consolidate the recorded comment IDs and associated commit permalinks gathered during implementation.
 2. Save the CSV to `tmp/pr-[PR_NUMBER]-address-resolved.csv`.
 
+**Recommended automation**
+
+1. Create `tmp/pr-[PR_NUMBER]-address-resolved.json` with the recorded mappings:
+
+   ```json
+   [
+     {
+       "commentId": "2351166366",
+       "commitUrl": "https://github.com/example/repo/pull/123/commits/abcdef1234567890"
+     }
+   ]
+   ```
+
+2. Convert it to CSV with the helper script:
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-address-resolved.json \
+     --output=tmp/pr-[PR_NUMBER]-address-resolved.csv \
+     --schema=resolved
+   ```
+
 **CSV Format Requirements**
 
 - Header row: `commentId,commitUrl`

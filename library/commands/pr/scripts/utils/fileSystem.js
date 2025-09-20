@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { mkdir, readFile } from 'fs/promises';
 import path from 'path';
 
 export function normalizeRepositoryPath(filePath) {
@@ -74,4 +75,25 @@ export function resolveExistingPath(filePath) {
   }
 
   return absolutePath;
+}
+
+export async function ensureDirectoryForFile(filePath) {
+  if (typeof filePath !== 'string' || filePath.trim() === '') {
+    throw new Error('File path cannot be empty');
+  }
+
+  const directory = path.dirname(path.resolve(filePath));
+  await mkdir(directory, { recursive: true });
+  return directory;
+}
+
+export async function readJsonFile(filePath) {
+  const absolutePath = resolveExistingPath(filePath);
+  const content = await readFile(absolutePath, 'utf8');
+
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    throw new Error(`Unable to parse JSON from ${absolutePath}: ${error.message}`);
+  }
 }

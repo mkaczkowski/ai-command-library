@@ -125,9 +125,33 @@ Convert the enhanced comments into a CSV and apply the updates to GitHub.
 
 1. Review the supplied markdown containing the enhanced comment text.
 2. Extract each comment `id` and its rewritten body.
-3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format.
+3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format (generate the CSV with `node {{script:pr/scripts/generate-comment-csv.js}}`).
 
 #### CSV Generation Requirements
+
+**Recommended automation**
+
+1. Prepare `tmp/pr-[PR_NUMBER]-comments.json` with the rewritten comment bodies:
+
+   ```json
+   [
+     {
+       "id": "2351166366",
+       "rewritten": "I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact."
+     }
+   ]
+   ```
+
+2. Convert the JSON to CSV with the helper script (ensures quoting and preserves multiline markdown):
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-comments.json \
+     --output=tmp/pr-[PR_NUMBER]-comments.csv \
+     --schema=enhance
+   ```
+
+**Manual fallback**
 
 Create a CSV file with the following structure:
 

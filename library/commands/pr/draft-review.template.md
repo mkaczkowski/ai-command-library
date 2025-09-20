@@ -213,6 +213,36 @@ When converting the `Area` field to CSV columns:
 
 ### Phase 8: CSV Output Specification
 
+#### Recommended automation
+
+1. Capture the review output in `tmp/pr-[PR_NUMBER]-review-comments.json` using the column names from the CSV header as keys.
+
+   ```json
+   [
+     {
+       "path": "src/components/Card.tsx",
+       "body": "Blocker – Shadowed token reuse. I noticed ...",
+       "line": 128,
+       "startLine": 120,
+       "side": "RIGHT",
+       "startSide": "RIGHT"
+     }
+   ]
+   ```
+
+2. Generate the CSV with the helper script (it handles quoting, embedded fences, and blank optional fields):
+
+   ```bash
+   node {{script:pr/scripts/generate-comment-csv.js}} \
+     --input=tmp/pr-[PR_NUMBER]-review-comments.json \
+     --output=tmp/pr-[PR_NUMBER]-review-comments.csv \
+     --schema=review
+   ```
+
+   The script also accepts a top-level `comments` array if you prefer `{ "comments": [ ... ] }` JSON.
+
+#### Manual fallback
+
 Generate a CSV file with the exact header order:
 
 ````csv
