@@ -21,6 +21,17 @@ Transform existing PR comments so they remain technically accurate while soundin
 
 ### Phase 2: Rewrite Guidance
 
+#### ⚠️ CRITICAL: AI Hint Processing
+
+**ALWAYS check for AI hint sections before rewriting any comment.**
+
+- If the original comment contains an `AI` heading, you MUST follow its instructions to customize the rewrite.
+- Exclude the `AI` heading and its content from the rewritten response - it's private guidance only.
+
+**Common AI Hint Examples:**
+- `AI: focus on security concerns` → Emphasize security aspects in the rewrite
+- `AI: simplify for junior developers` → Use simpler language and add more explanation
+
 #### Tone and Style
 
 - Maintain a collaborative voice; prefer phrasing such as "I recommend...", "Could we...", or "Let's consider...".
@@ -72,6 +83,7 @@ Produce the rewritten comments using the template below. Keep numbering sequenti
 
 **ID:** [id]
 **File:** `[path]:[lines]`
+**AI Hint:** [Note any AI hint found, or "None"]
 
 ### Original
 
