@@ -1,6 +1,7 @@
 ---
-description: "Rewrite GitHub PR review comments to make them collaborative and actionable."
+description: 'Rewrite GitHub PR review comments to make them collaborative and actionable.'
 ---
+
 # GitHub Pull Request Comment Enhancement Workflow
 
 Act as a senior frontend engineer and experienced reviewer responsible for improving existing GitHub PR review comments.
@@ -32,6 +33,7 @@ Transform existing PR comments so they remain technically accurate while soundin
 - Exclude the `AI` heading and its content from the rewritten response - it's private guidance only.
 
 **Common AI Hint Examples:**
+
 - `AI: focus on security concerns` → Emphasize security aspects in the rewrite
 - `AI: simplify for junior developers` → Use simpler language and add more explanation
 

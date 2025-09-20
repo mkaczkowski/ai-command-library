@@ -1,6 +1,6 @@
 # 🚀 AI Command Library
 
-Stop writing the same AI prompts over and over. Get a library of proven commands for code reviews, PR management, and development workflows that work seamlessly across Claude, Cursor, and Codex.
+Stop writing the same AI prompts over and over. Get a library of proven commands for code reviews, PR management, and development workflows that work seamlessly across Claude, Cursor, Copilot, and Codex.
 
 **✅ One install → Works everywhere**
 **⚡ Ready-to-use PR workflows**
@@ -36,6 +36,9 @@ npx @mkaczkowski/ai-command-library -p claude
 # For Cursor IDE
 npx @mkaczkowski/ai-command-library -p cursor
 
+# For GitHub Copilot Workspace
+npx @mkaczkowski/ai-command-library -p copilot
+
 # For Codex CLI
 npx @mkaczkowski/ai-command-library -p codex-global
 ```
@@ -69,13 +72,14 @@ library/commands/         ← Proven command templates
        ↓
     .claude/commands/     ← Ready to use in Claude
     .cursor/commands/     ← Ready to use in Cursor
+    .copilot/commands/    ← Ready to use in Copilot
     ~/.codex/prompts/     ← Ready to use in Codex
 ```
 
 **Key concepts:**
 
 - 📝 **Commands** - Markdown files with step-by-step AI instructions
-- 🔧 **Providers** - Your AI tools (Claude, Cursor, Codex)
+- 🔧 **Providers** - Your AI tools (Claude, Cursor, Copilot, Codex)
 - 🔗 **Linking** - Copying commands to where your tools can find them
 - 🤖 **Scripts** - Helper utilities for GitHub API integration
 
@@ -104,6 +108,17 @@ npx link-ai-commands --provider cursor
 
 - **Result:** Commands appear in `.cursor/commands/`
 - **What you get:** AI commands directly in your IDE
+
+### 🤖 GitHub Copilot Workspace
+
+**Best for:** Developers using GitHub Copilot with shared project workflows
+
+```bash
+npx link-ai-commands --provider copilot
+```
+
+- **Result:** Commands appear in `.copilot/commands/`
+- **What you get:** Copilot-friendly command palette entries
 
 ### ⚙️ Codex CLI
 
@@ -165,6 +180,7 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 | `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
 | `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
 | `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
+| `copilot`       | `.copilot/commands`  | Project-specific Copilot commands |
 | `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
 
 > 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
@@ -180,6 +196,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 # Resolves to:
 # Claude: .claude/commands/pr/scripts/fetch-pr-comments.js
 # Cursor: .cursor/commands/pr/scripts/fetch-pr-comments.js
+# Copilot: .copilot/commands/pr/scripts/fetch-pr-comments.js
 # Codex: ~/.codex/prompts/pr/scripts/fetch-pr-comments.js
 ```
 

@@ -1,6 +1,7 @@
 ---
-description: "Produce an expert GitHub PR review with actionable inline findings."
+description: 'Produce an expert GitHub PR review with actionable inline findings.'
 ---
+
 # GitHub Pull Request Review Workflow
 
 Act as a staff-level engineer and seasoned reviewer responsible for producing a professional GitHub PR review.
@@ -22,12 +23,14 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
 
    **Expected JSON structure:**
+
    ```json
    {
      "branches": { "base": { "ref": "main" }, "head": { "ref": "feature-branch" } },
      "files": [{ "filename": "path/to/file", "patch": "diff content" }]
    }
    ```
+
 3. Inventory the change surface:
    - Review the `files` array in the PR context JSON to understand all changed files
    - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort

@@ -1,0 +1,5 @@
+{
+  "id": "copilot",
+  "label": "GitHub Copilot",
+  "defaultTargetDir": ".copilot/commands"
+}

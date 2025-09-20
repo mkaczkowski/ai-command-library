@@ -1,6 +1,7 @@
 ---
-description: "Plan, implement, and close the loop on fixes for GitHub PR review feedback."
+description: 'Plan, implement, and close the loop on fixes for GitHub PR review feedback.'
 ---
+
 # GitHub PR Comment Resolution Workflow
 
 Act as the senior software engineer responsible for addressing GitHub PR feedback and closing the loop with reviewers.
