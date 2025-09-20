@@ -26,7 +26,10 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 
    ```json
    {
-     "branches": { "base": { "ref": "main" }, "head": { "ref": "feature-branch" } },
+     "branches": {
+       "base": { "ref": "main" },
+       "head": { "ref": "feature-branch" }
+     },
      "files": [{ "filename": "path/to/file", "patch": "diff content" }]
    }
    ```
@@ -205,13 +208,13 @@ When converting the `Area` field to CSV columns:
   - `line` → ending line (`128`)
   - `startLine` → starting line (`120`)
 - Leave `position` blank unless the source explicitly provides a diff `position` value (rare; honour it when present).
-- Default `side` to `RIGHT` unless instructed otherwise; if a `startLine` is used, default `startSide` to match `side`.
+- Default `side` to `RIGHT` unless instructed otherwise
 - If the area points to multiple disjoint locations, create separate comment rows for each unique location.
 - Preserve the relative ordering of findings from the source markdown.
 
 **Important:** Provide either a `position` value OR `line`/`startLine` values for each comment, not both
 
-### Phase 8: CSV Output Specification
+### Phase 8: CSV Generation
 
 #### Recommended automation
 
@@ -224,8 +227,7 @@ When converting the `Area` field to CSV columns:
        "body": "Blocker – Shadowed token reuse. I noticed ...",
        "line": 128,
        "startLine": 120,
-       "side": "RIGHT",
-       "startSide": "RIGHT"
+       "side": "RIGHT"
      }
    ]
    ```
@@ -241,41 +243,9 @@ When converting the `Area` field to CSV columns:
 
    The script also accepts a top-level `comments` array if you prefer `{ "comments": [ ... ] }` JSON.
 
-#### Manual fallback
-
-Generate a CSV file with the exact header order:
-
-````csv
-path,position,body,line,startLine,side,startSide
-"src/components/Card.tsx","","Blocker – Shadowed token reuse. I noticed ...","128","120","RIGHT","RIGHT"
-"src/utils/helpers.js","45","Major – Missing error handling
-
-This function doesn't validate input parameters or handle potential errors. Consider adding validation:
-
-```javascript
-function processData(data) {
-  if (!data || typeof data !== 'object') {
-    throw new Error('Invalid data provided');
-  }
-  // existing logic...
-}
-```
-
-This prevents runtime crashes and improves debugging.","","","RIGHT",""
-````
-
-**CSV rules:**
-
-- Quote every field with double quotes.
-- Escape internal quotes by doubling them (`""`).
-- Preserve intentional line breaks inside the `body` field.
-- Ensure the file uses `\n` line endings.
-
-Save the file to `tmp/pr-[PR_NUMBER]-review-comments.csv` (the PR number will be provided in context).
-
 ### Continue?
 
-Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here.
+Before progressing to next step, ask the user: **"Continue to Step 2: Finalise and Submit?"**. If they are not ready, stop here.
 
 ## Step 2: Finalise and Submit
 
@@ -289,3 +259,24 @@ Before progressing, ask the user: **"Continue to Step 2: Finalise and Submit?"**
    ```bash
    node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
    ```
+
+### Troubleshooting Common Issues
+
+#### HTTP 422 Unprocessable Entity
+
+- **Cause**: PR already has a submitted review (cannot create pending review)
+- **Solution**: Don't submit a new review; instead, inform the user and stop the process.
+
+#### Invalid Line Numbers
+
+- **Cause**: Line numbers don't exist in current PR diff
+- **Solution**: Verify line numbers against actual PR changes before submission
+
+#### CSV Format Issues
+
+- **Cause**: Malformed quoting or empty field handling
+- **Solution**: Ensure `startSide` is blank (not empty string) when `startLine` is empty
+
+#### Alternative: Manual Submission
+
+If automated submission fails, findings can be manually copied from by user

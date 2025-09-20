@@ -35,13 +35,13 @@ Options:
   --help, -h             Show this help message
 
 Comments CSV format (7 columns):
-path,position,body,line,startLine,side,startSide
+path,position,body,line,startLine,side
 src/index.ts,12,"Please extract helper",,,,
-src/components/foo.ts,,"Can we document this prop?",42,,RIGHT,
+src/components/foo.ts,,"Can we document this prop?",42,RIGHT,
 
 Rules:
   - Provide either position OR line/startLine columns per row (not both).
-  - When using line-based locations, side/startSide default to RIGHT when omitted.
+  - When using line-based locations, side can be left empty
   - Leave event unset to keep the review in PENDING state.
 `;
 
@@ -141,7 +141,6 @@ async function parseCommentsFile(filePath) {
     createOptionalPositiveIntegerFieldValidator('line'),
     createOptionalPositiveIntegerFieldValidator('startLine'),
     createStringFieldValidator('side', true),
-    createStringFieldValidator('startSide', true),
   ];
 
   const rowProcessor = (row, rowNumber) => buildCommentFromRow(row, rowNumber);
@@ -163,13 +162,12 @@ function buildCommentFromRow(row, rowNumber) {
   const line = row.line;
   const startLine = row.startLine;
   const side = normalizeSide(row.side, 'side', rowNumber);
-  const startSide = normalizeSide(row.startSide, 'startSide', rowNumber);
 
   if (!position && !line) {
     throw new Error(`Row ${rowNumber}: Provide either position or line value.`);
   }
 
-  if (position && (line || startLine || side || startSide)) {
+  if (position && (line || startLine || side)) {
     throw new Error(`Row ${rowNumber}: position cannot be combined with line/startLine/side values.`);
   }
 
@@ -194,13 +192,8 @@ function buildCommentFromRow(row, rowNumber) {
   comment.line = line;
   comment.side = side || 'RIGHT';
 
-  if (startSide && !startLine) {
-    throw new Error(`Row ${rowNumber}: startSide requires startLine to be set.`);
-  }
-
   if (startLine) {
     comment.startLine = startLine;
-    comment.startSide = startSide || comment.side;
   }
 
   return comment;

@@ -28,8 +28,8 @@ export const ADDRESS_RESOLVED_CSV_CONFIG = {
  * CSV layout expected when creating review comments.
  */
 export const REVIEW_COMMENT_CSV_CONFIG = {
-  REQUIRED_HEADERS: ['path', 'position', 'body', 'line', 'startLine', 'side', 'startSide'],
-  EXPECTED_COLUMNS: 7,
+  REQUIRED_HEADERS: ['path', 'position', 'body', 'line', 'startLine', 'side'],
+  EXPECTED_COLUMNS: 6,
 };
 
 /**
