@@ -26,11 +26,9 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
    }
    ```
 3. Inventory the change surface:
-   - Extract changed files using the utility script:
-     ```bash
-     node {{script:pr/scripts/list-changed-files.js}} --context=tmp/pr-[PR_NUMBER]-context.json --output=tmp/pr-[PR_NUMBER]-files.txt
-     ```
-   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort.
+   - Review the `files` array in the PR context JSON to understand all changed files
+   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort
+   - Use the `additions`, `deletions`, and `status` fields to inform your impact assessment
 4. Inspect the codebase for surrounding context:
    - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
    - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
