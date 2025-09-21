@@ -50,7 +50,7 @@ Comments JSON format (array of objects):
 ]
 
 Rules:
-  - Provide either line/startLine or position for inline comments, otherwise they will target the file.
+  - Provide either line/startLine for inline comments, otherwise they will target the file.
 `;
 
 async function main() {
@@ -192,11 +192,6 @@ function buildCommentFromEntry(entry, index) {
     comment.start_line = startLine;
   }
 
-  const position = requireOptionalPositiveIntegerField(normalized, 'position', index, { label: commentLabel });
-  if (position !== undefined) {
-    comment.position = position;
-  }
-
   const side = resolveOptionalString(normalized, 'side', index, commentLabel);
   if (side !== undefined) {
     comment.side = side;
@@ -205,21 +200,6 @@ function buildCommentFromEntry(entry, index) {
   const startSide = resolveOptionalString(normalized, 'startSide', index, commentLabel, 'start_side');
   if (startSide !== undefined) {
     comment.start_side = startSide;
-  }
-
-  // Validate GitHub API positioning constraints
-  if (position !== undefined) {
-    const conflictingFields = [];
-    if (line !== undefined) conflictingFields.push('line');
-    if (startLine !== undefined) conflictingFields.push('startLine/start_line');
-    if (side !== undefined) conflictingFields.push('side');
-
-    if (conflictingFields.length > 0) {
-      throw new Error(
-        `${commentLabel} ${index + 1}: position cannot be combined with ${conflictingFields.join(', ')}. ` +
-          'GitHub API requires either position OR line-based positioning, not both.'
-      );
-    }
   }
 
   // Validate startLine requires line

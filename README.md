@@ -466,7 +466,6 @@ Using multiple AI tools? Run once per provider:
 ```bash
 npx link-ai-commands --provider claude    # For Claude
 npx link-ai-commands --provider cursor    # For Cursor
-npx link-ai-commands --provider codex-global  # For Codex
 ```
 
 ## 🛠 Development & Contributing

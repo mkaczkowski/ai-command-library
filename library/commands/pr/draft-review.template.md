@@ -235,7 +235,7 @@ When converting the `Area` field into JSON comment entries:
    ```
 
 2. Validate the JSON file:
-   - Confirm every entry includes `path` and `body`, adding a location field (`line`, `startLine`, or `position`) for inline comments when needed.
+   - Confirm every entry includes `path` and `body`, adding a location field (`line` or `startLine`) for inline comments when needed.
    - Ensure inline code fences remain intact by opening the file in a JSON-aware editor or running `node -e "require('./tmp/pr-[PR_NUMBER]-review-comments.json')"`.
 
 ### Continue?
