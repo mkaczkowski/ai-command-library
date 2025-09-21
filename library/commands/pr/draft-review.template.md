@@ -254,3 +254,9 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 ```bash
 node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
 ```
+
+**Note:** If it will fail because you have existing pending reviews, ask the user to add `--discard-existing` flag to automatically discard them. If the user agrees, run:
+
+```bash
+node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
+```
