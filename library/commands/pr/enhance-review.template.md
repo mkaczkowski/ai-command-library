@@ -111,76 +111,43 @@ This keeps the behaviour aligned with [benefit or risk mitigation].
 [Repeat for each comment]
 ````
 
+### Phase 4: Automatic JSON Generation
+
+**MANDATORY:** Immediately after providing the rewritten comments, automatically generate the JSON file:
+
+1. Extract each comment `id` and its rewritten body from your output above.
+2. Create `tmp/pr-[PR_NUMBER]-comments.json` with the structure:
+
+   ```json
+   [
+     {
+       "id": "comment_id_here",
+       "rewritten": "rewritten comment text here"
+     }
+   ]
+   ```
+
+3. Verify the JSON parses correctly: `node -e "require('./tmp/pr-[PR_NUMBER]-comments.json')"`
+
 ### Continue?
 
 Before moving on, ask the user: **"Continue to Step 2 (Update Review Comments)?"**. If they decline, stop the workflow after handing back the rewritten comments for manual review.
 
 ## Step 2: Update Review Comments
 
-Convert the enhanced comments into a CSV and apply the updates to GitHub.
+Apply the enhanced comments (already prepared in JSON format) to GitHub.
 
-### Phase 1: CSV Generation
+### GitHub Updates
 
-#### Process
-
-1. Review the supplied markdown containing the enhanced comment text.
-2. Extract each comment `id` and its rewritten body.
-3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format (generate the CSV with `node {{script:pr/scripts/generate-comment-csv.js}}`).
-
-#### CSV Generation Requirements
-
-**Recommended automation**
-
-1. Prepare `tmp/pr-[PR_NUMBER]-comments.json` with the rewritten comment bodies:
-
-   ```json
-   [
-     {
-       "id": "2351166366",
-       "rewritten": "I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact."
-     }
-   ]
-   ```
-
-2. Convert the JSON to CSV with the helper script (ensures quoting and preserves multiline markdown):
-
-   ```bash
-   node {{script:pr/scripts/generate-comment-csv.js}} \
-     --input=tmp/pr-[PR_NUMBER]-comments.json \
-     --output=tmp/pr-[PR_NUMBER]-comments.csv \
-     --schema=enhance
-   ```
-
-**Manual fallback**
-
-Create a CSV file with the following structure:
-
-```csv
-id,rewritten
-"2351166366","I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact.
-
-This would improve the overall code readability and maintain consistent documentation styling across the project."
-```
-
-**CSV Format Rules:**
-
-- Header row: `id,rewritten`
-- Quote every field with double quotes.
-- Escape internal double quotes by doubling them (`""`).
-- Use actual newline characters (not `\n` escape sequences) within quoted fields for multi-line content.
-- `\n` (Unix-style) line endings between CSV rows.
-
-### Phase 2: GitHub Updates
-
-Once the CSV is generated, run the script:
+Run the script with the JSON file that was automatically generated in Step 1:
 
 ```bash
-node {{script:pr/scripts/edit-pr-comments.js}} --mapping-file=tmp/pr-[PR_NUMBER]-comments.csv
+node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-[PR_NUMBER]-comments.json
 ```
 
 ### Continue?
 
-Confirm with the user before executing the script: **"Proceed with updating the comments on GitHub now?"**. If they choose not to continue, pause and allow further review of the CSV.
+Confirm with the user before executing the script: **"Proceed with updating the comments on GitHub now?"**. If they choose not to continue, pause and allow further review of the JSON file.
 
 This will update the PR comments on GitHub with the rewritten versions.
 

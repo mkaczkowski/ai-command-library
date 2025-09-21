@@ -309,7 +309,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 # (Your AI will guide you through this)
 
 # Post the review to GitHub
-node {{script:pr/scripts/create-pr-review.js}} --pr=123
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-123-review-comments.json --pr=123
 ```
 
 **What happens:** Your AI converts findings into polished GitHub comments with proper file/line mappings.
@@ -327,7 +327,7 @@ flowchart TD
     Analyze --> Output[Generate structured plan]
     Output --> Craft[Compose concise, inline comments]
     Craft --> Map[Align paths and line numbers with PR diffs]
-    Map --> Export[Export comments to CSV]
+    Map --> Export[Export comments to JSON]
     Export --> RunScript[Create pending PR review]
 ```
 
@@ -430,15 +430,15 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 <details>
 <summary><strong>📤 GitHub Integration Scripts</strong></summary>
 
-- **`create-pr-review.js`** - Submit comment CSV as GitHub review
+- **`create-pr-review.js`** - Submit comment JSON as GitHub review
 - **`edit-pr-comments.js`** - Update existing comments with enhanced versions
 - **`reply-to-comments.js`** - Post resolution acknowledgments to comment threads
 
 ```bash
 # Examples
-node {{script:pr/scripts/create-pr-review.js}} --pr=123
-node {{script:pr/scripts/edit-pr-comments.js}} --pr=123
-node {{script:pr/scripts/reply-to-comments.js}} --pr=123 --dry-run
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-123-review-comments.json --pr=123
+node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-123-comments.json
+node {{script:pr/scripts/reply-to-comments.js}} --input=tmp/pr-123-address-resolved.json --dry-run
 ```
 
 </details>
@@ -466,7 +466,6 @@ Using multiple AI tools? Run once per provider:
 ```bash
 npx link-ai-commands --provider claude    # For Claude
 npx link-ai-commands --provider cursor    # For Cursor
-npx link-ai-commands --provider codex-global  # For Codex
 ```
 
 ## 🛠 Development & Contributing
