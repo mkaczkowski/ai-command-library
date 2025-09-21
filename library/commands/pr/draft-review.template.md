@@ -244,9 +244,9 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 
 3. Once satisfied, run the provided script:
 
-  ```bash
-  node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
-  ```
+```bash
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
+```
 
 ### Troubleshooting Common Issues
 
@@ -259,7 +259,6 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 
 - **Cause**: Line numbers don't exist in current PR diff
 - **Solution**: Verify line numbers against actual PR changes before submission
-
 
 #### Alternative: Manual Submission
 
