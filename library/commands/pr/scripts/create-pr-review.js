@@ -207,6 +207,29 @@ function buildCommentFromEntry(entry, index) {
     comment.start_side = startSide;
   }
 
+  // Validate GitHub API positioning constraints
+  if (position !== undefined) {
+    const conflictingFields = [];
+    if (line !== undefined) conflictingFields.push('line');
+    if (startLine !== undefined) conflictingFields.push('startLine/start_line');
+    if (side !== undefined) conflictingFields.push('side');
+
+    if (conflictingFields.length > 0) {
+      throw new Error(
+        `${commentLabel} ${index + 1}: position cannot be combined with ${conflictingFields.join(', ')}. ` +
+          'GitHub API requires either position OR line-based positioning, not both.'
+      );
+    }
+  }
+
+  // Validate startLine requires line
+  if (startLine !== undefined && line === undefined) {
+    throw new Error(
+      `${commentLabel} ${index + 1}: startLine/start_line requires line to be set. ` +
+        'Multi-line comments need both a starting line and ending line.'
+    );
+  }
+
   return comment;
 }
 
