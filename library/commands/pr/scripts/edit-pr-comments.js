@@ -107,7 +107,7 @@ async function main() {
 /**
  * Parse CLI arguments into an options object.
  * @param {string[]} argv
- * @returns {{help?: boolean, mappingFile?: string, repo?: string}}
+ * @returns {{help?: boolean, input?: string, repo?: string}}
  */
 function parseCliArgs(argv) {
   const argHandlers = createStandardArgHandlers();

@@ -309,7 +309,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 # (Your AI will guide you through this)
 
 # Post the review to GitHub
-node {{script:pr/scripts/create-pr-review.js}} --pr=123
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-123-review-comments.json --pr=123
 ```
 
 **What happens:** Your AI converts findings into polished GitHub comments with proper file/line mappings.
@@ -436,9 +436,9 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 
 ```bash
 # Examples
-node {{script:pr/scripts/create-pr-review.js}} --pr=123
-node {{script:pr/scripts/edit-pr-comments.js}} --pr=123
-node {{script:pr/scripts/reply-to-comments.js}} --pr=123 --dry-run
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-123-review-comments.json --pr=123
+node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-123-comments.json
+node {{script:pr/scripts/reply-to-comments.js}} --input=tmp/pr-123-address-resolved.json --dry-run
 ```
 
 </details>
