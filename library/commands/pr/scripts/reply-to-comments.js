@@ -88,6 +88,12 @@ async function main() {
 
     for (const { commentId, commitUrl } of mappings) {
       try {
+        // Validate commit URL before proceeding
+        const isValidCommit = await validateCommitUrl(repo, commitUrl);
+        if (!isValidCommit) {
+          throw new Error(`Commit URL validation failed: ${commitUrl}`);
+        }
+
         const { targetId, isReply, htmlUrl } = await resolveReplyTarget(repo, commentId, targetCache);
         if (isReply) {
           log('DEBUG', `Comment ${commentId} is a reply; targeting thread root ${targetId}`);
@@ -108,12 +114,18 @@ async function main() {
       } catch (error) {
         failures++;
         log('ERROR', `✖ Failed to reply to ${commentId}: ${error.message}`, { error: error.message });
+        // Continue with remaining replies instead of failing completely
       }
     }
 
     log('INFO', `Reply process completed: ${successes} successful, ${failures} failed`);
     if (failures > 0) {
-      throw new Error(`${failures} repl${failures === 1 ? 'y' : 'ies'} failed`);
+      if (successes > 0) {
+        log('WARN', `Some replies failed, but ${successes} comment(s) were successfully addressed`);
+        process.exit(1); // Indicate partial failure but allow workflow to continue
+      } else {
+        throw new Error(`All ${failures} repl${failures === 1 ? 'y' : 'ies'} failed`);
+      }
     }
   } catch (error) {
     log('ERROR', `Script failed: ${error.message}`);
@@ -225,8 +237,28 @@ async function sendReply(repo, targetCommentId, body, prNumber) {
   log('DEBUG', `Reply posted to ${targetCommentId}`);
 }
 
+async function validateCommitUrl(repo, commitUrl) {
+  try {
+    // Extract commit hash from URL
+    const commitHash = commitUrl.split('/').pop();
+    if (!commitHash || commitHash.length < 7) {
+      throw new Error('Invalid commit hash in URL');
+    }
+
+    // Check if commit exists in the repository
+    const endpoint = `/repos/${repo.owner}/${repo.repo}/commits/${commitHash}`;
+    await runGhJson(['api', endpoint], { host: repo.host });
+
+    log('DEBUG', `Commit URL validated: ${commitUrl}`);
+    return true;
+  } catch (error) {
+    log('WARN', `Commit URL validation failed: ${commitUrl} - ${error.message}`);
+    return false;
+  }
+}
+
 function buildReplyBody(commitUrl) {
-  return `Done ${commitUrl}`;
+  return `Thanks for the feedback! This has been addressed in ${commitUrl}`;
 }
 
 main();
