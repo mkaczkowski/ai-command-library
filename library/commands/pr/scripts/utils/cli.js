@@ -170,7 +170,6 @@ function createStandardValidations() {
           return true;
         } catch (error) {
           log('ERROR', `Error validating input file path: ${error.message}`);
-          log('ERROR', `Error validating input file path: ${error.message}`);
           return false;
         }
       },
