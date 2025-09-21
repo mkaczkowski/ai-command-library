@@ -37,6 +37,7 @@ Options:
   --repo                 Repository in owner/repo format (auto-detected when omitted)
   --review-body          Text to use as the review summary body
   --commit               Commit SHA to anchor the review (optional)
+  --discard-existing     Automatically discard any existing pending reviews before creating new one
   --verbose              Enable detailed logging
   --help, -h             Show this help message
 
@@ -93,7 +94,7 @@ async function main() {
     log('INFO', `Target PR number: ${prNumber}`);
 
     // Check for existing pending reviews
-    await checkForExistingPendingReview(repo, prNumber);
+    await checkForExistingPendingReview(repo, prNumber, options.discardExisting);
 
     log('INFO', `Creating pending review on PR #${prNumber} with ${comments.length} comment(s)`);
 
@@ -120,6 +121,7 @@ function parseCliArgs(argv) {
     '--pr': createFlagHandler('pr', (value) => parseInt(value.trim(), 10)),
     '--review-body': createFlagHandler('reviewBody'),
     '--commit': createFlagHandler('commit'),
+    '--discard-existing': createFlagHandler('discardExisting', () => true),
   };
 
   return parseArgs(argv, {
@@ -303,9 +305,10 @@ function buildReviewPayload({ reviewBody, commit, comments }) {
  * Check if the current user already has a pending review on the PR
  * @param {Object} repo - Repository object
  * @param {number} prNumber - Pull request number
+ * @param {boolean} discardExisting - Whether to automatically discard existing pending reviews
  * @returns {Promise<void>}
  */
-async function checkForExistingPendingReview(repo, prNumber) {
+async function checkForExistingPendingReview(repo, prNumber, discardExisting = false) {
   log('DEBUG', `Checking for existing pending reviews on PR #${prNumber}`);
 
   try {
@@ -317,20 +320,45 @@ async function checkForExistingPendingReview(repo, prNumber) {
     const pendingReviews = response.filter((review) => review.state === 'PENDING');
 
     if (pendingReviews.length > 0) {
-      log('ERROR', 'Cannot create new pending review - existing pending review(s) found');
-      log('INFO', 'You have the following pending review(s) that must be submitted or dismissed first:');
+      if (discardExisting) {
+        log('INFO', `Found ${pendingReviews.length} pending review(s) - discarding as requested`);
+        for (const review of pendingReviews) {
+          log('DEBUG', `Discarding review ${review.id}`);
+          try {
+            await runGhJson(['api', '--method', 'DELETE', `${endpoint}/${review.id}`], {
+              host: repo.host,
+            });
+            log('INFO', `✓ Discarded pending review ${review.id}`);
+          } catch (deleteError) {
+            log('WARN', `Failed to discard review ${review.id}: ${deleteError.message}`);
+            // Continue with other reviews even if one fails
+          }
+        }
+        log('INFO', 'All pending reviews have been discarded');
+      } else {
+        const reviewList = pendingReviews
+          .map((review) => `  - Review ${review.id} (created: ${review.created_at})`)
+          .join('\n');
+        const pendingIds = pendingReviews.map((r) => r.id).join(', ');
 
-      pendingReviews.forEach((review) => {
-        log('INFO', `  - Review ${review.id} (created: ${review.created_at})`);
-      });
+        log(
+          'ERROR',
+          `Cannot create new pending review - existing pending review(s) found
 
-      log('INFO', '\n📝 To fix this:');
-      log('INFO', '1. Submit the pending review(s) on GitHub, OR');
-      log('INFO', '2. Dismiss the pending review(s) on GitHub, OR');
-      log('INFO', '3. Ask Claude to help submit the reviews');
-      log('INFO', '\nPending review IDs:', pendingReviews.map((r) => r.id).join(', '));
+You have the following pending review(s) that must be submitted or dismissed first:
+${reviewList}
 
-      throw new Error(`Cannot create new review - ${pendingReviews.length} pending review(s) already exist`);
+📝 To fix this:
+1. Submit the pending review(s) on GitHub, OR
+2. Dismiss the pending review(s) on GitHub, OR
+3. Add --discard-existing flag to automatically discard them, OR
+4. Ask Claude to help submit the reviews
+
+Pending review IDs: ${pendingIds}`
+        );
+
+        throw new Error(`Cannot create new review - ${pendingReviews.length} pending review(s) already exist`);
+      }
     }
 
     log('DEBUG', 'No pending reviews found - safe to create new review');
