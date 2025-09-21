@@ -61,4 +61,4 @@ The `pr/scripts/` directory contains Node.js utilities with modular structure:
 - Modular utility functions in utils/ subdirectory
 - CLI argument parsing with standardized flag handling
 - GitHub CLI (gh) integration for API access
-- CSV-based data exchange for comment workflows
+- JSON-based data exchange for comment workflows

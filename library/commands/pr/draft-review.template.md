@@ -54,6 +54,8 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 
 ### Phase 2: Review Guidelines
 
+**Important:** This is a MANUAL code review process. Do NOT run automated checks (linting, testing, type-checking) as part of the review. Focus on manual analysis of the code changes, patterns, and logic.
+
 #### What to Evaluate
 
 - **Correctness & Safety:** logic, edge cases, failure handling, backward compatibility, data integrity.
@@ -195,7 +197,7 @@ Compose a single inline comment per finding that clearly communicates the concer
 
 ### Phase 7: Map Areas to Diff Locations
 
-When converting the `Area` field to CSV columns:
+When converting the `Area` field into JSON comment entries:
 
 - Strip formatting markers from the extracted `Area` value:
   - Convert `path/to/file#L120-L128` to `path/to/file:120-128` before splitting.
@@ -203,45 +205,31 @@ When converting the `Area` field to CSV columns:
 - For single line references (`path:123`), set:
   - `path` → `path`
   - `line` → `123`
-  - `startLine` → blank
 - For ranges (`path:120-128`), set:
-  - `line` → ending line (`128`)
-  - `startLine` → starting line (`120`)
-- Leave `position` blank unless the source explicitly provides a diff `position` value (rare; honour it when present).
-- Default `side` to `RIGHT` unless instructed otherwise
-- If the area points to multiple disjoint locations, create separate comment rows for each unique location.
+  - `path` → `path`
+  - `line` → `120`
+- If the area points to multiple disjoint locations, create separate comment objects for each unique location.
 - Preserve the relative ordering of findings from the source markdown.
 
-**Important:** Provide either a `position` value OR `line`/`startLine` values for each comment, not both
-
-### Phase 8: CSV Generation
+### Phase 8: JSON Preparation
 
 #### Recommended automation
 
-1. Capture the review output in `tmp/pr-[PR_NUMBER]-review-comments.json` using the column names from the CSV header as keys.
+1. Capture the review output in `tmp/pr-[PR_NUMBER]-review-comments.json` using the fields expected by the review script (`path`, `body`, and optional location metadata).
 
    ```json
    [
      {
        "path": "src/components/Card.tsx",
        "body": "Blocker – Shadowed token reuse. I noticed ...",
-       "line": 128,
-       "startLine": 120,
-       "side": "RIGHT"
+       "line": 128
      }
    ]
    ```
 
-2. Generate the CSV with the helper script (it handles quoting, embedded fences, and blank optional fields):
-
-   ```bash
-   node {{script:pr/scripts/generate-comment-csv.js}} \
-     --input=tmp/pr-[PR_NUMBER]-review-comments.json \
-     --output=tmp/pr-[PR_NUMBER]-review-comments.csv \
-     --schema=review
-   ```
-
-   The script also accepts a top-level `comments` array if you prefer `{ "comments": [ ... ] }` JSON.
+2. Validate the JSON file:
+   - Confirm every entry includes `path` and `body`, adding a location field (`line`, `startLine`, or `position`) for inline comments when needed.
+   - Ensure inline code fences remain intact by opening the file in a JSON-aware editor or running `node -e "require('./tmp/pr-[PR_NUMBER]-review-comments.json')"`.
 
 ### Continue?
 
@@ -249,22 +237,22 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 
 ## Step 2: Finalise and Submit
 
-1. Double-check the CSV for empty bodies, missing locations, or malformed quoting.
+1. Double-check the JSON for empty bodies, missing locations, or malformed escaping.
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
 
 **Important:** Use only the provided scripts for creating and sending data to GitHub. GitHub CLI should be used exclusively for fetching and reading data.
 
 3. Once satisfied, run the provided script:
 
-   ```bash
-   node {{script:pr/scripts/create-pr-review.js}} --comments-file=tmp/pr-[PR_NUMBER]-review-comments.csv --pr=[PR_NUMBER]
-   ```
+  ```bash
+  node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
+  ```
 
 ### Troubleshooting Common Issues
 
 #### HTTP 422 Unprocessable Entity
 
-- **Cause**: PR already has a submitted review (cannot create pending review)
+- **Cause**: PR already has a submitted review (cannot create pending review) or JSON validation issues
 - **Solution**: Don't submit a new review; instead, inform the user and stop the process.
 
 #### Invalid Line Numbers
@@ -272,10 +260,6 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 - **Cause**: Line numbers don't exist in current PR diff
 - **Solution**: Verify line numbers against actual PR changes before submission
 
-#### CSV Format Issues
-
-- **Cause**: Malformed quoting or empty field handling
-- **Solution**: Ensure `startSide` is blank (not empty string) when `startLine` is empty
 
 #### Alternative: Manual Submission
 

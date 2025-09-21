@@ -117,17 +117,17 @@ Before moving on, ask the user: **"Continue to Step 2 (Update Review Comments)?"
 
 ## Step 2: Update Review Comments
 
-Convert the enhanced comments into a CSV and apply the updates to GitHub.
+Convert the enhanced comments into JSON and apply the updates to GitHub.
 
-### Phase 1: CSV Generation
+### Phase 1: JSON Preparation
 
 #### Process
 
 1. Review the supplied markdown containing the enhanced comment text.
 2. Extract each comment `id` and its rewritten body.
-3. Save the output to `tmp/pr-[PR_NUMBER]-comments.csv` using the required format (generate the CSV with `node {{script:pr/scripts/generate-comment-csv.js}}`).
+3. Save the output to `tmp/pr-[PR_NUMBER]-comments.json` as an array of `{ id, rewritten }` objects.
 
-#### CSV Generation Requirements
+#### JSON Requirements
 
 **Recommended automation**
 
@@ -142,45 +142,23 @@ Convert the enhanced comments into a CSV and apply the updates to GitHub.
    ]
    ```
 
-2. Convert the JSON to CSV with the helper script (ensures quoting and preserves multiline markdown):
-
-   ```bash
-   node {{script:pr/scripts/generate-comment-csv.js}} \
-     --input=tmp/pr-[PR_NUMBER]-comments.json \
-     --output=tmp/pr-[PR_NUMBER]-comments.csv \
-     --schema=enhance
-   ```
+2. Confirm the JSON parses correctly by running `node -e "require('./tmp/pr-[PR_NUMBER]-comments.json')"` from the repository root.
 
 **Manual fallback**
 
-Create a CSV file with the following structure:
-
-```csv
-id,rewritten
-"2351166366","I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact.
-
-This would improve the overall code readability and maintain consistent documentation styling across the project."
-```
-
-**CSV Format Rules:**
-
-- Header row: `id,rewritten`
-- Quote every field with double quotes.
-- Escape internal double quotes by doubling them (`""`).
-- Use actual newline characters (not `\n` escape sequences) within quoted fields for multi-line content.
-- `\n` (Unix-style) line endings between CSV rows.
+Create the JSON file manually following the same structure as the example above. Ensure each entry contains a trimmed `id` and a non-empty `rewritten` string.
 
 ### Phase 2: GitHub Updates
 
-Once the CSV is generated, run the script:
+Once the JSON is ready, run the script:
 
 ```bash
-node {{script:pr/scripts/edit-pr-comments.js}} --mapping-file=tmp/pr-[PR_NUMBER]-comments.csv
+node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-[PR_NUMBER]-comments.json
 ```
 
 ### Continue?
 
-Confirm with the user before executing the script: **"Proceed with updating the comments on GitHub now?"**. If they choose not to continue, pause and allow further review of the CSV.
+Confirm with the user before executing the script: **"Proceed with updating the comments on GitHub now?"**. If they choose not to continue, pause and allow further review of the JSON file.
 
 This will update the PR comments on GitHub with the rewritten versions.
 

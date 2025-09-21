@@ -3,7 +3,7 @@
 /**
  * GitHub PR Comment Updater
  *
- * Updates review comments using mappings defined in a CSV file.
+ * Updates review comments using mappings defined in a JSON file.
  */
 import { log } from './utils/logger.js';
 import { ensureGhCli, runGh } from './utils/process.js';
@@ -16,26 +16,28 @@ import {
   handleHelp,
   validateArgs,
 } from './utils/cli.js';
-import { COMMON_BOOLEAN_FLAGS, ENHANCE_COMMENT_CSV_CONFIG } from './utils/config.js';
-import { createIdFieldValidator, createStringFieldValidator, parseCSVFile } from './utils/csv.js';
+import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
+import { loadJsonArray, requireNonEmptyStringField, requireObject } from './utils/jsonValidation.js';
 
 const HELP_TEXT = `
 Update existing GitHub PR comments with new content.
 
 Usage:
-  node scripts/edit-pr-comments.js --mapping-file=comments.csv
+  node scripts/edit-pr-comments.js --input=comments.json
 
 Options:
-  --mapping-file      Path to a CSV file with columns: id,rewritten
+  --input             Path to a JSON file with entries: { id, rewritten }
   --repo              Target repository in owner/repo format (auto-detected from git remote if omitted)
   --verbose           Enable detailed logging
   --help, -h          Show this message
 
-Mapping file example (CSV):
-id,rewritten
-"123456789","Let's keep the loading state consistent with the rest of the form.
-
-Please reuse the existing helper instead of duplicating it."
+Mapping file example (JSON):
+[
+  {
+    "id": "123456789",
+    "rewritten": "Let's keep the loading state consistent with the rest of the form.\n\nPlease reuse the existing helper instead of duplicating it."
+  }
+]
 `;
 
 /**
@@ -52,18 +54,25 @@ async function main() {
     handleHelp(options, HELP_TEXT);
 
     const standardValidations = createStandardValidations();
-    const validations = [standardValidations.repository, standardValidations.mappingFile];
+    const validations = [
+      standardValidations.repository,
+      {
+        ...standardValidations.mappingFile,
+        field: 'input',
+        message: '--input must point to an existing file',
+      },
+    ];
 
     validateArgs(options, validations);
 
     await ensureGhCli();
 
-    log('INFO', `Loading comment mappings from CSV: ${options.mappingFile}`);
-    const mappings = await parseMappingFile(options.mappingFile);
+    log('INFO', `Loading comment mappings from JSON: ${options.input}`);
+    const mappings = await parseMappingFile(options.input);
     if (mappings.size === 0) {
-      throw new Error('No comment updates provided in CSV file');
+      throw new Error('No comment updates provided in JSON file');
     }
-    log('INFO', `Loaded ${mappings.size} comment mappings from CSV`);
+    log('INFO', `Loaded ${mappings.size} comment mappings from JSON`);
 
     const repo = await resolveRepository(options.repo);
     const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
@@ -104,7 +113,7 @@ function parseCliArgs(argv) {
   const argHandlers = createStandardArgHandlers();
 
   const flagHandlers = {
-    '--mapping-file': createFlagHandler('mappingFile'),
+    '--input': createFlagHandler('input'),
     '--repo': createFlagHandler('repo'),
   };
 
@@ -112,40 +121,36 @@ function parseCliArgs(argv) {
     argHandlers,
     flagHandlers,
     booleanFlags: [...COMMON_BOOLEAN_FLAGS],
-    requiredFlags: ['--mapping-file'],
+    requiredFlags: ['--input'],
   });
 }
 
 /**
- * Load comment mappings from a CSV file with columns: id, rewritten.
+ * Load comment mappings from a JSON file with entries: { id, rewritten }.
  * @param {string} filePath
  * @returns {Promise<Map<string, string>>}
  */
 async function parseMappingFile(filePath) {
-  const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = ENHANCE_COMMENT_CSV_CONFIG;
+  const mappings = new Map();
+  const entries = await loadJsonArray(filePath, { label: 'comment mapping(s)' });
 
-  const fieldValidators = [createIdFieldValidator('id'), createStringFieldValidator('rewritten')];
+  entries.forEach((entry, index) => {
+    const mappingLabel = 'Mapping';
+    const normalized = requireObject(entry, index, { label: mappingLabel });
 
-  const rowProcessor = (row) => {
-    return {
-      ...row,
-      formattedBody: row.rewritten,
-    };
-  };
+    const id = requireNonEmptyStringField(normalized, 'id', index, {
+      label: mappingLabel,
+      trimResult: true,
+    });
+    const rewritten = requireNonEmptyStringField(normalized, 'rewritten', index, {
+      label: mappingLabel,
+      trimResult: false,
+    });
 
-  const { rows } = await parseCSVFile(filePath, {
-    requiredHeaders: REQUIRED_HEADERS,
-    expectedColumns: EXPECTED_COLUMNS,
-    fieldValidators,
-    rowProcessor,
+    mappings.set(id, rewritten);
   });
 
-  const mapping = new Map();
-  rows.forEach((row) => {
-    mapping.set(row.id, row.formattedBody);
-  });
-
-  return mapping;
+  return mappings;
 }
 
 /**

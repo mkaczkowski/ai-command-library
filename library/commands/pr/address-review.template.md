@@ -149,7 +149,7 @@ Work through the plan sequentially unless dependencies require a different order
    - Reference the GitHub comment ID or permalink so reviewers can trace the resolution.
    - Capture the commit hash and construct the full PR commit URL. Use the host surfaced in the fetch output (e.g. from `prUrl`) to format it as `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>` for the final report.
 
-5. **Record Results:** Immediately document the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report. Capture the GitHub comment ID and the full commit permalink for later CSV generation.
+5. **Record Results:** Immediately document the resolution details (changes made, validation run, remaining risks) so they can be copied into the final report. Capture the GitHub comment ID and the full commit permalink for later JSON preparation.
 
 #### Handling Cross-Cutting Tasks
 
@@ -207,10 +207,10 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
 1. [Specific areas to focus on during review]
 ```
 
-### Phase 5: Generate Resolved Comment CSV
+### Phase 5: Generate Resolved Comment JSON
 
 1. Consolidate the recorded comment IDs and associated commit permalinks gathered during implementation.
-2. Save the CSV to `tmp/pr-[PR_NUMBER]-address-resolved.csv`.
+2. Save the JSON to `tmp/pr-[PR_NUMBER]-address-resolved.json`.
 
 **Recommended automation**
 
@@ -225,31 +225,11 @@ Populate `tmp/pr-[PR_NUMBER]-address-report.md` with the structure below. Keep e
    ]
    ```
 
-2. Convert it to CSV with the helper script:
-
-   ```bash
-   node {{script:pr/scripts/generate-comment-csv.js}} \
-     --input=tmp/pr-[PR_NUMBER]-address-resolved.json \
-     --output=tmp/pr-[PR_NUMBER]-address-resolved.csv \
-     --schema=resolved
-   ```
-
-**CSV Format Requirements**
-
-- Header row: `commentId,commitUrl`
-- All fields enclosed in double quotes
-- Escape internal double quotes by doubling them (`""`)
-- Use full commit permalinks in the format `https://<hostname>/<owner>/<repo>/pull/<PR_NUMBER>/commits/<hash>`
-- Use `\n` (Unix-style) line endings between rows.
-
-```csv
-commentId,commitUrl
-"2351166366","https://github.com/example/repo/pull/123/commits/abcdef1234567890"
-```
+2. Confirm the JSON parses by running `node -e "require('./tmp/pr-[PR_NUMBER]-address-resolved.json')"` from the repository root.
 
 ### Continue?
 
-Before replying on GitHub, ask: **"Continue to Step 3 (Reply to Comments)?"**. If the user wants to pause for manual validation or code review, stop here and preserve the report plus CSV.
+Before replying on GitHub, ask: **"Continue to Step 3 (Reply to Comments)?"**. If the user wants to pause for manual validation or code review, stop here and preserve the report plus JSON file.
 
 ## Step 3: Reply to Comments
 
@@ -257,8 +237,8 @@ Close each review thread with a concise acknowledgement that points to the resol
 
 ### Preparation
 
-1. Ensure `tmp/pr-[PR_NUMBER]-address-resolved.csv` is up to date and includes every resolved comment exactly once.
-2. Verify that each `commitUrl` in the CSV routes to a pushed commit associated with the PR.
+1. Ensure `tmp/pr-[PR_NUMBER]-address-resolved.json` is up to date and includes every resolved comment exactly once.
+2. Verify that each `commitUrl` in the JSON routes to a pushed commit associated with the PR.
 
 ### Publish Replies via GitHub CLI
 
@@ -266,7 +246,7 @@ Close each review thread with a concise acknowledgement that points to the resol
 node {{script:pr/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
 ```
 
-If the resolved comment CSV lives somewhere else, add `--csv=<path>` to point the script at the correct file.
+If the resolved comment JSON lives somewhere else, add `--input=<path>` to point the script at the correct file.
 
 ### Final Output
 

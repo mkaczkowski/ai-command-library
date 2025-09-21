@@ -12,20 +12,20 @@ import {
   handleHelp,
   validateArgs,
 } from './utils/cli.js';
-import { ADDRESS_RESOLVED_CSV_CONFIG, COMMON_BOOLEAN_FLAGS } from './utils/config.js';
-import { createNumericIdFieldValidator, createUrlFieldValidator, parseCSVFile } from './utils/csv.js';
+import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
+import { loadJsonArray, requireNumericStringField, requireObject, requireUrlField } from './utils/jsonValidation.js';
 import { resolveExistingPath } from './utils/fileSystem.js';
 
 const HELP_TEXT = `
-Reply to GitHub PR review comments using commit mappings from a CSV file.
+Reply to GitHub PR review comments using commit mappings from a JSON file.
 
 Usage:
   node reply-to-comments.js --pr=<number>
-  node reply-to-comments.js --csv=tmp/pr-123-address-resolved.csv
+  node reply-to-comments.js --input=tmp/pr-123-address-resolved.json
 
 Options:
-  --pr               Pull request number used to locate tmp/pr-[PR]-address-resolved.csv
-  --csv              Explicit path to the resolved comment CSV (overrides --pr)
+  --pr               Pull request number used to locate tmp/pr-[PR]-address-resolved.json
+  --input            Explicit path to the resolved comment JSON (overrides --pr)
   --repo             Target repository in owner/repo format (auto-detected from git remote if omitted)
   --dry-run          Preview replies without calling the GitHub API
   --verbose          Enable detailed logging
@@ -41,8 +41,8 @@ async function main() {
 
     handleHelp(options, HELP_TEXT);
 
-    if (!options.csv && !options.pr) {
-      throw new Error('Provide --pr or --csv so the script can locate the resolved comment CSV.');
+    if (!options.input && !options.pr) {
+      throw new Error('Provide --pr or --input so the script can locate the resolved comment JSON.');
     }
 
     const standardValidations = createStandardValidations();
@@ -56,7 +56,7 @@ async function main() {
 
     validateArgs(options, validations);
 
-    const csvPath = resolveCsvPath(options);
+    const inputPath = resolveInputPath(options);
 
     await ensureGhCli();
 
@@ -64,14 +64,16 @@ async function main() {
     const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
     log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
 
-    log('INFO', `Loading resolved comment mappings from CSV: ${csvPath}`);
-    const mappings = await parseResolvedMappings(csvPath);
-    log('INFO', `Loaded ${mappings.length} comment mappings from CSV`);
+    log('INFO', `Loading resolved comment mappings from JSON: ${inputPath}`);
+    const mappings = await parseResolvedMappings(inputPath);
+    log('INFO', `Loaded ${mappings.length} comment mappings from JSON`);
 
     // Extract PR number for API calls
-    const prNumber = options.pr || extractPrNumberFromCsvPath(csvPath);
+    const prNumber = options.pr || extractPrNumberFromInputPath(inputPath);
     if (!prNumber) {
-      throw new Error('PR number is required for posting replies. Provide --pr or ensure CSV path contains PR number.');
+      throw new Error(
+        'PR number is required for posting replies. Provide --pr or ensure JSON path contains the PR number.'
+      );
     }
 
     log('INFO', `Replying to ${mappings.length} comment(s) in ${repo.owner}/${repo.repo} (PR #${prNumber})`);
@@ -126,7 +128,7 @@ function parseCliArgs(argv) {
   };
 
   const flagHandlers = {
-    '--csv': createFlagHandler('csv'),
+    '--input': createFlagHandler('input'),
     '--pr': createFlagHandler('pr', (value) => Number(value)),
     '--repo': createFlagHandler('repo'),
   };
@@ -138,24 +140,24 @@ function parseCliArgs(argv) {
   });
 }
 
-function resolveCsvPath(options) {
-  if (options.csv) {
-    return resolveExistingPath(options.csv);
+function resolveInputPath(options) {
+  if (options.input) {
+    return resolveExistingPath(options.input);
   }
 
-  const derivedPath = buildDefaultAddressResolvedCsvPath(options.pr);
+  const derivedPath = buildDefaultAddressResolvedJsonPath(options.pr);
   try {
     return resolveExistingPath(derivedPath);
   } catch (error) {
     const absoluteDerivedPath = path.resolve(derivedPath);
-    throw new Error(`Expected CSV at ${absoluteDerivedPath}. Provide --csv to specify an alternate location.`);
+    throw new Error(`Expected JSON at ${absoluteDerivedPath}. Provide --input to specify an alternate location.`);
   }
 }
 
-function buildDefaultAddressResolvedCsvPath(prNumber) {
+function buildDefaultAddressResolvedJsonPath(prNumber) {
   const normalized = String(prNumber ?? '').trim();
   if (!normalized) {
-    throw new Error('PR number is required to locate the resolved CSV');
+    throw new Error('PR number is required to locate the resolved JSON file');
   }
 
   const numeric = Number(normalized);
@@ -163,27 +165,30 @@ function buildDefaultAddressResolvedCsvPath(prNumber) {
     throw new Error('PR number must be a positive number');
   }
 
-  return path.join('tmp', `pr-${numeric}-address-resolved.csv`);
+  return path.join('tmp', `pr-${numeric}-address-resolved.json`);
 }
 
-function extractPrNumberFromCsvPath(csvPath) {
-  const filename = path.basename(csvPath);
-  const match = filename.match(/^pr-(\d+)-address-resolved\.csv$/);
+function extractPrNumberFromInputPath(inputPath) {
+  const filename = path.basename(inputPath);
+  const match = filename.match(/^pr-(\d+)-address-resolved\.json$/);
   return match ? Number(match[1]) : null;
 }
 
 async function parseResolvedMappings(filePath) {
-  const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = ADDRESS_RESOLVED_CSV_CONFIG;
+  const entries = await loadJsonArray(filePath, { label: 'resolved comment mapping(s)' });
 
-  const fieldValidators = [createNumericIdFieldValidator('commentId'), createUrlFieldValidator('commitUrl')];
+  return entries.map((entry, index) => {
+    const mappingLabel = 'Mapping';
+    const normalized = requireObject(entry, index, { label: mappingLabel });
 
-  const { rows } = await parseCSVFile(filePath, {
-    requiredHeaders: REQUIRED_HEADERS,
-    expectedColumns: EXPECTED_COLUMNS,
-    fieldValidators,
+    const commentId = requireNumericStringField(normalized, 'commentId', index, { label: mappingLabel });
+    const commitUrl = requireUrlField(normalized, 'commitUrl', index, { label: mappingLabel });
+
+    return {
+      commentId,
+      commitUrl,
+    };
   });
-
-  return rows;
 }
 
 async function resolveReplyTarget(repo, commentId, cache) {

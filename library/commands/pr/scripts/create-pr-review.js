@@ -3,7 +3,7 @@
 /**
  * GitHub PR Pending Review Creator
  *
- * Creates a pending review on an existing pull request using comment data from CSV.
+ * Creates a pending review on an existing pull request using comment data from JSON.
  */
 import { log } from './utils/logger.js';
 import { ensureGhCli, runGhJson } from './utils/process.js';
@@ -16,17 +16,23 @@ import {
   parseArgs,
   validateArgs,
 } from './utils/cli.js';
-import { COMMON_BOOLEAN_FLAGS, REVIEW_COMMENT_CSV_CONFIG } from './utils/config.js';
-import { createOptionalPositiveIntegerFieldValidator, createStringFieldValidator, parseCSVFile } from './utils/csv.js';
+import { COMMON_BOOLEAN_FLAGS } from './utils/config.js';
+import {
+  loadJsonArray,
+  requireNonEmptyStringField,
+  requireObject,
+  requireOptionalPositiveIntegerField,
+  requireStringField,
+} from './utils/jsonValidation.js';
 
 const HELP_TEXT = `
-Create a pending GitHub PR review populated with inline comments supplied via CSV.
+Create a pending GitHub PR review populated with inline comments supplied via JSON.
 
 Usage:
-  node create-pr-review.js --comments-file=comments.csv [options]
+  node create-pr-review.js --input=comments.json [options]
 
 Options:
-  --comments-file        Path to a CSV file describing review comments (required)
+  --input                Path to a JSON file describing review comments (required)
   --pr                   Pull request number (auto-detects current PR if omitted)
   --repo                 Repository in owner/repo format (auto-detected when omitted)
   --review-body          Text to use as the review summary body
@@ -34,15 +40,17 @@ Options:
   --verbose              Enable detailed logging
   --help, -h             Show this help message
 
-Comments CSV format (7 columns):
-path,position,body,line,startLine,side
-src/index.ts,12,"Please extract helper",,,,
-src/components/foo.ts,,"Can we document this prop?",42,RIGHT,
+Comments JSON format (array of objects):
+[
+  {
+    "path": "src/index.ts",
+    "body": "Please extract helper",
+    "line": 12
+  }
+]
 
 Rules:
-  - Provide either position OR line/startLine columns per row (not both).
-  - When using line-based locations, side can be left empty
-  - Leave event unset to keep the review in PENDING state.
+  - Provide either line/startLine or position for inline comments, otherwise they will target the file.
 `;
 
 async function main() {
@@ -58,19 +66,23 @@ async function main() {
     const validations = [
       standardValidations.repository,
       standardValidations.prNumber,
-      { ...standardValidations.mappingFile, field: 'commentsFile' },
+      {
+        ...standardValidations.mappingFile,
+        field: 'input',
+        message: '--input must point to an existing file',
+      },
     ];
 
     validateArgs(options, validations);
 
     await ensureGhCli();
 
-    log('INFO', `Loading review comments from CSV: ${options.commentsFile}`);
-    const comments = await parseCommentsFile(options.commentsFile);
-    log('INFO', `Loaded ${comments.length} review comment(s) from CSV`);
+    log('INFO', `Loading review comments from JSON: ${options.input}`);
+    const comments = await parseCommentsFile(options.input);
+    log('INFO', `Loaded ${comments.length} review comment(s) from JSON`);
 
     if (comments.length === 0) {
-      throw new Error('No review comments provided in CSV file');
+      throw new Error('No review comments provided in JSON file');
     }
 
     const repo = await resolveRepository(options.repo);
@@ -99,7 +111,7 @@ function parseCliArgs(argv) {
   const argHandlers = createStandardArgHandlers();
 
   const flagHandlers = {
-    '--comments-file': createFlagHandler('commentsFile'),
+    '--input': createFlagHandler('input'),
     '--repo': createFlagHandler('repo'),
     '--pr': createFlagHandler('pr', (value) => parseInt(value.trim(), 10)),
     '--review-body': createFlagHandler('reviewBody'),
@@ -110,7 +122,7 @@ function parseCliArgs(argv) {
     argHandlers,
     flagHandlers,
     booleanFlags: [...COMMON_BOOLEAN_FLAGS],
-    requiredFlags: ['--comments-file'],
+    requiredFlags: ['--input'],
   });
 }
 
@@ -132,89 +144,94 @@ function resolveReviewBody(options) {
 }
 
 async function parseCommentsFile(filePath) {
-  const { REQUIRED_HEADERS, EXPECTED_COLUMNS } = REVIEW_COMMENT_CSV_CONFIG;
+  const entries = await loadJsonArray(filePath, { label: 'review comment(s)' });
 
-  const fieldValidators = [
-    createStringFieldValidator('path'),
-    createOptionalPositiveIntegerFieldValidator('position'),
-    createStringFieldValidator('body'),
-    createOptionalPositiveIntegerFieldValidator('line'),
-    createOptionalPositiveIntegerFieldValidator('startLine'),
-    createStringFieldValidator('side', true),
-  ];
-
-  const rowProcessor = (row, rowNumber) => buildCommentFromRow(row, rowNumber);
-
-  const { rows } = await parseCSVFile(filePath, {
-    requiredHeaders: REQUIRED_HEADERS,
-    expectedColumns: EXPECTED_COLUMNS,
-    fieldValidators,
-    rowProcessor,
-  });
-
-  return rows;
+  return entries.map((entry, index) => buildCommentFromEntry(entry, index));
 }
 
-function buildCommentFromRow(row, rowNumber) {
-  const path = row.path.trim();
-  const body = row.body;
-  const position = row.position;
-  const line = row.line;
-  const startLine = row.startLine;
-  const side = normalizeSide(row.side, 'side', rowNumber);
+function buildCommentFromEntry(entry, index) {
+  const commentLabel = 'Comment';
+  const normalized = requireObject(entry, index, { label: commentLabel });
 
-  if (!position && !line) {
-    throw new Error(`Row ${rowNumber}: Provide either position or line value.`);
-  }
-
-  if (position && (line || startLine || side)) {
-    throw new Error(`Row ${rowNumber}: position cannot be combined with line/startLine/side values.`);
-  }
-
-  if (startLine && !line) {
-    throw new Error(`Row ${rowNumber}: startLine requires line to be set.`);
-  }
-
-  if (!path) {
-    throw new Error(`Row ${rowNumber}: path cannot be empty.`);
-  }
+  const path = requireNonEmptyStringField(normalized, 'path', index, {
+    label: commentLabel,
+    trimResult: true,
+  });
+  const body = requireNonEmptyStringField(normalized, 'body', index, {
+    label: commentLabel,
+    trimResult: false,
+  });
 
   const comment = {
     path,
     body,
   };
 
-  if (position) {
-    comment.position = position;
-    return comment;
+  const line = requireOptionalPositiveIntegerField(normalized, 'line', index, { label: commentLabel });
+  if (line !== undefined) {
+    comment.line = line;
   }
 
-  comment.line = line;
-  comment.side = side || 'RIGHT';
+  const startLine = resolveOptionalInteger(normalized, 'startLine', 'start_line', index, commentLabel);
+  if (startLine !== undefined) {
+    comment.start_line = startLine;
+  }
 
-  if (startLine) {
-    comment.startLine = startLine;
+  const position = requireOptionalPositiveIntegerField(normalized, 'position', index, { label: commentLabel });
+  if (position !== undefined) {
+    comment.position = position;
+  }
+
+  const side = resolveOptionalString(normalized, 'side', index, commentLabel);
+  if (side !== undefined) {
+    comment.side = side;
+  }
+
+  const startSide = resolveOptionalString(normalized, 'startSide', index, commentLabel, 'start_side');
+  if (startSide !== undefined) {
+    comment.start_side = startSide;
   }
 
   return comment;
 }
 
-function normalizeSide(value, fieldName, rowNumber) {
-  if (value === undefined) {
+function resolveOptionalInteger(entry, camelName, snakeName, index, label) {
+  const camelValue = requireOptionalPositiveIntegerField(entry, camelName, index, { label });
+  if (camelValue !== undefined) {
+    return camelValue;
+  }
+
+  if (snakeName) {
+    return requireOptionalPositiveIntegerField(entry, snakeName, index, { label });
+  }
+
+  return undefined;
+}
+
+function resolveOptionalString(entry, fieldName, index, label, alternateFieldName) {
+  const value = entry?.[fieldName];
+  if (value !== undefined && value !== null) {
+    return requireStringField(entry, fieldName, index, {
+      label,
+      allowEmpty: false,
+      trimResult: true,
+    });
+  }
+
+  if (!alternateFieldName) {
     return undefined;
   }
 
-  const trimmed = typeof value === 'string' ? value.trim() : '';
-  if (!trimmed) {
+  const alternateValue = entry?.[alternateFieldName];
+  if (alternateValue === undefined || alternateValue === null) {
     return undefined;
   }
 
-  const upper = trimmed.toUpperCase();
-  if (upper !== 'LEFT' && upper !== 'RIGHT') {
-    throw new Error(`Row ${rowNumber}: ${fieldName} must be LEFT or RIGHT when provided.`);
-  }
-
-  return upper;
+  return requireStringField(entry, alternateFieldName, index, {
+    label,
+    allowEmpty: false,
+    trimResult: true,
+  });
 }
 
 function buildReviewPayload({ reviewBody, commit, comments }) {
@@ -251,31 +268,5 @@ async function submitReview(repo, prNumber, payload) {
   const state = response.state || 'pending';
   log('INFO', `✔ Created pending review ${reviewId} (state: ${state})`);
 }
-
-/*async function checkForPendingReview(repo, prNumber) {
-  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews`;
-
-  try {
-    const reviews = await runGhJson(['api', endpoint], { host: repo.host });
-
-    // Find pending reviews by current user
-    const pendingReviews = reviews.filter(
-      (review) =>
-        (review.state === 'PENDING' && review.user.login === process.env.GITHUB_USER) ||
-        review.user.login === process.env.USER
-    );
-
-    return pendingReviews.length > 0 ? pendingReviews[0] : null;
-  } catch (error) {
-    log('WARN', `Could not check for existing reviews: ${error.message}`);
-    return null;
-  }
-}
-
-async function deletePendingReview(repo, prNumber, reviewId) {
-  const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews/${reviewId}`;
-
-  await runGhJson(['api', '--method', 'DELETE', endpoint], { host: repo.host });
-}*/
 
 main();

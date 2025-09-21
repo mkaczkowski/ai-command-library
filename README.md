@@ -327,7 +327,7 @@ flowchart TD
     Analyze --> Output[Generate structured plan]
     Output --> Craft[Compose concise, inline comments]
     Craft --> Map[Align paths and line numbers with PR diffs]
-    Map --> Export[Export comments to CSV]
+    Map --> Export[Export comments to JSON]
     Export --> RunScript[Create pending PR review]
 ```
 
@@ -430,7 +430,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=123
 <details>
 <summary><strong>📤 GitHub Integration Scripts</strong></summary>
 
-- **`create-pr-review.js`** - Submit comment CSV as GitHub review
+- **`create-pr-review.js`** - Submit comment JSON as GitHub review
 - **`edit-pr-comments.js`** - Update existing comments with enhanced versions
 - **`reply-to-comments.js`** - Post resolution acknowledgments to comment threads
 
