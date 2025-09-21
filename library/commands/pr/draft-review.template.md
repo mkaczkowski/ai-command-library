@@ -50,7 +50,6 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
    - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
 5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
 
-
 #### Coverage Edge Cases
 
 - For large or truncated patches, fall back to `git show <branch>:<path>` to review the complete file.
