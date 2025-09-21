@@ -3,7 +3,7 @@
 import path from 'path';
 import { log } from './utils/logger.js';
 import { ensureGhCli, runGh, runGhJson } from './utils/process.js';
-import { resolveRepository } from './utils/repository.js';
+import { resolveRepository, validateCommitUrl } from './utils/repository.js';
 import {
   createFlagHandler,
   createStandardArgHandlers,
@@ -245,26 +245,6 @@ async function sendReply(repo, targetCommentId, body, prNumber) {
   log('DEBUG', `Reply posted to ${targetCommentId}`);
 }
 
-async function validateCommitUrl(repo, commitUrl) {
-  try {
-    // Extract commit hash from URL
-    const commitHash = commitUrl.split('/').pop();
-    if (!commitHash || commitHash.length < 7) {
-      throw new Error('Invalid commit hash in URL');
-    }
-
-    // Check if commit exists in the repository
-    const endpoint = `/repos/${repo.owner}/${repo.repo}/commits/${commitHash}`;
-    await runGhJson(['api', endpoint], { host: repo.host });
-
-    log('DEBUG', `Commit URL validated: ${commitUrl}`);
-    return true;
-  } catch (error) {
-    log('WARN', `Commit URL validation failed: ${commitUrl} - ${error.message}`);
-    return false;
-  }
-}
-
 async function checkForExistingReply(repo, prNumber, targetCommentId, commitUrl) {
   try {
     // Get all comments for the PR and look for our reply pattern
@@ -272,13 +252,12 @@ async function checkForExistingReply(repo, prNumber, targetCommentId, commitUrl)
     const allComments = await runGhJson(['api', endpoint], { host: repo.host });
 
     // Find comments that reply to our target and contain the commit URL
-    // Check for both old format ("Done") and new format ("Thanks for the feedback")
     const existingReply = allComments.find(
       (comment) =>
         comment.in_reply_to_id === Number(targetCommentId) &&
         comment.body &&
         comment.body.includes(commitUrl) &&
-        (comment.body.includes('Thanks for the feedback') || comment.body.includes('Done'))
+        comment.body.includes('Done')
     );
 
     if (existingReply) {
@@ -294,7 +273,7 @@ async function checkForExistingReply(repo, prNumber, targetCommentId, commitUrl)
 }
 
 function buildReplyBody(commitUrl) {
-  return `Thanks for the feedback! This has been addressed in ${commitUrl}`;
+  return `Done ${commitUrl}`;
 }
 
 main();

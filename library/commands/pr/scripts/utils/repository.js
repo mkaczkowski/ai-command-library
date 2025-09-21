@@ -120,4 +120,30 @@ async function getCurrentPRNumber() {
   }
 }
 
-export { parseRepositoryString, sanitizeRepo, resolveRepository, getCurrentPRNumber };
+/**
+ * Validates that a commit URL points to an existing commit in the repository.
+ * @param {Object} repo - Repository object with owner, repo, and host properties
+ * @param {string} commitUrl - The commit URL to validate
+ * @returns {Promise<boolean>} True if the commit exists, false otherwise
+ */
+async function validateCommitUrl(repo, commitUrl) {
+  try {
+    // Extract commit hash from URL
+    const commitHash = commitUrl.split('/').pop();
+    if (!commitHash || commitHash.length < 7) {
+      throw new Error('Invalid commit hash in URL');
+    }
+
+    // Check if commit exists in the repository
+    const endpoint = `/repos/${repo.owner}/${repo.repo}/commits/${commitHash}`;
+    await runGhJson(['api', endpoint], { host: repo.host });
+
+    log('DEBUG', `Commit URL validated: ${commitUrl}`);
+    return true;
+  } catch (error) {
+    log('WARN', `Commit URL validation failed: ${commitUrl} - ${error.message}`);
+    return false;
+  }
+}
+
+export { parseRepositoryString, sanitizeRepo, resolveRepository, getCurrentPRNumber, validateCommitUrl };
