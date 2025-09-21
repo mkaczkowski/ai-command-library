@@ -99,6 +99,14 @@ async function main() {
           log('DEBUG', `Comment ${commentId} is a reply; targeting thread root ${targetId}`);
         }
 
+        // Check for existing reply to prevent duplicates
+        const hasExistingReply = await checkForExistingReply(repo, prNumber, targetId, commitUrl);
+        if (hasExistingReply) {
+          log('INFO', `⊘ Skipping ${commentId} - reply with this commit already exists`);
+          successes++; // Count as success since the reply exists
+          continue;
+        }
+
         const body = buildReplyBody(commitUrl);
 
         if (dryRun) {
@@ -253,6 +261,34 @@ async function validateCommitUrl(repo, commitUrl) {
     return true;
   } catch (error) {
     log('WARN', `Commit URL validation failed: ${commitUrl} - ${error.message}`);
+    return false;
+  }
+}
+
+async function checkForExistingReply(repo, prNumber, targetCommentId, commitUrl) {
+  try {
+    // Get all comments for the PR and look for our reply pattern
+    const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/comments`;
+    const allComments = await runGhJson(['api', endpoint], { host: repo.host });
+
+    // Find comments that reply to our target and contain the commit URL
+    // Check for both old format ("Done") and new format ("Thanks for the feedback")
+    const existingReply = allComments.find(
+      (comment) =>
+        comment.in_reply_to_id === Number(targetCommentId) &&
+        comment.body &&
+        comment.body.includes(commitUrl) &&
+        (comment.body.includes('Thanks for the feedback') || comment.body.includes('Done'))
+    );
+
+    if (existingReply) {
+      log('DEBUG', `Existing reply found for comment ${targetCommentId} with commit ${commitUrl}`);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    log('DEBUG', `Could not check for existing replies: ${error.message}`);
     return false;
   }
 }
