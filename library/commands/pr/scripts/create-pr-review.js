@@ -91,6 +91,10 @@ async function main() {
     const hostInfo = repo.host && repo.host !== 'github.com' ? ` (${repo.host})` : '';
     log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
     log('INFO', `Target PR number: ${prNumber}`);
+
+    // Check for existing pending reviews
+    await checkForExistingPendingReview(repo, prNumber);
+
     log('INFO', `Creating pending review on PR #${prNumber} with ${comments.length} comment(s)`);
 
     const reviewBody = resolveReviewBody(options);
@@ -251,6 +255,50 @@ function buildReviewPayload({ reviewBody, commit, comments }) {
   }
 
   return payload;
+}
+
+/**
+ * Check if the current user already has a pending review on the PR
+ * @param {Object} repo - Repository object
+ * @param {number} prNumber - Pull request number
+ * @returns {Promise<void>}
+ */
+async function checkForExistingPendingReview(repo, prNumber) {
+  log('DEBUG', `Checking for existing pending reviews on PR #${prNumber}`);
+
+  try {
+    const endpoint = `/repos/${repo.owner}/${repo.repo}/pulls/${prNumber}/reviews`;
+    const response = await runGhJson(['api', endpoint], {
+      host: repo.host,
+    });
+
+    const pendingReviews = response.filter((review) => review.state === 'PENDING');
+
+    if (pendingReviews.length > 0) {
+      log('ERROR', 'Cannot create new pending review - existing pending review(s) found');
+      log('INFO', 'You have the following pending review(s) that must be submitted or dismissed first:');
+
+      pendingReviews.forEach((review) => {
+        log('INFO', `  - Review ${review.id} (created: ${review.created_at})`);
+      });
+
+      log('INFO', '\n📝 To fix this:');
+      log('INFO', '1. Submit the pending review(s) on GitHub, OR');
+      log('INFO', '2. Dismiss the pending review(s) on GitHub, OR');
+      log('INFO', '3. Ask Claude to help submit the reviews');
+      log('INFO', '\nPending review IDs:', pendingReviews.map((r) => r.id).join(', '));
+
+      throw new Error(`Cannot create new review - ${pendingReviews.length} pending review(s) already exist`);
+    }
+
+    log('DEBUG', 'No pending reviews found - safe to create new review');
+  } catch (error) {
+    if (error.message.includes('pending review')) {
+      throw error; // Re-throw our custom error
+    }
+    log('WARN', `Could not check for pending reviews: ${error.message}`);
+    log('INFO', 'Proceeding with review creation - please check manually if creation fails');
+  }
 }
 
 async function submitReview(repo, prNumber, payload) {

@@ -79,6 +79,8 @@ async function main() {
     log('INFO', `Target repository: ${repo.owner}/${repo.repo}${hostInfo}`);
     log('INFO', `Updating ${mappings.size} comment(s) in ${repo.owner}/${repo.repo}`);
 
+    // Note: Comments from pending reviews will fail to update with clear error messages
+
     let failures = 0;
     let successes = 0;
     for (const [commentId, body] of mappings.entries()) {
@@ -96,6 +98,9 @@ async function main() {
 
     log('INFO', `Update completed: ${successes} successful, ${failures} failed`);
     if (failures > 0) {
+      log('INFO', '\n💡 If comments failed due to pending reviews:');
+      log('INFO', '1. Submit any pending review(s) on GitHub, OR');
+      log('INFO', '2. Ask Claude to help submit the reviews, then retry');
       throw new Error(`${failures} update(s) failed`);
     }
   } catch (error) {
@@ -175,6 +180,13 @@ async function updateComment(repo, rawId, body) {
     });
     log('DEBUG', `Comment ${rawId} updated successfully`);
   } catch (error) {
+    if (error.message.includes('Not Found')) {
+      const enhancedError = new Error(
+        `Cannot update comment ${rawId} - likely from a pending review. Submit pending reviews first.`
+      );
+      log('ERROR', enhancedError.message);
+      throw enhancedError;
+    }
     log('ERROR', `Failed to update comment ${rawId}: ${error.message}`);
     throw error;
   }
