@@ -153,6 +153,17 @@ async function parseCommentsFile(filePath) {
   return entries.map((entry, index) => buildCommentFromEntry(entry, index));
 }
 
+/**
+ * Builds a GitHub review comment from a JSON entry.
+ *
+ * Field Naming Strategy:
+ * This function accepts both camelCase (JavaScript convention) and snake_case
+ * (GitHub API convention) field names for developer convenience. Examples:
+ * - startLine or start_line
+ * - startSide or start_side
+ *
+ * The output always uses GitHub's snake_case format as required by the API.
+ */
 function buildCommentFromEntry(entry, index) {
   const commentLabel = 'Comment';
   const normalized = requireObject(entry, index, { label: commentLabel });
@@ -199,6 +210,23 @@ function buildCommentFromEntry(entry, index) {
   return comment;
 }
 
+/**
+ * Resolves an optional integer field that accepts both camelCase and snake_case naming.
+ * This accommodates developer preference for camelCase input while maintaining
+ * compatibility with GitHub API's snake_case requirements.
+ *
+ * @param {Object} entry - The JSON entry to validate
+ * @param {string} camelName - The camelCase field name (e.g., 'startLine')
+ * @param {string} snakeName - The snake_case field name (e.g., 'start_line')
+ * @param {number} index - Entry index for error reporting
+ * @param {string} label - Label for error messages
+ * @returns {number|undefined} The resolved integer value
+ *
+ * @example
+ * // Both formats are accepted:
+ * resolveOptionalInteger(entry, 'startLine', 'start_line', 0, 'Comment')
+ * // Accepts: { startLine: 5 } or { start_line: 5 }
+ */
 function resolveOptionalInteger(entry, camelName, snakeName, index, label) {
   const camelValue = requireOptionalPositiveIntegerField(entry, camelName, index, { label });
   if (camelValue !== undefined) {
@@ -212,6 +240,17 @@ function resolveOptionalInteger(entry, camelName, snakeName, index, label) {
   return undefined;
 }
 
+/**
+ * Resolves an optional string field with support for alternate field names.
+ * Used to accommodate both camelCase and snake_case field naming conventions.
+ *
+ * @param {Object} entry - The JSON entry to validate
+ * @param {string} fieldName - The primary field name
+ * @param {number} index - Entry index for error reporting
+ * @param {string} label - Label for error messages
+ * @param {string} [alternateFieldName] - Alternative field name (e.g., snake_case variant)
+ * @returns {string|undefined} The resolved string value
+ */
 function resolveOptionalString(entry, fieldName, index, label, alternateFieldName) {
   const value = entry?.[fieldName];
   if (value !== undefined && value !== null) {
