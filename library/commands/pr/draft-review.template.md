@@ -36,12 +36,20 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 
 3. Inventory the change surface:
    - Review the `files` array in the PR context JSON to understand all changed files
-   - Categorise each file by impact level (Critical / High / Medium / Low) and by file type to prioritise the review effort
-   - Use the `additions`, `deletions`, and `status` fields to inform your impact assessment
+   - **Smart Triage** - Read context and immediately categorize files by impact:
+     - **Critical**: Core business logic, API changes, security-sensitive code
+     - **High**: Components, utilities, database schemas, build configs
+     - **Medium**: Tests, documentation, styling
+     - **Low**: Minor text changes, formatting, comments
+   - Start with Critical/High impact files first
+   - For large PRs (>10 files), consider reviewing only Critical/High unless specifically requested
+   - Use the `additions`, `deletions`, and `status` fields to prioritize
+   - Skip auto-generated files, pure formatting changes, and version bumps unless they indicate deeper issues
 4. Inspect the codebase for surrounding context:
    - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
    - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
 5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
+
 
 #### Coverage Edge Cases
 
@@ -247,19 +255,3 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 ```bash
 node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
 ```
-
-### Troubleshooting Common Issues
-
-#### HTTP 422 Unprocessable Entity
-
-- **Cause**: PR already has a submitted review (cannot create pending review) or JSON validation issues
-- **Solution**: Don't submit a new review; instead, inform the user and stop the process.
-
-#### Invalid Line Numbers
-
-- **Cause**: Line numbers don't exist in current PR diff
-- **Solution**: Verify line numbers against actual PR changes before submission
-
-#### Alternative: Manual Submission
-
-If automated submission fails, findings can be manually copied from by user
