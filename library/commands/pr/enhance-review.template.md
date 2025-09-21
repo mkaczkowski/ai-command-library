@@ -111,46 +111,35 @@ This keeps the behaviour aligned with [benefit or risk mitigation].
 [Repeat for each comment]
 ````
 
+### Phase 4: Automatic JSON Generation
+
+**MANDATORY:** Immediately after providing the rewritten comments, automatically generate the JSON file:
+
+1. Extract each comment `id` and its rewritten body from your output above.
+2. Create `tmp/pr-[PR_NUMBER]-comments.json` with the structure:
+
+   ```json
+   [
+     {
+       "id": "comment_id_here",
+       "rewritten": "rewritten comment text here"
+     }
+   ]
+   ```
+
+3. Verify the JSON parses correctly: `node -e "require('./tmp/pr-[PR_NUMBER]-comments.json')"`
+
 ### Continue?
 
 Before moving on, ask the user: **"Continue to Step 2 (Update Review Comments)?"**. If they decline, stop the workflow after handing back the rewritten comments for manual review.
 
 ## Step 2: Update Review Comments
 
-Convert the enhanced comments into JSON and apply the updates to GitHub.
+Apply the enhanced comments (already prepared in JSON format) to GitHub.
 
-### Phase 1: JSON Preparation
+### GitHub Updates
 
-#### Process
-
-1. Review the supplied markdown containing the enhanced comment text.
-2. Extract each comment `id` and its rewritten body.
-3. Save the output to `tmp/pr-[PR_NUMBER]-comments.json` as an array of `{ id, rewritten }` objects.
-
-#### JSON Requirements
-
-**Recommended automation**
-
-1. Prepare `tmp/pr-[PR_NUMBER]-comments.json` with the rewritten comment bodies:
-
-   ```json
-   [
-     {
-       "id": "2351166366",
-       "rewritten": "I noticed there's an empty line in the JSDoc comment block that could be cleaned up for consistency. Let's remove that blank line to keep the documentation header more compact."
-     }
-   ]
-   ```
-
-2. Confirm the JSON parses correctly by running `node -e "require('./tmp/pr-[PR_NUMBER]-comments.json')"` from the repository root.
-
-**Manual fallback**
-
-Create the JSON file manually following the same structure as the example above. Ensure each entry contains a trimmed `id` and a non-empty `rewritten` string.
-
-### Phase 2: GitHub Updates
-
-Once the JSON is ready, run the script:
+Run the script with the JSON file that was automatically generated in Step 1:
 
 ```bash
 node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-[PR_NUMBER]-comments.json
