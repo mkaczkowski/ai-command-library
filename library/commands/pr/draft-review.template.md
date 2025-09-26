@@ -247,7 +247,7 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 1. Double-check the JSON for empty bodies, missing locations, or malformed escaping.
 2. Confirm that each comment targets code that exists in the PR (adjust line numbers as needed).
 
-**Important:** Use only the provided scripts for creating and sending data to GitHub. GitHub CLI should be used exclusively for fetching and reading data.
+**Important:** Use only the provided scripts for creating and sending data to GitHub. GitHub CLI should be used exclusively for fetching and reading data. **NEVER use `gh pr review` command in any form** - always use the Node.js scripts provided.
 
 3. Once satisfied, run the provided script:
 
@@ -258,5 +258,5 @@ node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review
 **Note:** If it will fail because you have existing pending reviews, ask the user to add `--discard-existing` flag to automatically discard them. If the user agrees, run:
 
 ```bash
-node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
+node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
 ```
