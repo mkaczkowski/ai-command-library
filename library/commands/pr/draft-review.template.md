@@ -34,7 +34,9 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
    }
    ```
 
-3. Inventory the change surface:
+3. Review existing signals:
+   - Check recent commits in the PR for follow-up fixes that may invalidate older feedback.
+4. Inventory the change surface:
    - Review the `files` array in the PR context JSON to understand all changed files
    - **Smart Triage** - Read context and immediately categorize files by impact:
      - **Critical**: Core business logic, API changes, security-sensitive code
@@ -45,15 +47,19 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
    - For large PRs (>10 files), consider reviewing only Critical/High unless specifically requested
    - Use the `additions`, `deletions`, and `status` fields to prioritize
    - Skip auto-generated files, pure formatting changes, and version bumps unless they indicate deeper issues
-4. Inspect the codebase for surrounding context:
+5. Inspect the codebase using the local workspace checkout:
+   - Open each prioritized file directly from the working tree to evaluate the full implementation, not just the diff hunk.
+   - Navigate supporting modules with the IDE/CLI (prefer `rg` for speed; if unavailable, fall back to `grep`, the IDE search palette, or repository-aware tooling) to understand how the change integrates.
    - Review the guidance referenced in the Standards Quick Reference for the area under evaluation.
-   - Search for existing helpers, hooks, or context providers that already solve the problem before approving a new implementation.
-5. Examine the diff carefully by reviewing the `files[].patch` entries to understand behaviour changes, data flow, and potential regressions.
+6. Use the diff for orientation, then confirm behaviour against source snapshots:
+   - Start from `files[].patch` to understand the change intent and affected lines.
+   - Validate the head version by reading the local file (workspace already tracks the PR branch).
 
-#### Coverage Edge Cases
+#### Full-Context Retrieval
 
-- For large or truncated patches, fall back to `git show <branch>:<path>` to review the complete file.
-- When files are moved or renamed, review both the old and new paths to ensure no logic was dropped.
+- Broaden patch context when needed: `git diff <baseRemote>/<baseRef>...HEAD -- "path/to/file" --unified=20`.
+- For truncated or large patches, always inspect both head (local file) and base (via `git show` using the resolved remote/ref) versions before recording a finding.
+- When files are moved or renamed, use `files[].previous_filename` to open the historical path, or inspect the staged predecessor with `git show HEAD^ -- path/to/previous/file` if the PR branch has been rebased locally.
 
 #### Standards Quick Reference
 
@@ -61,7 +67,7 @@ node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-
 
 ### Phase 2: Review Guidelines
 
-**Important:** This is a MANUAL code review process. Do NOT run automated checks (linting, testing, type-checking) as part of the review. Focus on manual analysis of the code changes, patterns, and logic.
+**Important:** This is primarily a manual code review process. Focus on reasoning about the change without leaning on heavy automation; if a lightweight command (targeted unit test, formatter, lint rule) is essential to validate a concern, document that you ran it and capture the evidence in your findings.
 
 #### What to Evaluate
 
@@ -121,9 +127,9 @@ Structure the generated markdown exactly as follows (omit sections that would be
 
 [If no issues found, state: "No issues found - this implementation meets quality standards."]
 
-[If issues exist, list them as follows:]
+[If issues exist, list them as follows. Increment the leading number for each finding so the summary, markdown, and inline comments stay aligned.]
 
-### 1. [Severity: Blocker/Major/Minor] [Short title]
+### [1]. [Severity: Blocker/Major/Minor] [Short title]
 
 **Area:** `[file/path.ext#Lline]`
 

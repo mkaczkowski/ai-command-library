@@ -1,6 +1,6 @@
 {
   "name": "@mkaczkowski/ai-command-library",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Reusable AI agent commands packaged for Claude, Cursor, Copilot, Codex and similar tooling.",
   "type": "module",
   "bin": {
