@@ -1,5 +1,5 @@
 ---
-description: 'Create Jira bug reports with jira-cli using the BWP project and Bug issue type.'
+description: 'Create Jira bug reports with jira-cli for any project using the Bug issue type.'
 ---
 
 # Jira Bug Report Creation Checklist
@@ -10,6 +10,7 @@ Act as the quality engineer responsible for filing a Jira bug via `jira-cli`. Ga
 
 Collect or confirm each field before drafting the issue:
 
+- **Project key** – Jira project key (e.g., BWP, WEB). Prompt until provided.
 - **Summary** – concise, action-oriented, and prefixed with relevant emoji if provided.
 - **Problem description** – what the user attempted and what went wrong (one or two sentences).
 - **Reproduction steps** – ordered steps a teammate can follow.
@@ -53,7 +54,7 @@ Produce three clearly labeled sections in your final response:
 
 1. **Issue Summary** – single line text ready for Jira.
 2. **Issue Description** – fenced code block (```) containing the fully formatted description template populated with the collected details.
-3. **jira-cli Command** –  fenced `bash` block pointing to `jira issue create`, using the populated summary and description. Do not run this command yet
+3. **jira-cli Command** – a sentence confirming you will run the command after approval, followed by a fenced `bash` block pointing to `jira issue create`, using the populated project key, summary, and description. Do not run this command yet.
 
 ## 4. Validation
 
@@ -65,18 +66,13 @@ Before presenting the final response:
 - Ensure every URL is accessible (or clearly labeled if internal).
 - Review the command for shell quoting issues.
 
-
 Render the formatted summary, description, and command. Do not execute the command yourself.
 
-## Next steps
-
-Once the user confirms these details, you (the assistant) will execute the following command with `jira-cli`:
-
-If the summary contains quotes, escape them for shell safety. Preserve newlines in the heredoc description exactly as written.
+Once the user explicitly approves the suggested ticket details, you (the assistant) will execute the command below with `jira-cli`. If the summary contains quotes, escape them for shell safety. Preserve newlines in the heredoc description exactly as written.
 
 ```bash
 jira issue create \
-  --project BWP \
+  --project <PROJECT_KEY> \
   --issuetype Bug \
   --summary "<SUMMARY>" \
   --description "$(cat <<'EOF'
