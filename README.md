@@ -409,6 +409,35 @@ flowchart TD
 
 </details>
 
+### 🐞 File Jira Bug Reports
+
+**Problem:** You need to capture production bugs quickly without sacrificing the detail Jira requires.
+
+**Solution:** Guided interview that drafts the full ticket and prepares a ready-to-run `jira-cli` command.
+
+**What you get:**
+
+- 🧾 Complete, emoji-free Jira description with bold section headers
+- 🔁 Reproduction steps, expected vs. observed behavior, and environment details
+- ⚙️ Shell-safe `jira issue create` command you can paste into the terminal
+
+#### Step 1: Draft Ticket (`jira/create-bug.template.md`)
+
+**When to use:** As soon as a bug is confirmed and you’re ready to file it in Jira.
+
+```bash
+# Ask your AI:
+# "Use the Jira bug report workflow to file this issue for me"
+```
+
+**What happens:** The command collects summary, reproduction steps, environment, and evidence, formats them for Jira, and outputs:
+
+1. Actionable summary text
+2. Markdown description wrapped in a code fence
+3. A `jira issue create` command with the populated description (using `-tBug`, `-s"<SUMMARY>"`, and `-b"<DESCRIPTION BLOCK>"` with embedded newlines)
+
+**Output:** Ready-to-file summary, description, and CLI command (`jira issue create ... --no-input`)
+
 ## 🤖 Helper Scripts Reference
 
 The workflows above use helper scripts to integrate with GitHub. These scripts handle API calls, data processing, and file management automatically.

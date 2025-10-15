@@ -57,6 +57,7 @@ Produce three clearly labeled sections in your final response:
 3. **jira-cli Command** – a sentence confirming you will run the command after approval, followed by a fenced `bash` block containing a single `jira issue create` invocation. Use `-tBug`, `-s"<SUMMARY>"`, `-b"<DESCRIPTION BLOCK>"`, and `--no-input`. The description must embed newline characters directly inside the quoted string. Do not run this command yet.
 
 ## 4. Validation
+
 Before presenting the final response:
 
 - Verify the summary is ≤ 100 characters, actionable, and emoji-free.
