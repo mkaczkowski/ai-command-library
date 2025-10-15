@@ -425,10 +425,7 @@ flowchart TD
 
 **When to use:** As soon as a bug is confirmed and you’re ready to file it in Jira.
 
-```bash
-# Ask your AI:
-# "Use the Jira bug report workflow to file this issue for me"
-```
+**Prerequisite:** Install [`jira-cli`](https://github.com/ankitpokhrel/jira-cli) and authenticate it with your JIRA_API_TOKEN.
 
 **What happens:** The command collects summary, reproduction steps, environment, and evidence, formats them for Jira, and outputs:
 
