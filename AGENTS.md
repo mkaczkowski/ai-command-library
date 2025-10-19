@@ -53,6 +53,7 @@ Skills are currently supported for Claude providers only:
 - **Global Skills** (`claude-global` provider): Stored in `~/.claude/skills/`, personal setup
 
 When linking for Claude, both commands and skills are synced automatically. Each skill consists of:
+
 - `SKILL.md` - Skill metadata and instructions (required)
 - Supporting files - Documentation, templates, scripts (optional)
 
@@ -64,6 +65,7 @@ Agents (subagents) are currently supported for Claude providers only:
 - **Global Agents** (`claude-global` provider): Stored in `~/.claude/agents/`, personal setup
 
 When linking for Claude, commands, skills, and agents are all synced automatically. Each agent consists of:
+
 - `.md` file - Agent metadata with YAML frontmatter and system prompt (required)
   - `name` - Unique identifier for the agent
   - `description` - When to invoke this agent

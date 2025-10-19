@@ -180,14 +180,14 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 
 > 📋 **Provider Reference Table**
 
-| Provider        | Destination          | Skills | Agents | Best For                         |
-| --------------- | -------------------- | ------ | ------ | -------------------------------- |
-| `claude`        | `.claude/commands` + `.claude/skills` + `.claude/agents` | ✅ | ✅ | Project-specific Claude commands, skills, and agents |
-| `claude-global` | `~/.claude/commands` + `~/.claude/skills` + `~/.claude/agents` | ✅ | ✅ | User-wide Claude setup |
-| `cursor`        | `.cursor/commands`   | ❌ | ❌ | Project-specific Cursor commands |
-| `cursor-global` | `~/.cursor/commands` | ❌ | ❌ | User-wide Cursor setup           |
-| `copilot`       | `.github/prompts`    | ❌ | ❌ | Project-specific Copilot prompts |
-| `codex-global`  | `~/.codex/prompts`   | ❌ | ❌ | Terminal-based AI workflows      |
+| Provider        | Destination                                                    | Skills | Agents | Best For                                             |
+| --------------- | -------------------------------------------------------------- | ------ | ------ | ---------------------------------------------------- |
+| `claude`        | `.claude/commands` + `.claude/skills` + `.claude/agents`       | ✅     | ✅     | Project-specific Claude commands, skills, and agents |
+| `claude-global` | `~/.claude/commands` + `~/.claude/skills` + `~/.claude/agents` | ✅     | ✅     | User-wide Claude setup                               |
+| `cursor`        | `.cursor/commands`                                             | ❌     | ❌     | Project-specific Cursor commands                     |
+| `cursor-global` | `~/.cursor/commands`                                           | ❌     | ❌     | User-wide Cursor setup                               |
+| `copilot`       | `.github/prompts`                                              | ❌     | ❌     | Project-specific Copilot prompts                     |
+| `codex-global`  | `~/.codex/prompts`                                             | ❌     | ❌     | Terminal-based AI workflows                          |
 
 > 📝 **Skills:** Only available for Claude providers. Both project skills (`.claude/skills/`) and global skills (`~/.claude/skills/`) are automatically synced when linking.
 > 📝 **Agents:** Only available for Claude providers. Both project agents (`.claude/agents/`) and global agents (`~/.claude/agents/`) are automatically synced when linking.
