@@ -1,7 +1,7 @@
 {
   "id": "codex-global",
   "label": "Codex CLI (Global)",
-  "defaultTargetDir": "~/.codex/prompts",
+  "defaultCommandsTargetDir": "~/.codex/prompts",
   "flatten": {
     "excludePrefixes": ["scripts"]
   }

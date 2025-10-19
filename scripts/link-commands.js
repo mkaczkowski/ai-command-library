@@ -2,7 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { parseArgs, printHelp } from './lib/cli.js';
 import { listProviders } from './lib/providers.js';
-import { linkCommands } from './lib/link-service.js';
+import { linkForProvider } from './lib/link-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -19,7 +19,7 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
 
-  await linkCommands({
+  await linkForProvider({
     providerId: args.provider,
     destination: args.destination,
     mode: args.mode,

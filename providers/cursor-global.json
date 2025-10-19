@@ -1,5 +1,5 @@
 {
   "id": "cursor-global",
   "label": "Cursor IDE (Global)",
-  "defaultTargetDir": "~/.cursor/commands"
+  "defaultCommandsTargetDir": "~/.cursor/commands"
 }

@@ -1,5 +1,9 @@
 {
   "id": "claude",
   "label": "Claude Desktop / Claude Code",
-  "defaultTargetDir": ".claude/commands"
+  "defaultCommandsTargetDir": ".claude/commands",
+  "defaultSkillsTargetDir": ".claude/skills",
+  "defaultAgentsTargetDir": ".claude/agents",
+  "supportsSkills": true,
+  "supportsAgents": true
 }

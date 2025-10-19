@@ -29,7 +29,7 @@ export async function listProviders(logger = console) {
   for (const entry of entries) {
     if (!entry.endsWith('.json')) continue;
     const config = await readJSON(path.join(PROVIDERS_ROOT, entry));
-    providers.push({ id: config.id, target: config.defaultTargetDir, label: config.label ?? '' });
+    providers.push({ id: config.id, target: config.defaultCommandsTargetDir, label: config.label ?? '' });
   }
   if (!providers.length) {
     logger.log('No providers configured yet.');
