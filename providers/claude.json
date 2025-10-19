@@ -3,5 +3,7 @@
   "label": "Claude Desktop / Claude Code",
   "defaultCommandsTargetDir": ".claude/commands",
   "defaultSkillsTargetDir": ".claude/skills",
-  "supportsSkills": true
+  "defaultAgentsTargetDir": ".claude/agents",
+  "supportsSkills": true,
+  "supportsAgents": true
 }

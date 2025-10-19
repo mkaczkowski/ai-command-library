@@ -4,8 +4,9 @@ import { expandHomeDir } from './path-utils.js';
 import { buildDefaultMappings, loadProviderConfig } from './providers.js';
 import { processMappings } from './mapping-processor.js';
 import { linkSkills } from './link-skills.js';
+import { linkAgents } from './link-agents.js';
 
-/** Orchestrates linking commands and skills for a given provider. */
+/** Orchestrates linking commands, skills, and agents for a given provider. */
 export async function linkForProvider({ providerId, destination, mode, dryRun, logger = console }) {
   const supportedModes = new Set(['copy', 'symlink']);
   if (!supportedModes.has(mode)) {
@@ -33,6 +34,21 @@ export async function linkForProvider({ providerId, destination, mode, dryRun, l
     await linkSkills({
       providerId,
       destination: skillsDestination,
+      mode,
+      dryRun,
+      logger,
+    });
+  }
+
+  // Link agents if provider supports them
+  if (providerConfig.supportsAgents && providerConfig.defaultAgentsTargetDir) {
+    const agentsDestination = destination
+      ? path.dirname(destination) // If custom destination, infer agents dir from commands dir
+      : providerConfig.defaultAgentsTargetDir;
+
+    await linkAgents({
+      providerId,
+      destination: agentsDestination,
       mode,
       dryRun,
       logger,
