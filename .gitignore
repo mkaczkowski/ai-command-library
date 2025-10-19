@@ -58,3 +58,6 @@ logs
 
 # GitHub CLI auth and config
 .gh/
+
+# ESLint cache
+.eslintcache
