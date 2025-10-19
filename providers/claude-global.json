@@ -1,5 +1,7 @@
 {
   "id": "claude-global",
   "label": "Claude Desktop / Claude Code (Global)",
-  "defaultTargetDir": "~/.claude/commands"
+  "defaultCommandsTargetDir": "~/.claude/commands",
+  "defaultSkillsTargetDir": "~/.claude/skills",
+  "supportsSkills": true
 }

@@ -63,14 +63,16 @@ Now you have powerful PR review commands in your AI tool! Try asking Claude:
 
 ## 🛠 How It Works
 
-Think of this as a **shared library for AI prompts**. Instead of each developer writing their own prompts, you get:
+Think of this as a **shared library for AI prompts and skills**. Instead of each developer writing their own prompts, you get:
 
 ```
 library/commands/         ← Proven command templates
+library/skills/           ← Claude Code Skills (Claude only)
        ↓
   link-ai-commands        ← Smart sync tool
        ↓
     .claude/commands/     ← Ready to use in Claude
+    .claude/skills/       ← Available in Claude
     .cursor/commands/     ← Ready to use in Cursor
     .github/prompts/      ← Ready to use in Copilot
     ~/.codex/prompts/     ← Ready to use in Codex
@@ -79,8 +81,9 @@ library/commands/         ← Proven command templates
 **Key concepts:**
 
 - 📝 **Commands** - Markdown files with step-by-step AI instructions
+- 💡 **Skills** - Claude Code Skills for recurring tasks (Claude only)
 - 🔧 **Providers** - Your AI tools (Claude, Cursor, Copilot, Codex)
-- 🔗 **Linking** - Copying commands to where your tools can find them
+- 🔗 **Linking** - Copying commands and skills to where your tools can find them
 - 🤖 **Scripts** - Helper utilities for GitHub API integration
 
 ## 🎯 Choose Your AI Tool
@@ -89,14 +92,14 @@ The library works with all major AI development tools. Pick your setup:
 
 ### 🧠 Claude Desktop / Claude Code
 
-**Best for:** Individual developers, project-specific commands
+**Best for:** Individual developers, project-specific commands and skills
 
 ```bash
 npx link-ai-commands --provider claude
 ```
 
-- **Result:** Commands appear in `.claude/commands/`
-- **What you get:** PR workflows accessible via Claude's command palette
+- **Result:** Commands appear in `.claude/commands/`, Skills appear in `.claude/skills/`
+- **What you get:** PR workflows + reusable skills accessible via Claude's command palette
 
 ### 💻 Cursor IDE
 
@@ -174,15 +177,16 @@ npm install -D git+https://github.com/mkaczkowski/ai-command-library.git
 
 > 📋 **Provider Reference Table**
 
-| Provider        | Destination          | Best For                         |
-| --------------- | -------------------- | -------------------------------- |
-| `claude`        | `.claude/commands`   | Project-specific Claude commands |
-| `claude-global` | `~/.claude/commands` | User-wide Claude setup           |
-| `cursor`        | `.cursor/commands`   | Project-specific Cursor commands |
-| `cursor-global` | `~/.cursor/commands` | User-wide Cursor setup           |
-| `copilot`       | `.github/prompts`    | Project-specific Copilot prompts |
-| `codex-global`  | `~/.codex/prompts`   | Terminal-based AI workflows      |
+| Provider        | Destination          | Skills | Best For                         |
+| --------------- | -------------------- | ------ | -------------------------------- |
+| `claude`        | `.claude/commands` + `.claude/skills` | ✅ | Project-specific Claude commands and skills |
+| `claude-global` | `~/.claude/commands` + `~/.claude/skills` | ✅ | User-wide Claude setup |
+| `cursor`        | `.cursor/commands`   | ❌ | Project-specific Cursor commands |
+| `cursor-global` | `~/.cursor/commands` | ❌ | User-wide Cursor setup           |
+| `copilot`       | `.github/prompts`    | ❌ | Project-specific Copilot prompts |
+| `codex-global`  | `~/.codex/prompts`   | ❌ | Terminal-based AI workflows      |
 
+> 📝 **Skills:** Only available for Claude providers. Both project skills (`.claude/skills/`) and global skills (`~/.claude/skills/`) are automatically synced when linking.
 > 📝 **Special note for Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`) while scripts stay in folders. The linker prevents naming conflicts.
 > 📝 **Special note for Copilot:** Prompts are flattened to hyphenated names ending in `.prompt.md`, while `scripts/` keep their directory structure.
 

@@ -1,7 +1,7 @@
 {
   "id": "copilot",
   "label": "GitHub Copilot Workspace",
-  "defaultTargetDir": ".github/prompts",
+  "defaultCommandsTargetDir": ".github/prompts",
   "markdownExtension": ".prompt.md",
   "flatten": {
     "delimiter": "-",
