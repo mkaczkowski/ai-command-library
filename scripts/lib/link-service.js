@@ -1,17 +1,24 @@
 import path from 'path';
 import { COMMAND_SOURCE_ROOT } from './paths.js';
 import { expandHomeDir } from './path-utils.js';
+import { validateMode } from './link-utils.js';
 import { buildDefaultMappings, loadProviderConfig } from './providers.js';
 import { processMappings } from './mapping-processor.js';
 import { linkSkills } from './link-skills.js';
 import { linkAgents } from './link-agents.js';
 
+/**
+ * Infers destination for a resource given a custom commands destination.
+ * If custom destination is provided, returns its parent directory (to keep resources at same level).
+ * Otherwise returns the default target directory from config.
+ */
+function inferResourceDestination(customDestination, defaultTargetDir) {
+  return customDestination ? path.dirname(customDestination) : defaultTargetDir;
+}
+
 /** Orchestrates linking commands, skills, and agents for a given provider. */
 export async function linkForProvider({ providerId, destination, mode, dryRun, logger = console }) {
-  const supportedModes = new Set(['copy', 'symlink']);
-  if (!supportedModes.has(mode)) {
-    throw new Error(`Unsupported mode '${mode}'. Use copy or symlink.`);
-  }
+  validateMode(mode);
 
   const providerConfig = await loadProviderConfig(providerId);
 
@@ -27,10 +34,7 @@ export async function linkForProvider({ providerId, destination, mode, dryRun, l
 
   // Link skills if provider supports them
   if (providerConfig.supportsSkills && providerConfig.defaultSkillsTargetDir) {
-    const skillsDestination = destination
-      ? path.dirname(destination) // If custom destination, infer skills dir from commands dir
-      : providerConfig.defaultSkillsTargetDir;
-
+    const skillsDestination = inferResourceDestination(destination, providerConfig.defaultSkillsTargetDir);
     await linkSkills({
       providerId,
       destination: skillsDestination,
@@ -42,10 +46,7 @@ export async function linkForProvider({ providerId, destination, mode, dryRun, l
 
   // Link agents if provider supports them
   if (providerConfig.supportsAgents && providerConfig.defaultAgentsTargetDir) {
-    const agentsDestination = destination
-      ? path.dirname(destination) // If custom destination, infer agents dir from commands dir
-      : providerConfig.defaultAgentsTargetDir;
-
+    const agentsDestination = inferResourceDestination(destination, providerConfig.defaultAgentsTargetDir);
     await linkAgents({
       providerId,
       destination: agentsDestination,
@@ -65,10 +66,7 @@ export async function linkCommands({
   dryRun,
   logger = console,
 }) {
-  const supportedModes = new Set(['copy', 'symlink']);
-  if (!supportedModes.has(mode)) {
-    throw new Error(`Unsupported mode '${mode}'. Use copy or symlink.`);
-  }
+  validateMode(mode);
 
   const providerConfig = providerConfigParam || (await loadProviderConfig(providerId));
   const sourceRoot = COMMAND_SOURCE_ROOT;
