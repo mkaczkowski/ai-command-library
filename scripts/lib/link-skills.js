@@ -1,20 +1,8 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import { LIBRARY_ROOT } from './paths.js';
 import { linkResource } from './link-resource.js';
 import { getLibraryGroups } from './library-groups.js';
-
-/**
- * Checks if a path exists.
- */
-async function exists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import { exists } from './path-utils.js';
 
 /** Orchestrates linking skills for a given provider. */
 export async function linkSkills({ providerId, destination, mode, dryRun, selectedFolders, logger = console }) {

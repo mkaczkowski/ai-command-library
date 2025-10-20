@@ -1,5 +1,6 @@
 import os from 'os';
 import path from 'path';
+import { promises as fs } from 'fs';
 
 /** Expands a path that may reference the current user's home directory. */
 export function expandHomeDir(targetPath) {
@@ -73,4 +74,19 @@ export function combineDisplayPath(destinationDisplay, relativePath) {
   return normalizedRoot.endsWith('/')
     ? `${normalizedRoot}${normalizedRelative}`
     : `${normalizedRoot}/${normalizedRelative}`;
+}
+
+/**
+ * Checks if a path exists.
+ *
+ * @param {string} filePath - Path to check
+ * @returns {Promise<boolean>}
+ */
+export async function exists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }

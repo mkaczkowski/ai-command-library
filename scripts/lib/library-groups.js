@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { exists } from './path-utils.js';
 
 /**
  * Discovers all valid library groups in the library root.
@@ -38,21 +39,6 @@ async function discoverGroups(libraryRoot) {
 }
 
 /**
- * Checks if a path exists.
- *
- * @param {string} filePath - Path to check
- * @returns {Promise<boolean>}
- */
-async function exists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Gets library groups, optionally filtered by user selection.
  * Validates that selected folders actually exist.
  *
@@ -65,7 +51,7 @@ export async function getLibraryGroups(libraryRoot, selectedFolders = null, logg
   const allGroups = await discoverGroups(libraryRoot);
 
   if (allGroups.length === 0) {
-    logger.warn(`No library groups found in ${libraryRoot}`);
+    logger.log(`No library groups found in ${libraryRoot}`);
     return [];
   }
 

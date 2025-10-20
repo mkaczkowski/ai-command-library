@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { PROVIDERS_ROOT } from './paths.js';
 import { getLibraryGroups } from './library-groups.js';
+import { exists } from './path-utils.js';
 
 /** Reads a JSON file and returns the parsed object. */
 async function readJSON(filePath) {
@@ -52,18 +53,6 @@ export async function loadProviderConfig(providerId) {
     throw new Error(`Provider configuration not found for '${providerId}'.`);
   }
   return readJSON(configPath);
-}
-
-/**
- * Checks if a path exists.
- */
-async function exists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /**
