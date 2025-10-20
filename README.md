@@ -567,6 +567,7 @@ The library is organized into **groups**, where each group can contain commands,
 - **common/** - Cross-cutting utilities (commit helper skill, etc.)
 
 Each group follows the structure:
+
 ```
 {group}/
 ├── commands/      # Optional: Markdown command templates + supporting scripts
