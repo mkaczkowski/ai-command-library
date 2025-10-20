@@ -17,7 +17,7 @@ Convert each unresolved GitHub PR comment into an actionable plan.
 1. Fetch the comment payload covered by this workflow:
 
    ```bash
-   node {{script:pr/scripts/fetch-pr-comments.js}} \
+   node {{script:pr/commands/scripts/fetch-pr-comments.js}} \
       --pr=[PR_NUMBER] \
       --reaction=+1 \
       --ignore-outdated \
@@ -30,7 +30,7 @@ Convert each unresolved GitHub PR comment into an actionable plan.
 2. (Optional) Pull enriched PR context for surrounding diffs, commits, and metadata when you need a canonical snapshot or lack reliable local history:
 
    ```bash
-   node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+   node {{script:pr/commands/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
    ```
 
    - Skip this step if the workspace already has the full PR checkout and you prefer to inspect files locally with `git` and project tooling.
@@ -243,7 +243,7 @@ Close each review thread with a concise acknowledgement that points to the resol
 ### Publish Replies via GitHub CLI
 
 ```bash
-node {{script:pr/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
+node {{script:pr/commands/scripts/reply-to-comments.js}} --pr=[PR_NUMBER]
 ```
 
 If the resolved comment JSON lives somewhere else, add `--input=<path>` to point the script at the correct file.

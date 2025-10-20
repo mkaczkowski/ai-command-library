@@ -2,7 +2,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { parseArgs, printHelp } from './lib/cli.js';
 import { listProviders } from './lib/providers.js';
+import { listLibraryGroups } from './lib/library-groups.js';
 import { linkForProvider } from './lib/link-service.js';
+import { LIBRARY_ROOT } from './lib/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -19,11 +21,16 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
 
+  if (args.listGroups) {
+    await listLibraryGroups(LIBRARY_ROOT);
+    return;
+  }
+
   await linkForProvider({
     providerId: args.provider,
-    destination: args.destination,
     mode: args.mode,
     dryRun: args.dryRun,
+    selectedFolders: args.folders,
   });
 }
 

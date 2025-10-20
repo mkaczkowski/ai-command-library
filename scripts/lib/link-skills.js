@@ -1,17 +1,55 @@
-import { SKILLS_SOURCE_ROOT } from './paths.js';
+import path from 'path';
+import { promises as fs } from 'fs';
+import { LIBRARY_ROOT } from './paths.js';
 import { linkResource } from './link-resource.js';
+import { getLibraryGroups } from './library-groups.js';
+
+/**
+ * Checks if a path exists.
+ */
+async function exists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /** Orchestrates linking skills for a given provider. */
-export async function linkSkills({ providerId, destination, mode, dryRun, logger = console }) {
-  await linkResource({
-    providerId,
-    sourceRoot: SKILLS_SOURCE_ROOT,
-    destination,
-    mode,
-    dryRun,
-    resourceName: 'skills',
-    resourceType: 'directory',
-    filterFn: (entry) => entry.isDirectory(),
-    logger,
-  });
+export async function linkSkills({ providerId, destination, mode, dryRun, selectedFolders, logger = console }) {
+  // Get library groups to process
+  const groups = await getLibraryGroups(LIBRARY_ROOT, selectedFolders, logger);
+
+  if (groups.length === 0) {
+    logger.log('No library groups to process for skills.');
+    return;
+  }
+
+  logger.log(`Processing skills from groups: ${groups.join(', ')}`);
+
+  // Loop through each group and link skills if they exist
+  for (const group of groups) {
+    const sourceRoot = path.join(LIBRARY_ROOT, group, 'skills');
+
+    // Check if this group has skills
+    if (!(await exists(sourceRoot))) {
+      continue;
+    }
+
+    logger.log(`Linking skills from group: ${group}`);
+
+    // Use existing linkResource - it handles everything!
+    await linkResource({
+      providerId,
+      sourceRoot,
+      destination,
+      mode,
+      dryRun,
+      resourceName: `skills (${group})`,
+      resourceType: 'directory',
+      filterFn: (entry) => entry.isDirectory(),
+      logger,
+    });
+  }
 }

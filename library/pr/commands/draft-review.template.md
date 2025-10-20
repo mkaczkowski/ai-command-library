@@ -17,7 +17,7 @@ Systematically evaluate the PR and capture structured findings that reflect risk
 1. Collect the latest PR metadata, file statistics, and per-file patches:
 
 ```bash
-node {{script:pr/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+node {{script:pr/commands/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
 ```
 
 2. Read `tmp/pr-[PR_NUMBER]-context.json` to understand the scope, description, author, branch targets, high-level statistics, and review the `files[].patch` entries for inline diffs.
@@ -258,11 +258,11 @@ Before progressing to next step, ask the user: **"Continue to Step 2: Finalise a
 3. Once satisfied, run the provided script:
 
 ```bash
-node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
+node {{script:pr/commands/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
 ```
 
 **Note:** If it will fail because you have existing pending reviews, ask the user to add `--discard-existing` flag to automatically discard them. If the user agrees, run:
 
 ```bash
-node {{script:pr/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
+node {{script:pr/commands/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
 ```
