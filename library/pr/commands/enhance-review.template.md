@@ -17,7 +17,7 @@ Transform existing PR comments so they remain technically accurate while soundin
 1. Fetch the latest comment data:
 
    ```bash
-   node {{script:pr/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
+   node {{script:pr/commands/scripts/fetch-pr-comments.js}} --ignore-outdated --reaction=eyes --pending --pr=[PR_NUMBER]
    ```
 
 2. Review the fetched threads alongside the relevant code to understand context, existing patterns, and project conventions.
@@ -142,7 +142,7 @@ Apply the enhanced comments (already prepared in JSON format) to GitHub.
 Run the script with the JSON file that was automatically generated in Step 1:
 
 ```bash
-node {{script:pr/scripts/edit-pr-comments.js}} --input=tmp/pr-[PR_NUMBER]-comments.json
+node {{script:pr/commands/scripts/edit-pr-comments.js}} --input=tmp/pr-[PR_NUMBER]-comments.json
 ```
 
 ### Continue?

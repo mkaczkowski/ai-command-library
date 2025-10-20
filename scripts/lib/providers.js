@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PROVIDERS_ROOT } from './paths.js';
+import { getLibraryGroups } from './library-groups.js';
+import { exists } from './path-utils.js';
 
 /** Reads a JSON file and returns the parsed object. */
 async function readJSON(filePath) {
@@ -53,17 +55,39 @@ export async function loadProviderConfig(providerId) {
   return readJSON(configPath);
 }
 
-/** Generates default mappings when none are defined in config. */
-export async function buildDefaultMappings(sourceRoot, providerConfig) {
-  const entries = await fs.readdir(sourceRoot, { withFileTypes: true });
-  const flattenConfig = providerConfig?.flatten;
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => {
-      const mapping = { source: entry.name };
-      if (flattenConfig) {
-        mapping.flatten = cloneFlattenConfig(flattenConfig);
+/**
+ * Generates default mappings when none are defined in config.
+ * CHANGED: Now scans library groups for commands subdirectories.
+ */
+export async function buildDefaultMappings(libraryRoot, providerConfig, selectedFolders) {
+  // Get library groups to process
+  const groups = await getLibraryGroups(libraryRoot, selectedFolders);
+  const mappings = [];
+
+  // For each group, check if it has a commands subdirectory
+  for (const group of groups) {
+    const commandsPath = path.join(libraryRoot, group, 'commands');
+
+    if (await exists(commandsPath)) {
+      const mapping = {
+        source: `${group}/commands`,
+      };
+
+      // Set target based on group name
+      // For 'common', we don't set a target (files go to root of destination)
+      // For other groups, target is the group name
+      if (group !== 'common') {
+        mapping.target = group;
       }
-      return mapping;
-    });
+
+      // Apply flatten config if specified at provider level
+      if (providerConfig?.flatten) {
+        mapping.flatten = cloneFlattenConfig(providerConfig.flatten);
+      }
+
+      mappings.push(mapping);
+    }
+  }
+
+  return mappings;
 }

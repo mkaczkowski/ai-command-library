@@ -1,5 +1,5 @@
 import path from 'path';
-import { COMMAND_SOURCE_ROOT } from './paths.js';
+import { LIBRARY_ROOT } from './paths.js';
 import { expandHomeDir } from './path-utils.js';
 import { validateMode } from './link-utils.js';
 import { buildDefaultMappings, loadProviderConfig } from './providers.js';
@@ -7,17 +7,8 @@ import { processMappings } from './mapping-processor.js';
 import { linkSkills } from './link-skills.js';
 import { linkAgents } from './link-agents.js';
 
-/**
- * Infers destination for a resource given a custom commands destination.
- * If custom destination is provided, returns its parent directory (to keep resources at same level).
- * Otherwise returns the default target directory from config.
- */
-function inferResourceDestination(customDestination, defaultTargetDir) {
-  return customDestination ? path.dirname(customDestination) : defaultTargetDir;
-}
-
 /** Orchestrates linking commands, skills, and agents for a given provider. */
-export async function linkForProvider({ providerId, destination, mode, dryRun, logger = console }) {
+export async function linkForProvider({ providerId, mode, dryRun, selectedFolders, logger = console }) {
   validateMode(mode);
 
   const providerConfig = await loadProviderConfig(providerId);
@@ -26,32 +17,32 @@ export async function linkForProvider({ providerId, destination, mode, dryRun, l
   await linkCommands({
     providerId,
     providerConfig,
-    destination,
     mode,
     dryRun,
+    selectedFolders,
     logger,
   });
 
   // Link skills if provider supports them
   if (providerConfig.supportsSkills && providerConfig.defaultSkillsTargetDir) {
-    const skillsDestination = inferResourceDestination(destination, providerConfig.defaultSkillsTargetDir);
     await linkSkills({
       providerId,
-      destination: skillsDestination,
+      destination: providerConfig.defaultSkillsTargetDir,
       mode,
       dryRun,
+      selectedFolders,
       logger,
     });
   }
 
   // Link agents if provider supports them
   if (providerConfig.supportsAgents && providerConfig.defaultAgentsTargetDir) {
-    const agentsDestination = inferResourceDestination(destination, providerConfig.defaultAgentsTargetDir);
     await linkAgents({
       providerId,
-      destination: agentsDestination,
+      destination: providerConfig.defaultAgentsTargetDir,
       mode,
       dryRun,
+      selectedFolders,
       logger,
     });
   }
@@ -61,22 +52,22 @@ export async function linkForProvider({ providerId, destination, mode, dryRun, l
 export async function linkCommands({
   providerId,
   providerConfig: providerConfigParam,
-  destination,
   mode,
   dryRun,
+  selectedFolders,
   logger = console,
 }) {
   validateMode(mode);
 
   const providerConfig = providerConfigParam || (await loadProviderConfig(providerId));
-  const sourceRoot = COMMAND_SOURCE_ROOT;
-  const destinationInput = destination ?? providerConfig.defaultCommandsTargetDir;
+  const sourceRoot = LIBRARY_ROOT;
+  const destinationInput = providerConfig.defaultCommandsTargetDir;
   if (!destinationInput) {
     throw new Error(`Provider '${providerId}' does not specify a default target directory.`);
   }
 
   const destinationDisplay = destinationInput;
-  const commandsRootDisplay = destination ?? providerConfig.defaultCommandsTargetDir;
+  const commandsRootDisplay = providerConfig.defaultCommandsTargetDir;
   const expandedDestination = expandHomeDir(destinationInput);
   const destinationRoot = path.isAbsolute(expandedDestination)
     ? expandedDestination
@@ -87,7 +78,7 @@ export async function linkCommands({
   logger.log(`Destination root: ${destinationRoot}`);
 
   if (!providerConfig.mappings || !providerConfig.mappings.length) {
-    providerConfig.mappings = await buildDefaultMappings(sourceRoot, providerConfig);
+    providerConfig.mappings = await buildDefaultMappings(sourceRoot, providerConfig, selectedFolders);
   }
 
   await processMappings({

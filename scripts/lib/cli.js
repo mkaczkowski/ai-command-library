@@ -15,12 +15,14 @@ export function parseArgs(argv) {
         args.provider = value;
         break;
       }
-      case '--destination':
-      case '--dest':
-      case '-d': {
+      case '--folders':
+      case '-f': {
         const value = next();
-        if (!value) throw new Error('Missing value after --destination');
-        args.destination = value;
+        if (!value) throw new Error('Missing value after --folders');
+        args.folders = value
+          .split(',')
+          .map((f) => f.trim())
+          .filter(Boolean);
         break;
       }
       case '--mode':
@@ -36,6 +38,9 @@ export function parseArgs(argv) {
       case '--list-providers':
         args.listProviders = true;
         break;
+      case '--list-groups':
+        args.listGroups = true;
+        break;
       case '--help':
       case '-h':
         args.help = true;
@@ -44,7 +49,7 @@ export function parseArgs(argv) {
         throw new Error(`Unknown argument: ${token}`);
     }
   }
-  if (!args.provider) {
+  if (!args.provider && !args.listGroups && !args.help && !args.listProviders) {
     throw new Error('Missing required option --provider <name>.');
   }
   return args;
@@ -55,11 +60,13 @@ export function printHelp(logger = console) {
   logger.log(
     `Usage: link-ai-commands [options]\n\n` +
       `Options:\n` +
-      `  -p, --provider <name>    Provider configuration to use (required)\n` +
-      `  -d, --destination <dir> Override destination root (relative to cwd)\n` +
+      `  -p, --provider <name>      Provider configuration to use (required)\n` +
+      `  -f, --folders <list>       Comma-separated list of library groups to install\n` +
+      `                             (e.g., "debugger,pr"). Omit to install all groups.\n` +
       `  -m, --mode <copy|symlink>  Transfer mode (default: copy)\n` +
-      `      --dry-run            Print planned actions without writing\n` +
-      `      --list-providers     Show bundled provider configs\n` +
-      `  -h, --help               Show this help message\n`
+      `      --dry-run              Print planned actions without writing\n` +
+      `      --list-providers       Show bundled provider configs\n` +
+      `      --list-groups          Show available library groups\n` +
+      `  -h, --help                 Show this help message\n`
   );
 }
