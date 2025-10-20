@@ -44,6 +44,7 @@ Resources are organized into groups representing cohesive feature sets:
 - **common/** - Standalone utilities that don't belong to a specific group
 
 Each group can contain:
+
 - `commands/` - Command templates (markdown files)
 - `skills/` - Claude Code Skills (directories with SKILL.md)
 - `agents/` - Claude Code Subagents (markdown files)
@@ -51,14 +52,16 @@ Each group can contain:
 ### When to Create a New Group
 
 ✓ **Create a new group when:**
-  - You have related commands, skills, and/or agents that work together
-  - Resources represent a cohesive feature set or integration
-  - Examples: "github", "linear", "testing", "deployment"
+
+- You have related commands, skills, and/or agents that work together
+- Resources represent a cohesive feature set or integration
+- Examples: "github", "linear", "testing", "deployment"
 
 ✓ **Use common/ when:**
-  - Resource is a standalone utility
-  - Resource doesn't belong to any specific feature set
-  - Resource is cross-cutting and used across multiple contexts
+
+- Resource is a standalone utility
+- Resource doesn't belong to any specific feature set
+- Resource is cross-cutting and used across multiple contexts
 
 ### Provider System
 
@@ -100,24 +103,55 @@ When linking for Claude, commands, skills, and agents are all synced automatical
   - `tools` - Optional comma-separated list of allowed tools
   - `model` - Optional model specification (sonnet, opus, haiku, or 'inherit')
 
+### Naming Conventions for Skills and Agents
+
+When creating skills and agents across library groups, follow these conventions to avoid conflicts:
+
+**Important:** All skills and agents from selected groups link to the same destination directories (e.g., `.claude/skills/`, `.claude/agents/`). If two groups define a skill or agent with the same name, the second one will silently overwrite the first during linking.
+
+**Best Practices:**
+
+- **Use descriptive, unique names** - Prefix skills/agents with group-specific identifiers when appropriate
+  - ✓ Good: `pr-formatter`, `debugger-analyzer`, `jira-reporter`
+  - ✗ Avoid: `formatter`, `analyzer`, `reporter` (too generic, conflict-prone)
+
+- **Document naming in group README** - Each group should document its naming conventions
+  - Create a `GROUP_NAME/README.md` explaining the group's resources and their purposes
+  - List all skills and agents defined in that group
+
+- **Validate at group creation time** - When adding a new group, review existing skill/agent names:
+  - Run `npx link-ai-commands --list-groups` to see all groups
+  - Check each group's `skills/` and `agents/` directories
+  - Ensure no naming conflicts with other groups
+
+- **Consider cross-group usage** - For shared utilities:
+  - Place in the `common/` group with clear naming
+  - Example: `common/skills/commit-helper/` is clearly a shared resource
+
+**Note:** Future versions may add runtime validation to detect and warn about naming conflicts before linking occurs.
+
 ### Selective Installation Examples
 
 Install all groups (default):
+
 ```bash
 npx link-ai-commands --provider claude
 ```
 
 Install specific groups only:
+
 ```bash
 npx link-ai-commands --provider claude --folders debugger,pr
 ```
 
 List available groups:
+
 ```bash
 npx link-ai-commands --list-groups
 ```
 
 Dry run to preview changes:
+
 ```bash
 npx link-ai-commands --provider claude --folders pr --dry-run
 ```

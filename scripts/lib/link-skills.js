@@ -4,7 +4,14 @@ import { linkResource } from './link-resource.js';
 import { getLibraryGroups } from './library-groups.js';
 import { exists } from './path-utils.js';
 
-/** Orchestrates linking skills for a given provider. */
+/**
+ * Orchestrates linking skills for a given provider.
+ *
+ * NOTE: All skills from selected groups link to the same destination directory.
+ * If multiple groups define a skill with the same name, the last one processed will
+ * overwrite previous ones. See CLAUDE.md "Naming Conventions for Skills and Agents"
+ * for best practices on avoiding naming conflicts.
+ */
 export async function linkSkills({ providerId, destination, mode, dryRun, selectedFolders, logger = console }) {
   // Get library groups to process
   const groups = await getLibraryGroups(LIBRARY_ROOT, selectedFolders, logger);
