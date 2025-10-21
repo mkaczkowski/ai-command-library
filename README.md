@@ -63,10 +63,10 @@ Now you have powerful PR review commands in your AI tool! Try asking Claude:
 
 ## 🛠 How It Works
 
-Think of this as a **shared library for AI prompts, skills, and agents organized into logical groups**. Instead of each developer writing their own prompts, you get:
+Think of this as a **shared collection of AI prompts, skills, and agents organized into logical plugin groups**. Instead of each developer writing their own prompts, you get:
 
 ```
-library/
+plugins/
 ├── pr/commands/              ← PR workflow commands + scripts
 ├── debugger/agents/          ← Debugging subagents
 ├── debugger/skills/          ← Debugging skills
@@ -87,17 +87,17 @@ library/
 
 **Key concepts:**
 
-- 📁 **Library Groups** - Logical collections of related commands, skills, and agents (e.g., `pr/`, `debugger/`, `jira/`)
+- 📦 **Plugin Groups** - Logical collections of related commands, skills, and agents (e.g., `pr/`, `debugger/`, `jira/`)
 - 📝 **Commands** - Markdown files with step-by-step AI instructions organized by group
 - 💡 **Skills** - Claude Code Skills for recurring tasks (Claude only)
 - 🎯 **Agents** - Claude Code Subagents for specialized tasks (Claude only)
 - 🔧 **Providers** - Your AI tools (Claude, Cursor, Copilot, Codex)
-- 🔗 **Linking** - Smart copying of specific groups to where your tools can find them
+- 🔗 **Linking** - Smart copying of specific plugin groups to where your tools can find them
 - 🤖 **Scripts** - Helper utilities for GitHub API integration
 
 ## 🎯 Choose Your AI Tool
 
-The library works with all major AI development tools. Pick your setup:
+This plugin collection works with all major AI development tools. Pick your setup:
 
 ### 🧠 Claude Desktop / Claude Code
 
@@ -145,14 +145,14 @@ npx link-ai-commands --provider codex-global
 
 ### 🔧 Advanced Options
 
-**Install specific groups only:**
+**Install specific plugin groups only:**
 
 ```bash
 # Install only PR and debugger workflows
-npx link-ai-commands --provider claude --folders pr,debugger
+npx link-ai-commands --provider claude --plugins pr,debugger
 ```
 
-**List all available groups:**
+**List all available plugin groups:**
 
 ```bash
 npx link-ai-commands --list-groups
@@ -547,19 +547,19 @@ npm run format         # Apply consistent formatting
 
 ```
 ai-command-library/
-├── library/               # 📦 Grouped resources
-│   ├── pr/               # PR workflow commands + scripts
-│   ├── debugger/         # Debugging agents + skills
-│   ├── jira/             # JIRA integration
-│   └── common/           # Shared utilities (skills)
-├── providers/            # ⚙️ Provider configurations (claude.json, cursor.json)
-├── scripts/              # 🔧 Core linking logic
-└── bin/                  # 📦 CLI entry point
+├── plugins/              # 📦 Plugin groups
+│   ├── pr/              # PR workflow commands + scripts
+│   ├── debugger/        # Debugging agents + skills
+│   ├── jira/            # JIRA integration
+│   └── common/          # Shared utilities (skills)
+├── providers/           # ⚙️ Provider configurations (claude.json, cursor.json)
+├── scripts/             # 🔧 Core linking logic
+└── bin/                 # 📦 CLI entry point
 ```
 
-### 📚 Library Organization
+### 📚 Plugin Organization
 
-The library is organized into **groups**, where each group can contain commands, skills, and/or agents:
+The plugins are organized into **groups**, where each group can contain commands, skills, and/or agents:
 
 - **pr/** - Pull request workflow tools and utilities
 - **debugger/** - Debugging and analysis agents, plus parallel debugging skill

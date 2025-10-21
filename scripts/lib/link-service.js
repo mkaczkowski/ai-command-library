@@ -1,5 +1,5 @@
 import path from 'path';
-import { LIBRARY_ROOT } from './paths.js';
+import { PLUGINS_ROOT } from './paths.js';
 import { expandHomeDir } from './path-utils.js';
 import { validateMode } from './link-utils.js';
 import { buildDefaultMappings, loadProviderConfig } from './providers.js';
@@ -8,7 +8,7 @@ import { linkSkills } from './link-skills.js';
 import { linkAgents } from './link-agents.js';
 
 /** Orchestrates linking commands, skills, and agents for a given provider. */
-export async function linkForProvider({ providerId, mode, dryRun, selectedFolders, logger = console }) {
+export async function linkForProvider({ providerId, mode, dryRun, selectedPlugins, logger = console }) {
   validateMode(mode);
 
   const providerConfig = await loadProviderConfig(providerId);
@@ -19,7 +19,7 @@ export async function linkForProvider({ providerId, mode, dryRun, selectedFolder
     providerConfig,
     mode,
     dryRun,
-    selectedFolders,
+    selectedPlugins,
     logger,
   });
 
@@ -30,7 +30,7 @@ export async function linkForProvider({ providerId, mode, dryRun, selectedFolder
       destination: providerConfig.defaultSkillsTargetDir,
       mode,
       dryRun,
-      selectedFolders,
+      selectedPlugins,
       logger,
     });
   }
@@ -42,7 +42,7 @@ export async function linkForProvider({ providerId, mode, dryRun, selectedFolder
       destination: providerConfig.defaultAgentsTargetDir,
       mode,
       dryRun,
-      selectedFolders,
+      selectedPlugins,
       logger,
     });
   }
@@ -54,13 +54,13 @@ export async function linkCommands({
   providerConfig: providerConfigParam,
   mode,
   dryRun,
-  selectedFolders,
+  selectedPlugins,
   logger = console,
 }) {
   validateMode(mode);
 
   const providerConfig = providerConfigParam || (await loadProviderConfig(providerId));
-  const sourceRoot = LIBRARY_ROOT;
+  const sourceRoot = PLUGINS_ROOT;
   const destinationInput = providerConfig.defaultCommandsTargetDir;
   if (!destinationInput) {
     throw new Error(`Provider '${providerId}' does not specify a default target directory.`);
@@ -78,7 +78,7 @@ export async function linkCommands({
   logger.log(`Destination root: ${destinationRoot}`);
 
   if (!providerConfig.mappings || !providerConfig.mappings.length) {
-    providerConfig.mappings = await buildDefaultMappings(sourceRoot, providerConfig, selectedFolders);
+    providerConfig.mappings = await buildDefaultMappings(sourceRoot, providerConfig, selectedPlugins);
   }
 
   await processMappings({

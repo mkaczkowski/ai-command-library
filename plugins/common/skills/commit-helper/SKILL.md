@@ -33,12 +33,12 @@ description: Generate clear, concise commit messages from git diffs. Use when wr
 ```
 Add support for Skills in Claude provider
 
-Previously, the library only supported linking commands. Now that
+Previously, the plugin collection only supported linking commands. Now that
 Claude Code includes Skills, we need to support linking both
 commands and skills from the canonical source.
 
 The implementation adds:
-- Skills directory structure (library/skills/)
+- Skills directory structure (plugins/skills/)
 - Skill-specific provider configuration
 - Dedicated skills linking module
 - Support for both project and global skills

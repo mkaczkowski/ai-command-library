@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { PROVIDERS_ROOT } from './paths.js';
-import { getLibraryGroups } from './library-groups.js';
+import { getPluginGroups } from './plugin-groups.js';
 import { exists } from './path-utils.js';
 
 /** Reads a JSON file and returns the parsed object. */
@@ -57,16 +57,16 @@ export async function loadProviderConfig(providerId) {
 
 /**
  * Generates default mappings when none are defined in config.
- * CHANGED: Now scans library groups for commands subdirectories.
+ * CHANGED: Now scans plugin groups for commands subdirectories.
  */
-export async function buildDefaultMappings(libraryRoot, providerConfig, selectedFolders) {
-  // Get library groups to process
-  const groups = await getLibraryGroups(libraryRoot, selectedFolders);
+export async function buildDefaultMappings(pluginsRoot, providerConfig, selectedPlugins) {
+  // Get plugin groups to process
+  const groups = await getPluginGroups(pluginsRoot, selectedPlugins);
   const mappings = [];
 
   // For each group, check if it has a commands subdirectory
   for (const group of groups) {
-    const commandsPath = path.join(libraryRoot, group, 'commands');
+    const commandsPath = path.join(pluginsRoot, group, 'commands');
 
     if (await exists(commandsPath)) {
       const mapping = {

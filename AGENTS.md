@@ -16,27 +16,27 @@ This file provides guidance when working with code in this repository.
 ### CLI Options
 
 - `--mode copy|symlink` - Transfer mode (default: copy)
-- `--folders <list>` - Comma-separated list of library groups to install (e.g., "debugger,pr"). Omit to install all groups.
+- `--plugins <list>` - Comma-separated list of plugin groups to install (e.g., "debugger,pr"). Omit to install all groups.
 - `--dry-run` - Preview actions without modifying filesystem
-- `--list-groups` - Show available library groups
+- `--list-groups` - Show available plugin groups
 
 ## Architecture
 
-This is an AI command, skills, and agents library that packages reusable commands, Claude Code Skills, and Claude Code Subagents for various AI development tools. The architecture is provider-agnostic with a centralized source organized into logical groups.
+This is an AI command, skills, and agents plugin collection that packages reusable commands, Claude Code Skills, and Claude Code Subagents for various AI development tools. The architecture is provider-agnostic with a centralized source organized into logical plugin groups.
 
 ### Core Structure
 
-- **library/{group}/commands/** - Commands for a specific group (e.g., pr, jira, debugger)
-- **library/{group}/skills/** - Skills for a specific group
-- **library/{group}/agents/** - Agents for a specific group
-- **library/common/** - Ungrouped resources that don't belong to a specific group
+- **plugins/{group}/commands/** - Commands for a specific group (e.g., pr, jira, debugger)
+- **plugins/{group}/skills/** - Skills for a specific group
+- **plugins/{group}/agents/** - Agents for a specific group
+- **plugins/common/** - Ungrouped resources that don't belong to a specific group
 - **providers/** - Provider configuration files (claude.json, cursor.json) defining mappings and capabilities
 - **scripts/link-commands.js** - Core linking logic for syncing commands, skills, and agents to provider directories
 - **bin/link-ai-commands.js** - CLI entry point
 
-### Library Groups
+### Plugin Groups
 
-Resources are organized into groups representing cohesive feature sets:
+Resources are organized into plugin groups representing cohesive feature sets:
 
 - **debugger/** - Debugging tools (agents, skills)
 - **pr/** - Pull request workflow commands
@@ -105,9 +105,9 @@ When linking for Claude, commands, skills, and agents are all synced automatical
 
 ### Naming Conventions for Skills and Agents
 
-When creating skills and agents across library groups, follow these conventions to avoid conflicts:
+When creating skills and agents across plugin groups, follow these conventions to avoid conflicts:
 
-**Important:** All skills and agents from selected groups link to the same destination directories (e.g., `.claude/skills/`, `.claude/agents/`). If two groups define a skill or agent with the same name, the second one will silently overwrite the first during linking.
+**Important:** All skills and agents from selected plugin groups link to the same destination directories (e.g., `.claude/skills/`, `.claude/agents/`). If two groups define a skill or agent with the same name, the second one will silently overwrite the first during linking.
 
 **Best Practices:**
 
@@ -138,13 +138,13 @@ Install all groups (default):
 npx link-ai-commands --provider claude
 ```
 
-Install specific groups only:
+Install specific plugin groups only:
 
 ```bash
-npx link-ai-commands --provider claude --folders debugger,pr
+npx link-ai-commands --provider claude --plugins debugger,pr
 ```
 
-List available groups:
+List available plugin groups:
 
 ```bash
 npx link-ai-commands --list-groups
@@ -153,7 +153,7 @@ npx link-ai-commands --list-groups
 Dry run to preview changes:
 
 ```bash
-npx link-ai-commands --provider claude --folders pr --dry-run
+npx link-ai-commands --provider claude --plugins pr --dry-run
 ```
 
 ### PR Group Resources

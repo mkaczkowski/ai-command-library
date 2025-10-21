@@ -1,7 +1,7 @@
 import path from 'path';
-import { LIBRARY_ROOT } from './paths.js';
+import { PLUGINS_ROOT } from './paths.js';
 import { linkResource } from './link-resource.js';
-import { getLibraryGroups } from './library-groups.js';
+import { getPluginGroups } from './plugin-groups.js';
 import { exists } from './path-utils.js';
 
 /**
@@ -12,12 +12,12 @@ import { exists } from './path-utils.js';
  * overwrite previous ones. See CLAUDE.md "Naming Conventions for Skills and Agents"
  * for best practices on avoiding naming conflicts.
  */
-export async function linkSkills({ providerId, destination, mode, dryRun, selectedFolders, logger = console }) {
-  // Get library groups to process
-  const groups = await getLibraryGroups(LIBRARY_ROOT, selectedFolders, logger);
+export async function linkSkills({ providerId, destination, mode, dryRun, selectedPlugins, logger = console }) {
+  // Get plugin groups to process
+  const groups = await getPluginGroups(PLUGINS_ROOT, selectedPlugins, logger);
 
   if (groups.length === 0) {
-    logger.log('No library groups to process for skills.');
+    logger.log('No plugin groups to process for skills.');
     return;
   }
 
@@ -25,7 +25,7 @@ export async function linkSkills({ providerId, destination, mode, dryRun, select
 
   // Loop through each group and link skills if they exist
   for (const group of groups) {
-    const sourceRoot = path.join(LIBRARY_ROOT, group, 'skills');
+    const sourceRoot = path.join(PLUGINS_ROOT, group, 'skills');
 
     // Check if this group has skills
     if (!(await exists(sourceRoot))) {

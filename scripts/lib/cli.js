@@ -15,11 +15,11 @@ export function parseArgs(argv) {
         args.provider = value;
         break;
       }
-      case '--folders':
-      case '-f': {
+      case '--plugins':
+      case '-pl': {
         const value = next();
-        if (!value) throw new Error('Missing value after --folders');
-        args.folders = value
+        if (!value) throw new Error('Missing value after --plugins');
+        args.plugins = value
           .split(',')
           .map((f) => f.trim())
           .filter(Boolean);
@@ -60,13 +60,13 @@ export function printHelp(logger = console) {
   logger.log(
     `Usage: link-ai-commands [options]\n\n` +
       `Options:\n` +
-      `  -p, --provider <name>      Provider configuration to use (required)\n` +
-      `  -f, --folders <list>       Comma-separated list of library groups to install\n` +
-      `                             (e.g., "debugger,pr"). Omit to install all groups.\n` +
-      `  -m, --mode <copy|symlink>  Transfer mode (default: copy)\n` +
-      `      --dry-run              Print planned actions without writing\n` +
-      `      --list-providers       Show bundled provider configs\n` +
-      `      --list-groups          Show available library groups\n` +
-      `  -h, --help                 Show this help message\n`
+      `  -p, --provider <name>        Provider configuration to use (required)\n` +
+      `  -pl, --plugins <list>        Comma-separated list of plugin groups to install\n` +
+      `                               (e.g., "debugger,pr"). Omit to install all groups.\n` +
+      `  -m, --mode <copy|symlink>    Transfer mode (default: copy)\n` +
+      `      --dry-run                Print planned actions without writing\n` +
+      `      --list-providers         Show bundled provider configs\n` +
+      `      --list-groups            Show available plugin groups\n` +
+      `  -h, --help                   Show this help message\n`
   );
 }
