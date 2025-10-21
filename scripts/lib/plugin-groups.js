@@ -3,17 +3,17 @@ import path from 'path';
 import { exists } from './path-utils.js';
 
 /**
- * Discovers all valid library groups in the library root.
+ * Discovers all valid plugin groups in the plugins root.
  * A valid group is a directory containing at least one resource type folder
  * (commands/, skills/, or agents/).
  *
- * @param {string} libraryRoot - Path to library root directory
+ * @param {string} pluginsRoot - Path to plugins root directory
  * @returns {Promise<string[]>} Array of group names (sorted)
  */
-async function discoverGroups(libraryRoot) {
+async function discoverGroups(pluginsRoot) {
   let entries;
   try {
-    entries = await fs.readdir(libraryRoot, { withFileTypes: true });
+    entries = await fs.readdir(pluginsRoot, { withFileTypes: true });
   } catch (error) {
     return [];
   }
@@ -25,7 +25,7 @@ async function discoverGroups(libraryRoot) {
     if (entry.name.startsWith('.')) continue; // Skip hidden directories
 
     // Check if group has at least one resource type
-    const groupPath = path.join(libraryRoot, entry.name);
+    const groupPath = path.join(pluginsRoot, entry.name);
     const hasCommands = await exists(path.join(groupPath, 'commands'));
     const hasSkills = await exists(path.join(groupPath, 'skills'));
     const hasAgents = await exists(path.join(groupPath, 'agents'));
@@ -39,59 +39,59 @@ async function discoverGroups(libraryRoot) {
 }
 
 /**
- * Gets library groups, optionally filtered by user selection.
- * Validates that selected folders actually exist.
+ * Gets plugin groups, optionally filtered by user selection.
+ * Validates that selected plugins actually exist.
  *
- * @param {string} libraryRoot - Path to library root directory
- * @param {string[]|null} selectedFolders - Array of folder names to include, or null for all
+ * @param {string} pluginsRoot - Path to plugins root directory
+ * @param {string[]|null} selectedPlugins - Array of plugin names to include, or null for all
  * @param {object} logger - Logger instance
  * @returns {Promise<string[]>} Array of group names to process
  */
-export async function getLibraryGroups(libraryRoot, selectedFolders = null, logger = console) {
-  const allGroups = await discoverGroups(libraryRoot);
+export async function getPluginGroups(pluginsRoot, selectedPlugins = null, logger = console) {
+  const allGroups = await discoverGroups(pluginsRoot);
 
   if (allGroups.length === 0) {
-    logger.log(`No library groups found in ${libraryRoot}`);
+    logger.log(`No plugin groups found in ${pluginsRoot}`);
     return [];
   }
 
   // If no selection, return all groups
-  if (!selectedFolders || selectedFolders.length === 0) {
+  if (!selectedPlugins || selectedPlugins.length === 0) {
     return allGroups;
   }
 
-  // Validate selected folders exist
-  const invalid = selectedFolders.filter((f) => !allGroups.includes(f));
+  // Validate selected plugins exist
+  const invalid = selectedPlugins.filter((f) => !allGroups.includes(f));
   if (invalid.length > 0) {
     throw new Error(
-      `Invalid library folders: ${invalid.join(', ')}\n` +
-        `Available folders: ${allGroups.join(', ')}\n` +
+      `Invalid plugins: ${invalid.join(', ')}\n` +
+        `Available plugins: ${allGroups.join(', ')}\n` +
         `Use --list-groups to see all available groups.`
     );
   }
 
-  return selectedFolders;
+  return selectedPlugins;
 }
 
 /**
- * Lists all available library groups with their resource types.
+ * Lists all available plugin groups with their resource types.
  *
- * @param {string} libraryRoot - Path to library root directory
+ * @param {string} pluginsRoot - Path to plugins root directory
  * @param {object} logger - Logger instance
  */
-export async function listLibraryGroups(libraryRoot, logger = console) {
-  const groups = await discoverGroups(libraryRoot);
+export async function listPluginGroups(pluginsRoot, logger = console) {
+  const groups = await discoverGroups(pluginsRoot);
 
   if (groups.length === 0) {
-    logger.log('No library groups found.');
+    logger.log('No plugin groups found.');
     return;
   }
 
-  logger.log('Available library groups:');
+  logger.log('Available plugin groups:');
 
   for (const group of groups) {
     const types = [];
-    const groupPath = path.join(libraryRoot, group);
+    const groupPath = path.join(pluginsRoot, group);
 
     if (await exists(path.join(groupPath, 'commands'))) types.push('commands');
     if (await exists(path.join(groupPath, 'skills'))) types.push('skills');

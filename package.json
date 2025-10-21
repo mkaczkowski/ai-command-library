@@ -7,7 +7,7 @@
     "link-ai-commands": "bin/link-ai-commands.js"
   },
   "files": [
-    "library",
+    "plugins",
     "providers",
     "scripts",
     "bin",
