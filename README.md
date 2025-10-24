@@ -456,6 +456,67 @@ flowchart TD
 
 **Output:** Ready-to-file summary, description, and CLI command (`jira issue create ... --no-input`)
 
+### ⚙️ File Jira Technical Debt Tickets
+
+**Problem:** You need to track technical debt systematically but want structured tickets without manual Jira form-filling.
+
+**Solution:** Guided workflow that drafts a complete technical debt ticket with What/Where/Why structure and acceptance criteria.
+
+**What you get:**
+
+- 📋 Structured technical debt description (What, Where, Why, Acceptance Criteria)
+- 🎯 Project-agnostic template that adapts to your Jira setup
+- ⚙️ Shell-safe `jira issue create` command ready to execute
+
+#### Draft Technical Debt Ticket (`jira/create-tech-debt.template.md`)
+
+**When to use:** When you identify technical debt that needs tracking (refactoring, upgrades, migrations, improvements).
+
+**Prerequisite:** Install [`jira-cli`](https://github.com/ankitpokhrel/jira-cli) and authenticate it with your JIRA_API_TOKEN.
+
+**What happens:** The command collects:
+
+1. What technical work needs to be done
+2. Where in the codebase it's located
+3. Why it matters (business or technical justification)
+4. Testable acceptance criteria
+5. Priority, labels, and optional parent epic
+
+Then outputs a `jira issue create` command with configurable issue type (e.g., "Task", "Technical Requirement", "Story").
+
+**Output:** Ready-to-file technical debt ticket command (`jira issue create -t"<ISSUE_TYPE>" ... --no-input`)
+
+### 🧪 File Jira Flaky Test Reports
+
+**Problem:** Flaky tests need systematic investigation and fixes, but capturing all the diagnostic details is time-consuming.
+
+**Solution:** Guided template that helps you document test failures comprehensively with reproduction steps and potential causes.
+
+**What you get:**
+
+- 🔍 Complete test identification (file path, scenario, test suite)
+- 📊 Failure symptoms with exact error messages
+- 🔄 Reproduction commands and potential root causes
+- 🔗 Evidence links (CI/CD runs, logs, stack traces)
+
+#### Draft Flaky Test Ticket (`jira/create-flaky-test.template.md`)
+
+**When to use:** When a test exhibits intermittent failures that need investigation and stabilization.
+
+**Prerequisite:** Install [`jira-cli`](https://github.com/ankitpokhrel/jira-cli) and authenticate it with your JIRA_API_TOKEN.
+
+**What happens:** The command collects:
+
+1. Test identification (file path, scenario name, test suite)
+2. Failure symptoms (error messages, timeouts, inconsistent behavior)
+3. Exact reproduction command
+4. Potential causes (timing issues, race conditions, environment)
+5. Evidence (CI/CD links, logs, stack traces)
+
+Then outputs a `jira issue create` command with configurable issue type and optional parent epic.
+
+**Output:** Ready-to-file flaky test ticket command (`jira issue create -t"<ISSUE_TYPE>" ... --no-input`)
+
 ## 🤖 Helper Scripts Reference
 
 The workflows above use helper scripts to integrate with GitHub. These scripts handle API calls, data processing, and file management automatically.
