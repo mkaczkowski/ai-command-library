@@ -12,9 +12,10 @@
 ### **Presenter Notes:**
 
 - **Welcome (30 seconds):** Introduce yourself and set a collaborative tone
-- **Opening hook:** "Today we're cutting through the AI hype to talk about something we're living through – how to orchestrate the growing ecosystem of AI tools while maintaining quality, security, and sustainable velocity"
+- **Opening hook (STRONG START):** "Show of hands – how many of you have accepted an AI suggestion this week that you later had to rewrite?" [Pause for response] "You're not alone. Industry data shows 41% of AI-generated code requires significant refactoring within 6 months. Today, we're going to fix that."
+- **Transition to context:** "We're cutting through the AI hype to talk about something we're living through – how to orchestrate our growing ecosystem of AI tools while maintaining quality, security, and sustainable velocity"
 - **Visual reference:** "This graphic represents our journey – we've made great strides with Copilot and Cursor, but as we add CodeRabbit, Qodo, and build internal MCP servers, we need to move from potential chaos to true coordination"
-- **Interactive element:** "Quick poll - what's your biggest AI tool frustration?" (Prepare for common answers: inconsistent suggestions, context switching, conflicting recommendations, unclear ROI)
+- **Set expectations:** "This isn't theoretical – by the end of this session, you'll understand our three-layer framework, see concrete examples, and know your role in the rollout"
 
 ---
 
@@ -25,8 +26,8 @@
 **Our Current AI Toolkit:**
 
 - ✅ **Deployed:**
-  - GitHub Copilot (in IDEs) – ~(TODO)% developer adoption
-  - Cursor IDE – ~(TODO)% developer adoption
+  - GitHub Copilot (in IDEs) – ~[TODO: Get from license data]% developer adoption → [TODO: Survey avg time saved per week]
+  - Cursor IDE – ~[TODO: Get from internal survey]% developer adoption → [TODO: Measure acceptance rate]
   - ChatGPT and Claude – Ad-hoc usage
   - Internal MCP servers (Jira, GitHub, Confluence) – Operational
   - Jellyfish (AI impact monitoring) – Dashboard ready
@@ -41,9 +42,15 @@
 
 **The Central Challenge:**
 
-(TODO verify or replace with sth more recent)
+> "79% of developers now use AI tools industry-wide (GitHub 2024), and our internal adoption is equally strong. As we scale from 5 to 10+ AI capabilities, how do we prevent fragmentation, maintain quality, and prove ROI?"
 
-> "79% of developers now use AI tools (GitHub 2024). As we scale from 5 to 10+ AI capabilities, how do we prevent fragmentation, maintain quality, and prove ROI?"
+**What Success Looks Like:**
+
+- 🎯 Increase AI suggestion acceptance rate: 30% → 70%+
+- 📈 Maintain or improve DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
+- 🚀 Reduce code churn by 50% (less AI-generated code requiring rewrites)
+- 💡 80%+ developer satisfaction with AI tooling
+- 💰 Measurable ROI: productivity gains > tool costs + training investment
 
 **What We've Built Right:**
 
@@ -62,8 +69,10 @@
 
 ### **Presenter Notes:**
 
+- **Interactive element (START):** "Quick poll – which of these tools have YOU used in the last week? [Show of hands for each: Copilot, Cursor, ChatGPT, Claude] This shows how embedded AI is in our workflow already"
 - **Paint the picture:** "Look at where we are – we've successfully deployed Copilot and Cursor, and engineers are seeing real productivity gains"
-- **Adoption success:** "80% Copilot adoption is exceptional. Developers are hungry for these tools"
+- **Adoption success:** "Our adoption rates are exceptional. Developers are hungry for these tools"
+- **Success metrics introduced:** "But we want to be specific about what success looks like. Not just 'use AI more' but concrete targets: 70%+ acceptance rates, maintained DORA metrics, reduced code churn, high developer satisfaction, and measurable ROI"
 - **MCP advantage:** "We've already built MCP servers for Jira, GitHub, Confluence, and just launched DocBot for AI-searchable documentation – smart early investments that most companies haven't made yet"
 - **DocBot highlight:** "DocBot is particularly exciting – it automatically syncs docs from GitHub, Confluence, and Slack to Box AI Hubs, making our entire knowledge base searchable by any MCP-enabled tool. Developers can now ask AI questions and get answers from our actual documentation"
 - **MCP pilot servers:** "We're also piloting two specialized MCP servers – SignalFx for APM trace analysis and Google Cloud Logging for comprehensive log querying. These will give AI tools deep visibility into production performance and debugging data"
@@ -86,7 +95,7 @@
 
 **Our Governance Architecture**
 
-**Pyramid Diagram:**
+**Pyramid Diagram with Concrete Examples:**
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -98,6 +107,9 @@
 │     • Security review protocols                    │
 │     • Cost & ROI tracking                          │
 │                                                     │
+│     Example: CodeRabbit flags security issue       │
+│              → Auto-escalates to senior review     │
+│                                                     │
 │    ────────────────────────────────────            │
 │                                                     │
 │           🟡 ORCHESTRATION LAYER                   │
@@ -106,6 +118,10 @@
 │     • Agentic workflows                            │
 │     • Tool interoperability                        │
 │     • Context sharing                              │
+│                                                     │
+│     Example: Jira ticket → Cursor generates code   │
+│              → Claude Code writes tests            │
+│              → Auto-updates ticket                 │
 │                                                     │
 │    ────────────────────────────────────            │
 │                                                     │
@@ -116,6 +132,9 @@
 │     • Security & data policies                     │
 │     • Coding conventions & architecture            │
 │                                                     │
+│     Example: AGENTS.md specifies "use structured   │
+│              logging" → All tools follow convention│
+│                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -123,9 +142,9 @@
 
 ### **Presenter Notes:**
 
-- **Frame the solution:** "This three-layer framework is how we transform our AI toolkit from a collection of tools into an integrated development platform"
-- **Foundation layer detail:** "Layer 1 is about alignment – ensuring all our AI tools understand OUR conventions, not just generic patterns. AGENTS.md is the single source of truth that every tool reads. Prompt libraries ensure consistency. Security policies define boundaries"
-- **Why it matters:** "Without this foundation, every tool makes different assumptions. Copilot suggests one pattern, Cursor suggests another, CodeRabbit flags both as issues. It's chaos"
+- **Frame the solution:** "This three-layer framework is how we'll transform our AI toolkit from a collection of tools into an integrated development platform"
+- **Foundation layer detail:** "Layer 1 is about alignment – ensuring all our AI tools understand OUR conventions, not just generic patterns. AGENTS.md is the single source of truth that every tool reads. Our prompt libraries ensure consistency. Our security policies define boundaries"
+- **Why it matters:** "Without this foundation, every tool makes different assumptions. Copilot suggests one pattern, Cursor suggests another, CodeRabbit flags both as issues. We've all experienced this chaos"
 - **Orchestration layer detail:** "Layer 2 is about coordination – our MCP servers enable tools to work together. Instead of copy-pasting from Jira to Copilot, they share context directly. Instead of sequential tool usage, we enable multi-agent workflows"
 - **Example workflow:** "Imagine: CodeRabbit finds an issue, automatically creates a Jira ticket via MCP, Cursor picks up that ticket context and suggests a fix, Claude Code writes the test, DocBot updates the documentation – all coordinated, all using shared context"
 - **Our advantage:** "We're ahead here – most companies are still building what we've already operationalized"
@@ -232,16 +251,24 @@ catch (error) {
 ```javascript
 // AI follows our conventions
 catch (error) {
-  logger.error('Payment processing failed', {
+  logger.error('File processing failed', {
     error,
     userId,
     transactionId,
     timestamp: Date.now()
   });
-  metrics.increment('payment.errors');
+  metrics.increment('file.errors');
   throw new PaymentError(error);
 }
 ```
+
+**💡 DEMO MOMENT (2 min):**
+
+If available, pull up an actual AGENTS.md file from a pilot project and show:
+
+- The file structure and key sections
+- A before/after Copilot suggestion comparison using the same code
+- How the AI suggestion improves when AGENTS.md is present
 
 **Impact Data:**
 
@@ -368,7 +395,23 @@ catch (error) {
    └────────┘        └────────┘       └──────────┘   └─────────┘
 ```
 
-> TODO: remove confluence
+**Real Workflow Example (Debugging Production Issue):**
+
+1. **Developer receives alert:** "Fix payment timeout issue in production"
+2. **Cursor reads Jira ticket** via Jira MCP (auto-loads context, no copy-paste)
+3. **Queries DocBot MCP** for payment service architecture documentation
+4. **Queries SignalFx MCP** for recent payment timeout APM traces
+5. **Queries GCL MCP** for error logs matching the trace IDs from SignalFx
+6. **Analyzes complete context** and suggests fix based on actual production data
+7. **Claude Code generates regression tests** to prevent future timeouts
+8. **CodeRabbit verifies** fix addresses the root cause from the Jira ticket
+9. **Auto-updates Jira ticket** with PR link and resolution summary
+
+**⏱️ Time Comparison:**
+
+- **Before MCP:** 30 min context gathering (switching between 5 tools) + development time
+- **After MCP:** 5 min context gathering (AI auto-queries) + development time
+- **Time saved:** ~25 min per debugging session, 90% reduction in manual context switching
 
 **Performance Metrics:**
 
@@ -466,6 +509,7 @@ catch (error) {
 
 ### **Presenter Notes:**
 
+- **Interactive element (START):** "Let's test our judgment. I'll show a code scenario – thumbs up if you think AI can handle it, thumbs down if it needs senior review. Ready? [Show example: JWT token validation code]" [Pause for response] "Great instinct – that's in the 'Always Require Senior Review' column. Security-critical code always needs expert eyes, no matter how good the AI suggestion looks"
 - **The non-negotiable principle:** "Even with sophisticated AI, humans must remain in the loop for critical decisions"
 - **Automation column explained:** "These are perfect for AI – repetitive, well-defined patterns where AI excels. Generate test skeletons, API documentation, standard CRUD endpoints – let AI handle these completely after automated verification"
 - **Extra review column:** "These require judgment but may not need senior expertise. Complex business logic, integrations, data transformations – standard engineers can review effectively"
@@ -660,6 +704,89 @@ Prompts by Category:
 - **Living library:** "This evolves continuously. As AI models improve, prompts may need less specification. As our standards evolve, prompts update to match"
 - **Timing:** 3-4 minutes
 
+---
+
+## **Slide 12: How We'll Measure Success**
+
+### **Slide Content:**
+
+**Leading Indicators (Monthly Tracking):**
+
+- 📊 **AI Suggestion Acceptance Rate**
+  - Target: 60%+ by Month 3, 70%+ by Month 6
+  - Baseline: ~30% without configuration
+  - Measure: % of AI suggestions accepted without modification
+
+- 😊 **Developer Satisfaction Score**
+  - Target: 4/5+ satisfaction rating
+  - Method: Monthly pulse surveys
+  - Questions: "AI tools help me be more productive" / "AI tools are well-integrated"
+
+- 📝 **AGENTS.md Coverage**
+  - Target: 80% of active repositories by Month 6
+  - Measure: % of repos with AGENTS.md file
+  - Quality gate: AGENTS.md includes minimum required sections
+
+- 🎓 **Training Completion Rate**
+  - Target: 100% by Month 2
+  - Measure: % of developers who completed core training modules
+  - Include: Workshops, self-paced content, office hours attendance
+
+**Lagging Indicators (Quarterly Tracking):**
+
+- 📈 **DORA Metrics Trend**
+  - Deployment Frequency (maintain or improve)
+  - Lead Time for Changes (maintain or improve)
+  - Mean Time to Recovery (maintain or improve)
+  - Change Failure Rate (maintain or improve)
+  - Goal: AI adoption should NOT degrade these metrics
+
+- 🔍 **Code Quality Metrics**
+  - Code churn rate (target: reduce by 50%)
+  - Technical debt ratio (maintain or improve)
+  - Bug density (maintain or improve)
+  - Code review cycle time (maintain or improve)
+
+- ⏱️ **Time-to-Market**
+  - Feature delivery velocity (target: increase)
+  - Story points delivered per sprint (target: increase)
+  - Epic completion time (target: reduce)
+
+- 💰 **ROI Calculation**
+  - Total cost: Tool licenses + training hours + maintenance
+  - Total benefit: Time saved × hourly rate + quality improvements
+  - Break-even target: Month 4-5
+
+**Red Flags to Watch:**
+
+- ⚠️ Increasing change failure rate → AI code quality issues
+- ⚠️ Declining developer satisfaction → Tool frustration or poor configuration
+- ⚠️ Widening skill gaps → Champions advancing, others falling behind
+- ⚠️ Decreasing acceptance rates → AI suggestions getting worse or AGENTS.md outdated
+- ⚠️ Rising code churn → Too much AI-generated code requiring rework
+
+### **Presenter Notes:**
+
+- **Measurement philosophy:** "We measure what matters – leading indicators give us early signals, lagging indicators validate long-term impact"
+- **Leading vs. lagging:** "Leading indicators are like speedometer readings – they tell us how we're doing right now. Lagging indicators are like arriving at the destination – they tell us if we actually got there"
+- **Acceptance rate detail:** "This is our #1 leading indicator. If acceptance rates stay low, something's wrong – bad configuration, poor prompts, or inadequate AGENTS.md"
+- **Developer satisfaction is critical:** "If developers hate the tools, adoption will fail. We track this monthly and act on feedback immediately"
+- **AGENTS.md coverage strategy:** "Start with top active repos, expand systematically. 80% coverage captures the vast majority of development activity"
+- **Training completion:** "Non-negotiable. Everyone gets trained, not just volunteers. This prevents skill gaps and ensures consistent usage"
+- **DORA metrics guard rails:** "Critical principle: AI adoption should NOT degrade our core delivery metrics. If deployment frequency drops or failure rate rises, we pause and diagnose"
+- **Code quality emphasis:** "Code churn is the killer metric. If we're generating code that gets rewritten, we're wasting time, not saving it"
+- **ROI transparency:** "We track actual costs and actual benefits. No hand-waving. Productivity gains must exceed investment"
+- **Break-even expectation:** "Conservative estimate is 4-5 months. Some teams may break even faster, others slower. We track per-team to understand variance"
+- **Red flags proactive:** "We don't wait for disaster. Red flags trigger immediate investigation and course correction"
+- **Example: Change failure rate rising:** "If this happens, we investigate: Is AI generating buggy code? Are reviews too fast? Do we need stricter gates?"
+- **Example: Developer satisfaction declining:** "Immediate action: Survey why, gather feedback, adjust configuration, provide additional training, or change tools if needed"
+- **Dashboard visibility:** "Jellyfish dashboard shows all these metrics in real-time. Leadership reviews monthly. Teams review weekly"
+- **Course correction culture:** "These metrics aren't just for reporting – they drive action. Low acceptance rate? Update AGENTS.md. High churn? Review standards. Rising failures? Tighten review gates"
+- **Success celebration:** "When we hit targets, we celebrate publicly. Share wins, recognize contributors, reinforce positive outcomes"
+- **Timing:** 4-5 minutes
+
+---
+
 ## **Slide 15: Common Pitfalls to Avoid**
 
 ### **Slide Content:**
@@ -671,6 +798,11 @@ Prompts by Category:
 - ❌ **What happened:** Team used AI aggressively with minimal review
 - 📉 **Result:** Code churn doubled, 6-month refactor needed, velocity collapsed
 - 💀 **Data:** 41% of AI code required significant refactoring
+- ⚠️ **Early Warning Signs:**
+  - PR review time dropping significantly
+  - Increasing bug reports 2-3 sprints after "productive" sprint
+  - Developers saying "I'll clean this up later"
+  - Rising technical debt metrics in Jellyfish
 - ✅ **Our Protection:** Multi-layer review (CodeRabbit → human) + Jellyfish monitoring
 
 **Scenario 2: Inconsistent Adoption**
@@ -685,6 +817,11 @@ Prompts by Category:
 - ❌ **What happened:** AI-generated auth code merged without expert review
 - 📉 **Result:** Critical vulnerability in production, $2M+ incident cost
 - 💀 **Pattern:** AI hallucinated "secure" but subtly flawed implementation
+- ⚠️ **Early Warning Signs:**
+  - PRs with auth/security changes merged in <2 hours
+  - Security-tagged tickets without security team review
+  - Authentication code changes during senior engineer PTO
+  - AI suggestions for cryptography or access control accepted without verification
 - ✅ **Our Protection:** Mandatory senior review for security + automated scanning + CodeRabbit security rules
 
 **Scenario 4: The Measurement Failure**
@@ -705,8 +842,10 @@ Prompts by Category:
 
 ### **Presenter Notes:**
 
+- **Interactive element (START):** "Before we dive in, which scenario concerns you most for OUR team? [Show of hands for each scenario]" [Pause for response] "Good to know – we'll make sure to address those concerns specifically in our rollout plan"
 - **Learn from others:** "These are real patterns from companies that adopted AI without proper governance"
 - **Scenario 1 deep dive:** "A fintech startup moved so fast with AI they accumulated massive technical debt. Developers generated code quickly, but integration was poor"
+- **Early warning emphasis:** "The key is spotting problems early. If you see PR review times dropping dramatically or developers deferring cleanup, raise the flag immediately"
 - **The refactoring crisis:** "After 6 months, they needed a full quarter to refactor and consolidate AI-generated code. Lost all initial gains"
 - **Our multi-layer defense:** "CodeRabbit catches issues immediately. Human review catches what automation misses. Jellyfish tracks long-term quality"
 - **Scenario 2 reality:** "Enterprise company let teams adopt AI ad-hoc. Six months later, each team had different patterns, conventions, approaches"
@@ -739,7 +878,68 @@ Prompts by Category:
 - **The promise:** "These scenarios won't happen to us because we're proactive, not reactive"
 - **Timing:** 4-5 minutes
 
+---
+
+## **Slide 16: Honest Risk Assessment**
+
+### **Slide Content:**
+
+**What Could Go Wrong & Our Mitigations:**
+
+| **Risk**                                     | **Mitigation**                                                                                                                                                                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Adoption slower than expected**            | • Champion network for peer support<br>• Incentives for early adopters<br>• Executive sponsorship and visibility<br>• Flexible timeline with no hard deadlines                                           |
+| **Tool vendor lock-in**                      | • MCP abstraction layer reduces vendor dependency<br>• Multi-tool strategy (Copilot + Cursor + others)<br>• Standards-based approach (AGENTS.md works with any tool)<br>• Documented rollback procedures |
+| **Initial productivity dip during learning** | • Training and support infrastructure<br>• Realistic 3-month ramp-up expectations<br>• Office hours and champion support<br>• Gradual rollout, not big bang                                              |
+| **Resistance from senior engineers**         | • Early involvement in framework design<br>• Demonstrate value with pilot projects<br>• Address concerns directly in town halls<br>• Position as augmentation, not replacement                           |
+| **Budget constraints for tools**             | • Phased rollout to spread costs<br>• ROI tracking justifies continued investment<br>• Start with free/cheaper tiers<br>• Prioritize highest-impact tools first                                          |
+| **Technical debt from poor AI usage**        | • Multi-layer review process (automated + human)<br>• Jellyfish monitoring for early warning<br>• AGENTS.md prevents worst practices<br>• Regular code quality audits                                    |
+
+**What We're NOT Doing:**
+
+- ❌ Mandating specific tools (we provide options and guidance)
+- ❌ Replacing human judgment with automation (augmentation, not automation)
+- ❌ Moving fast without measurement (Jellyfish tracking from day 1)
+- ❌ One-size-fits-all approach (teams can customize within standards)
+- ❌ Penalizing developers for rejecting AI suggestions (critical thinking encouraged)
+- ❌ Hiding costs or overpromising benefits (transparent ROI tracking)
+
+**Our Safety Nets:**
+
+- 🛡️ Rollback capability – can disable tools quickly if problems arise
+- 📊 Continuous monitoring – Jellyfish dashboards show real-time impact
+- 🔄 Feedback loops – monthly surveys, retrospectives, Slack discussions
+- 🚦 Quality gates – automated and human review prevent bad code shipping
+- 👥 Human-in-the-loop – final authority on critical decisions stays with engineers
+
+### **Presenter Notes:**
+
+- **Transparency principle:** "We're honest about risks. This builds trust and sets realistic expectations"
+- **Risk 1 - Slow adoption:** "Some developers will be slower to adopt. That's okay. We support them with champions, training, and time. No pressure tactics"
+- **Risk 2 - Vendor lock-in:** "This is real. That's why we built MCP and use AGENTS.md – tool-agnostic approaches. If Copilot becomes expensive or problematic, we can switch"
+- **Risk 3 - Productivity dip:** "First 1-2 months may feel slower as developers learn. We account for this in our ROI calculations and timeline"
+- **Risk 4 - Senior engineer resistance:** "Most skeptical but also most influential. We involve them early, listen to concerns, demonstrate value. Win them over, don't force compliance"
+- **Risk 5 - Budget constraints:** "Tool costs add up. We track ROI monthly and adjust. If a tool isn't delivering value, we cut it"
+- **Risk 6 - Technical debt:** "The big one. That's why we built the entire three-layer framework – to prevent this specific risk"
+- **What we're NOT doing - autonomy:** "We're not mandating 'you must use Copilot for all coding.' We provide tools, training, standards – developers choose how to use them"
+- **What we're NOT doing - replacement:** "AI assists, humans decide. We're crystal clear on this. Job security is not at risk"
+- **What we're NOT doing - blind faith:** "We measure everything. If metrics show AI is hurting productivity, we course-correct immediately"
+- **Safety nets explained:**
+  - **Rollback:** "If Copilot starts giving bad suggestions or has service issues, we can disable it org-wide in hours, not days"
+  - **Monitoring:** "Jellyfish shows us problems early, before they compound"
+  - **Feedback:** "We actively solicit input and act on it. This isn't top-down edict, it's collaborative improvement"
+  - **Quality gates:** "CodeRabbit catches issues. Humans catch what CodeRabbit misses. Nothing bad ships"
+  - **Human authority:** "Engineers can always override AI. Always. No questions asked"
+- **Confidence building:** "Yes, there are risks. But we've thought through each one together and have mitigations in place. We're prepared, not naive"
+- **Compare to alternatives:** "The riskiest path is doing nothing. 79% of developers use AI tools. If we don't adopt thoughtfully as a team, individual adoption will happen chaotically without guardrails"
+- **Transparency builds trust:** "By acknowledging risks openly, we demonstrate we're serious and thoughtful. This isn't hype – it's engineering. We're in this together"
+- **Timing:** 3-4 minutes
+
+---
+
 ## **Slide 17: Resistance Management**
+
+### **Slide Content:**
 
 **Common Objections & Responses:**
 
@@ -773,7 +973,23 @@ Prompts by Category:
 - Vision: "AGENTS.md and MCP make tools work together consistently"
 - Result: "One mental model, not five different tools to learn"
 
-## **Slide 17: Communication Plan**
+### **Presenter Notes:**
+
+- **Job replacement fear:** "The #1 concern is always job security. Address it directly and honestly"
+- **Reality check:** "AI is a tool that makes developers more productive and valuable, not a replacement. Roles evolve – less time on boilerplate, more time on architecture, design, and creative problem-solving"
+- **Industry perspective:** "79% of developers already use AI tools. This is mainstream. Mastering AI tools is now a core competency like Git or IDEs"
+- **Learning curve acknowledgment:** "Yes, there's a 3-month learning curve. But we provide training, office hours, and champion support. After ramp-up, developers report 20-40% productivity gains"
+- **Quality concerns:** "Valid concern about AI suggestion quality. That's exactly why we're building AGENTS.md and standards. We see acceptance rates improve from ~30% baseline to 70%+ with proper configuration"
+- **Trust concerns:** "Healthy skepticism is appropriate. That's why we have mandatory human review for critical code – security, payments, authentication always require senior oversight"
+- **Complexity reduction:** "The orchestration framework actually reduces complexity. Instead of learning five different tools with five different approaches, we create one consistent mental model"
+- **Framework as enabler:** "AGENTS.md provides shared context, MCP provides tool integration, governance provides safety nets. This makes AI tools easier to use, not harder"
+- **Timing:** 2-3 minutes
+
+---
+
+## **Slide 18: Communication Plan**
+
+### **Slide Content:**
 
 **Channels:**
 
@@ -881,3 +1097,233 @@ Prompts by Category:
   - "Engineering Leadership provides air cover and removes obstacles"
 - **Critical success factor:** "Change management isn't optional overhead. It's what makes technology adoption successful"
 - **Timing:** 3-4 minutes
+
+---
+
+## **Slide 19: Your 30/60/90 Day Journey**
+
+### **Slide Content:**
+
+**📅 Next 30 Days: Foundation**
+
+**Week 1: Launch & Awareness**
+
+- Training kickoff sessions for all developers
+- Champion identification (10-15% of team)
+- Slack channel (#ai-development) goes live
+- First town hall: Framework overview
+
+**Week 2: AGENTS.md Pilot**
+
+- Select 2-3 most active repositories
+- Pilot teams create initial AGENTS.md files
+- Document lessons learned
+- Begin acceptance rate tracking
+
+**Week 3: Prompt Library v1**
+
+- Launch initial prompt library (20-30 tested prompts)
+- Office hours begin (2x per week)
+- Champions start peer training sessions
+
+**Week 4: First Metrics Review**
+
+- Review Week 2-4 data from Jellyfish
+- Assess pilot AGENTS.md impact
+- Gather champion feedback
+- Adjust approach based on learnings
+
+**📅 Days 31-60: Scale**
+
+**Week 5-6: Expand AGENTS.md**
+
+- Roll out to top 10 active repositories
+- Template refinement based on pilot learnings
+- Cross-team knowledge sharing sessions
+
+**Week 7: Automated Review Pilots**
+
+- CodeRabbit pilot begins (select teams)
+- Qodo pilot begins (select teams)
+- Configure review rules based on AGENTS.md standards
+
+**Week 8: Mid-point Assessment**
+
+- Survey developer satisfaction (first data point)
+- Review acceptance rate trends
+- Celebrate early wins publicly
+- Address emerging issues
+
+**📅 Days 61-90: Optimize**
+
+**Week 9-10: Broad Deployment**
+
+- AGENTS.md in all active repositories
+- Prompt library grows to 50+ tested prompts
+- CodeRabbit/Qodo expand beyond pilots
+
+**Week 11: MCP Workflow Automation**
+
+- Launch coordinated multi-agent workflows
+- Demonstrate Jira → Cursor → Claude Code → Jira loop
+- Begin SignalFx & GCL MCP integration (if ready)
+
+**Week 12: Quarterly Review**
+
+- Comprehensive metrics review (DORA, quality, ROI)
+- Retrospective: what worked, what didn't
+- Plan next quarter improvements
+- Celebrate successes, recognize contributors
+
+**🎯 Quick Wins to Expect:**
+
+- **Week 2:** First "wow" moments with AGENTS.md improving suggestions
+- **Week 4:** Noticeable improvement in AI suggestion quality for pilot teams
+- **Week 8:** Time savings becoming measurable in Jellyfish data
+- **Week 12:** Cultural shift toward AI-augmented development visible
+
+**🚦 Success Criteria by Day 90:**
+
+- ✅ 80%+ AGENTS.md repository coverage
+- ✅ 60%+ AI suggestion acceptance rate (up from ~30% baseline)
+- ✅ 4/5+ developer satisfaction score
+- ✅ DORA metrics maintained or improved
+- ✅ Measurable productivity gains (5-15% minimum)
+
+### **Presenter Notes:**
+
+- **Realistic timeline:** "This is a 90-day sprint to establish the foundation. Full maturity takes 6-12 months, but we see benefits within weeks"
+- **Week 1 emphasis:** "Everything starts with awareness and training. We invest heavily upfront to prevent confusion and resistance"
+- **Champions are critical:** "10-15% early adopters become force multipliers. They help peers, share wins, identify issues early"
+- **Week 2 - AGENTS.md pilot:** "We don't do all repos at once. Start small, learn, iterate, then scale. This prevents mass mistakes"
+- **Pilot learnings matter:** "What works in one repo may need tweaking for another. We document patterns and anti-patterns"
+- **Week 3 - Prompt library:** "20-30 prompts sounds small, but these are battle-tested for OUR codebase. Quality over quantity"
+- **Office hours value:** "Developers can get immediate help. Reduces frustration, speeds learning, builds confidence"
+- **Week 4 - First metrics:** "Early data point. Are we on track? What needs adjustment? Course-correct early"
+- **Days 31-60 acceleration:** "Foundation is set. Now we scale. Acceptance rates should be rising. Satisfaction should be positive"
+- **Week 7 - CodeRabbit/Qodo:** "Automated review pilots start after AGENTS.md is established. Need standards first, then automation"
+- **Week 8 - Mid-point check:** "Critical checkpoint. Developer satisfaction survey tells us if we're on the right track. If satisfaction is low, we adjust immediately"
+- **Celebrate wins:** "Publicly recognize teams with high acceptance rates, innovative prompt usage, excellent AGENTS.md files"
+- **Days 61-90 optimization:** "By now, foundation is solid. We optimize workflows, expand automation, demonstrate advanced capabilities"
+- **Week 11 - MCP workflows:** "Show the full power – coordinated multi-agent workflows. This is where it gets exciting"
+- **Week 12 - Quarterly review:** "Comprehensive assessment. DORA metrics, quality trends, ROI calculation. Validate the framework is working"
+- **Quick wins explained:** "Week 2 'wow' moments are important for momentum. Early wins build enthusiasm and overcome skepticism"
+- **Week 12 cultural shift:** "By day 90, AI tools should feel normal, not novel. Integrated into workflow, not add-on"
+- **Success criteria realistic:** "60% acceptance rate by day 90 is ambitious but achievable. Some teams will exceed, some will lag"
+- **Flexibility important:** "This is a roadmap, not a rigid plan. We adjust based on feedback and data. Agile approach"
+- **Post-90 days:** "After day 90, we continue optimizing, expanding MCP integrations, refining prompts. This is continuous improvement, not one-time project"
+- **Timing:** 4-5 minutes
+
+---
+
+## **Slide 20: How You Can Help**
+
+### **Slide Content:**
+
+**For Engineering Managers:**
+
+☑ **Schedule 16 hours of training time** for your team in the first 30 days
+☑ **Identify 1-2 champions** from your team who are enthusiastic early adopters
+☑ **Dedicate 30 min in weekly 1:1s** to discuss AI adoption progress and challenges
+☑ **Celebrate team wins publicly** in standups, retrospectives, and team meetings
+☑ **Protect learning time** – don't penalize initial productivity dips
+☑ **Escalate blockers quickly** to Platform Team or Engineering Leadership
+
+**For Senior Engineers:**
+
+☑ **Attend AGENTS.md creation workshop** for your primary project
+☑ **Contribute at least 1 prompt** to the shared prompt library this month
+☑ **Mentor 2-3 junior engineers** on AI best practices and effective prompting
+☑ **Provide honest feedback** in retrospectives about what works and what doesn't
+☑ **Model critical thinking** – show when to accept AI suggestions and when to reject them
+☑ **Review and approve AGENTS.md changes** for your team's repositories
+
+**For Individual Contributors:**
+
+☑ **Complete training modules** within first 30 days (self-paced + workshops)
+☑ **Experiment with tools on non-critical tasks first** to build confidence
+☑ **Declare AI usage in PRs** using the template ("Used Copilot for..." format)
+☑ **Share both wins and failures** in retrospectives and Slack
+☑ **Ask questions in office hours** or #ai-development channel – no question is too basic
+☑ **Reject AI suggestions thoughtfully** when they don't meet standards – that's encouraged!
+
+**For Engineering Leadership:**
+
+☑ **Executive sponsorship and communication** – visible support from the top
+☑ **Resource allocation approval** – budget for tools, training time, champion support
+☑ **Remove blockers when identified** – vendor negotiations, policy updates, tooling issues
+☑ **Review monthly progress dashboards** with Platform Team
+☑ **Attend quarterly town halls** to answer questions and provide strategic context
+☑ **Celebrate organization-wide successes** publicly
+
+**For Platform/DevEx Team:**
+
+☑ **Maintain AGENTS.md templates** and documentation
+☑ **Run office hours** 2x per week minimum
+☑ **Monitor Jellyfish dashboards** daily for anomalies
+☑ **Curate and test prompt library** submissions
+☑ **Provide technical support** for tool configurations and issues
+☑ **Gather and synthesize feedback** from champions and surveys
+
+### **Presenter Notes:**
+
+- **Role-specific approach:** "Everyone has a part to play. These are concrete, actionable items – not vague 'be supportive' statements"
+- **Engineering Managers - training time:** "16 hours is non-trivial. That's 2 full days or 4 half-days spread over a month. Protect this time"
+- **Engineering Managers - champions:** "Let them self-select. Don't assign reluctant people as champions. Enthusiasm is the prerequisite"
+- **Engineering Managers - 1:1 time:** "Dedicate time specifically to AI adoption. What's working? What's frustrating? What do they need?"
+- **Engineering Managers - protect learning:** "First month may see velocity dip. Don't panic. Don't pressure. This is investment, not waste"
+- **Senior Engineers - workshop attendance:** "We need senior voices in AGENTS.md creation. Junior engineers can draft, but seniors validate conventions"
+- **Senior Engineers - prompt contribution:** "Just one prompt. But make it good. Show junior engineers what effective prompting looks like"
+- **Senior Engineers - mentoring:** "Pair with junior engineers. Show them your workflow. Demonstrate when to trust AI and when to override"
+- **Senior Engineers - critical thinking model:** "Most important role: show that rejecting AI suggestions is good engineering, not failure"
+- **Individual Contributors - training:** "Non-negotiable. Everyone gets trained. Creates baseline competency and shared language"
+- **Individual Contributors - experiment safely:** "Don't start with production auth code. Start with tests, documentation, boilerplate. Build confidence"
+- **Individual Contributors - declare usage:** "Transparency helps everyone learn. When you say 'Used Cursor for error handling,' reviewers know to check error handling closely"
+- **Individual Contributors - share failures:** "Failed experiments are valuable data. If Copilot suggested something wrong, share it so others learn"
+- **Individual Contributors - reject thoughtfully:** "You are ENCOURAGED to reject AI suggestions that don't meet our standards. Critical thinking is paramount"
+- **Engineering Leadership - visible support:** "If leadership doesn't visibly support this, adoption will be tepid. Show up to town halls, reference it in communications"
+- **Engineering Leadership - resources:** "Training takes time. Tools cost money. Champion support requires bandwidth. Approve these investments"
+- **Engineering Leadership - remove blockers:** "When vendor negotiations stall or policies need updating, leadership clears the path"
+- **Engineering Leadership - monthly review:** "Stay informed. Review Jellyfish dashboard. Ask questions. Hold Platform Team accountable"
+- **Platform Team - office hours:** "This is where learning happens. Developers come with real problems, get real help"
+- **Platform Team - dashboard monitoring:** "Catch problems early. If acceptance rates tank or satisfaction drops, investigate immediately"
+- **Collective responsibility:** "This isn't Platform Team's project. It's everyone's transformation. Each role contributes"
+- **Accountability without pressure:** "These are expectations, but realistic ones. We support, we don't punish"
+- **Timing:** 3-4 minutes
+
+---
+
+## **Slide 21: Q&A**
+
+### **Slide Content:**
+
+**Questions?**
+
+**Contact & Resources:**
+
+- **Slack:** #ai-development (real-time discussion and support)
+- **Office Hours:** Tuesdays & Thursdays, 2-3 PM (Platform Team availability)
+- **Confluence:** [Link to AI Governance Space] (documentation, templates, FAQs)
+- **Feedback:** Monthly surveys and continuous feedback via Slack
+- **Platform Team:** [team-email@company.com] (technical questions and support)
+
+**Thank You!**
+
+Together, we're building a competitive advantage through thoughtful AI adoption.
+
+### **Presenter Notes:**
+
+- **Open Q&A:** "Take as much time as needed for questions. This is critical for addressing concerns"
+- **Likely questions:**
+  - "When does this start?" → Answer: Training begins Week 1, pilot in Week 2
+  - "Is this mandatory?" → Answer: Training is mandatory, tool usage is strongly encouraged but flexible
+  - "What if my team is in the middle of a critical project?" → Answer: Flexible timeline, coordinate with your EM
+  - "Which tool should I use?" → Answer: Start with Copilot (most widely available), experiment with Cursor, we'll provide guidance
+  - "What if AI suggestions are really bad?" → Answer: That's why we're building AGENTS.md and standards – to improve quality
+  - "How much time will this take?" → Answer: 16 hours training spread over 30 days, then tools save time
+  - "What if I prefer not to use AI?" → Answer: We encourage adoption, but you maintain autonomy. Discuss concerns with your EM
+- **Resource emphasis:** "All materials will be in Confluence. Office hours are your friend. Slack channel for quick questions"
+- **Feedback loop:** "We actively want your input. This framework evolves based on what you tell us works and doesn't work"
+- **Thank you note:** "Appreciate engagement. This is a journey we're taking together"
+- **Follow-up:** "Slide deck and recording will be shared. Resources go live next week"
+- **Timing:** 10-15 minutes (as needed)
