@@ -161,8 +161,9 @@ npx link-ai-commands --provider claude --plugins pr --dry-run
 The `pr/` group includes:
 
 - **commands/** - Pull request workflow commands:
-  - `enhance-review.template.md` - Tools for rewriting and improving PR comments
+  - `create-pr.template.md` - Automated PR description generation from code changes
   - `draft-review.template.md` - Tools for generating new PR comments
+  - `enhance-review.template.md` - Tools for rewriting and improving PR comments
   - `address-review.template.md` - Tools for addressing review comments
   - `scripts/` - JavaScript utilities for GitHub API interactions
 

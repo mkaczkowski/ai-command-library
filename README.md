@@ -354,6 +354,51 @@ flowchart TD
 
 </details>
 
+### ✨ Create Pull Requests
+
+**Problem:** Creating well-documented PRs is time-consuming, and incomplete descriptions make reviews harder and slower.
+
+**Solution:** Automated PR description generation that analyzes your changes and populates the project's PR template with meaningful, concise information.
+
+**What you get:**
+
+- 📝 Auto-populated PR template from your `.github/PULL_REQUEST_TEMPLATE.md`
+- 🔍 Smart analysis of commits, diffs, and code changes
+- 🎯 Extraction of Jira tickets, dependencies, and test coverage
+- ⚡ Reviewer-friendly descriptions that speed up reviews
+
+#### Create PR (`pr/create-pr.md`)
+
+**When to use:** When you're ready to create a pull request from your feature branch.
+
+```bash
+# Option 1: Let AI analyze your changes
+# Ask your AI:
+# "Use the create PR workflow to draft my pull request"
+
+# Option 2: Provide context upfront
+# "Use the create PR workflow. I added a user search feature that debounces
+#  input to reduce API calls and improve performance."
+```
+
+**What happens:** Your AI:
+
+1. Reads your project's PR template from `.github/PULL_REQUEST_TEMPLATE.md`
+2. Analyzes commits, diffs, and code changes since diverging from `main`
+3. Extracts tickets from branch name or commits
+4. Identifies new/updated dependencies
+5. Determines test coverage and generates testing instructions
+6. Populates the template with concise, reviewer-friendly content
+7. Shows you the draft for approval
+8. Creates the PR using `gh pr create`
+
+**What you need to provide:**
+
+- Optionally: High-level description of your changes (AI will supplement with technical details)
+- Confirmation after reviewing the generated PR description
+
+**Output:** Pull request created on GitHub with comprehensive description
+
 ### 🔄 Address Review Feedback
 
 **Problem:** You have review feedback to address but need to ensure you handle every comment systematically and respond appropriately.
