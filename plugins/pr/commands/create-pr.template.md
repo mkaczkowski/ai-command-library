@@ -12,23 +12,32 @@ Act as the software engineer creating a well-documented pull request.
 
 ### Phase 1: Branch Analysis
 
-1. Verify branch state and get commit history:
+1. Check git status and identify what will be included in PR:
 
    ```bash
    git status && git rev-parse --abbrev-ref HEAD
+   ```
+
+   **IMPORTANT: Handle staged vs unstaged changes:**
+   - If there are **unstaged changes** to tracked files, ask the user: "I see unstaged changes to [list files]. Should I include these in the PR?"
+   - If there are **untracked files**, list them and ask if they should be included
+
+2. Get commit history and changes:
+
+   ```bash
    BASE=$(git merge-base HEAD origin/main)
    git log $BASE..HEAD --oneline
    git diff $BASE..HEAD --stat
    ```
 
-2. Review changes to understand:
+3. Review changes to understand:
    - **Primary purpose**: bug fix, feature, refactor, or performance improvement
    - **Implementation**: key architectural decisions
    - **Scope**: affected files/modules, breaking changes
    - **Testing**: tests added or modified
    - **Dependencies**: new or updated packages
 
-3. Extract project-specific context:
+4. Extract project-specific context:
    - Ticket ID from branch name (if applicable: JIRA, Linear, GitHub issue, etc.)
    - Dependencies from package files
 
@@ -73,8 +82,9 @@ Populate each section of the template:
 
 **Author Checklist:**
 
-- Check only items that are actually true for this PR
-- Leave items unchecked if they don't apply or aren't met
+Keep the checklist unchecked, so it can be reviewed before submission, except:
+
+- **PR Size**: Check it based on the total lines changed < 500 OR if larger changes are justified
 
 ## Step 3: Present for Approval
 
@@ -98,9 +108,6 @@ Follow conventional commit format (≤72 characters):
 
 **With ticket reference:**
 `<type>(<scope>): <description> (TICKET-ID)`
-
-**Without ticket reference:**
-`<type>(<scope>): <description>`
 
 **Examples:**
 
@@ -163,7 +170,7 @@ After approval:
 ```markdown
 ## Description
 
-- **Related Ticket**: [JIRA-1234](https://your-jira-instance.atlassian.net/browse/JIRA-1234)
+**Related Ticket**: [JIRA-1234](https://your-jira-instance.atlassian.net/browse/JIRA-1234)
 
 Added a new user search component with debounced input to improve search performance and reduce API calls. The search interface provides real-time results while minimizing server load through intelligent debouncing and client-side caching.
 
