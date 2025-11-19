@@ -184,3 +184,23 @@ Before outputting the final response, verify:
 2.  Are **Deliverables** specific?
 3.  Are **Acceptance Criteria** actionable checkboxes?
 4.  Is the math in the **Summary** correct?
+5.  Do all **Dependencies** reference existing tasks (no forward references)?
+6.  Are there no **circular dependencies** in the task graph?
+7.  Do dependencies follow **chronological order** (earlier phases before later)?
+
+## Testing Requirements Matrix
+
+Use this matrix to determine required test coverage for each task:
+
+| Component Type   | Unit Tests | Integration | Storybook | E2E | Notes                                 |
+| ---------------- | ---------- | ----------- | --------- | --- | ------------------------------------- |
+| UI Component     | ✓          | ✓           | ✓         | -   | All visual states in Storybook        |
+| Business Logic   | ✓          | -           | -         | -   | High coverage for complex logic       |
+| Utility/Hook     | ✓          | -           | ✓\*       | -   | \*Storybook only if has visual output |
+| State Management | ✓          | ✓           | -         | -   | Test selectors and reducers           |
+| Full Feature     | ✓          | ✓           | ✓         | ✓   | Complete coverage across all layers   |
+| Infrastructure   | ✓          | ✓           | -         | -   | Focus on failure modes and edge cases |
+
+**Legend:** ✓ = Required, - = Not applicable, ✓\* = Conditional
+
+When creating task deliverables, reference this matrix to ensure appropriate test files are included.
