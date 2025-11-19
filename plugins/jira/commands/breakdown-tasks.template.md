@@ -99,7 +99,7 @@ For each Phase, create a section. For each Task, use this exact block:
 
 ### Task [N].[M]: [Task Name]
 
-**Story Points: [Points]**
+**Story Points:** [Points]
 
 **Description:**
 [Detailed technical description of what needs to be done]
@@ -134,7 +134,7 @@ Here is an example of how a Phase and Task should be formatted (Do not copy this
 
 ### Task 1.1: Create Execution Domain Types, Redux State & Tests
 
-**Story Points: 3**
+**Story Points:** 3
 
 **Description:**
 Create TypeScript type definitions, implement Redux Toolkit slice with selectors for execution state management, and provide comprehensive test coverage for the slice and selectors.
