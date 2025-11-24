@@ -23,8 +23,6 @@ Before generating the breakdown, you must understand the existing system and req
 
 ## Step 2: Gap Analysis & Interactive Review
 
-**STOP AND WAIT** before generating the full breakdown.
-
 1.  Create a section titled **Gap Analysis** containing:
     - **Missing Requirements**: Implicit needs not stated (e.g., error handling, loading states, empty states).
     - **UI/UX Details**: Are designs provided? Are there missing states (hover, focus, error)?
@@ -38,7 +36,7 @@ Before generating the breakdown, you must understand the existing system and req
 
 ## Step 3: Generate Task Breakdown
 
-Once the user confirms or provides answers, generate the full breakdown using the **strict format** defined below. Do NOT deviate from this structure. Do NOT include "AI estimated effort" columns.
+Once the user confirms or provides answers, generate the full breakdown using the **strict format** defined below. Do NOT deviate from this structure.
 
 ### 3.1 Formatting Rules
 
