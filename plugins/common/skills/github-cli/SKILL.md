@@ -1,5 +1,5 @@
 ---
-name: GitHub CLI Helper
+name: github-cli-helper
 description: Execute GitHub CLI commands using the correct Homebrew path. Use when interacting with GitHub PRs, issues, repos, or any gh command.
 ---
 
@@ -147,15 +147,20 @@ EOF
 ## Troubleshooting
 
 ### Command not found
+
 If `/opt/homebrew/bin/gh` doesn't exist, check alternative locations:
+
 - `/usr/local/bin/gh` (Intel Macs)
 - Use `which gh` to find the actual location
 
 ### Authentication errors
+
 Run `/opt/homebrew/bin/gh auth login` and ensure `repo` scope is granted.
 
 ### Enterprise GitHub
+
 Set the `GH_HOST` environment variable:
+
 ```bash
 export GH_HOST=github.company.com
 /opt/homebrew/bin/gh pr list
