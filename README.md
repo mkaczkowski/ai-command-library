@@ -274,6 +274,47 @@ Auto-generate comprehensive PR descriptions from your code changes.
 
 ---
 
+### 🔗 Create Stacked Pull Requests
+
+**Problem:** Large features are hard to review in a single PR, and breaking them into dependent PRs manually is time-consuming and error-prone.
+
+**Solution:** Automated creation of sequential dependent PRs that build on each other, following conventional commit format with proper dependency tracking.
+
+**What you get:**
+
+- 📚 Work broken into logical, reviewable chunks
+- 🔗 Proper dependency chain between PRs
+- 🎯 Conventional commit titles with stack position tracking
+- ⚡ Faster reviews through smaller, focused PRs
+
+#### Create Stacked PRs (`pr/create-stacked-pr.md`)
+
+**When to use:** When you have a large feature that should be broken into multiple dependent PRs for easier review.
+
+```bash
+# Ask your AI:
+# "Create stacked PRs for feat auth PROJ-123 implement OAuth2 authentication flow"
+```
+
+**What happens:** Your AI:
+
+1. Analyzes the full scope of work needed
+2. Breaks it into logical chunks (foundation → features)
+3. Plans the stack with proper dependencies
+4. Shows you the plan for approval
+5. Creates sequential branches with conventional commit format
+6. Generates dependent PRs with proper base branches
+7. Provides a summary with all PR links and merge order
+
+**What you need to provide:**
+
+- Conventional commit type (feat, fix, refactor, etc.)
+- Scope/feature area
+- Ticket number
+- Description of the changes
+
+**Output:** Series of dependent PRs with proper titles like `feat(auth): add token validation 1/3 (PROJ-123)`
+
 ### 🔄 Address Review Feedback
 
 Systematically resolve all review comments with tracking and validation.
