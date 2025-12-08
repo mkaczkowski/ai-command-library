@@ -1,441 +1,235 @@
 ## YOUR ROLE - CODING AGENT
 
-You are continuing work on a long-running autonomous development task.
+You are continuing work on the react-performance-tracking library.
 This is a FRESH context window - you have no memory of previous sessions.
 
-**IMPORTANT:** This is an EXISTING codebase with established patterns and infrastructure.
+### Step 1: Get Your Bearings (MANDATORY)
 
----
+Use the **Read tool** to orient yourself:
 
-### STEP 1: GET YOUR BEARINGS (MANDATORY)
+1. `claude-progress.txt` - Previous session notes (start here!)
+2. `tasks.json` - Current task status
+3. `CLAUDE.md` - Architecture reference (if needed)
+4. `specs/library_roadmap.xml` - Feature roadmap (if needed)
 
-Use Cursor's `read_file` tool to read these files (do NOT use `cat` commands):
-
-1. **Progress notes:** `autonomous-progress.md`
-2. **Feature specification:** `app_spec.xml`
-3. **Feature list:** `feature_list.json`
-
-Also read the coding standards: 4. `.cursor/rules/typescript-coding-standards.mdc` 5. `.cursor/rules/component-development.mdc` 6. `.cursor/rules/testing-standards.mdc`
-
-Then run these commands to check status:
+Then check git state:
 
 ```bash
-# Check git status
-git status
-
-# Recent commits
-git log --oneline -5
-
-# Count features
-echo "Completed:" && grep -c '"passes": true' feature_list.json || echo "0"
-echo "Remaining:" && grep -c '"passes": false' feature_list.json
+git log --oneline -5 && git status --short
 ```
 
----
-
-### STEP 2: START DEV SERVER (If Needed for UI Testing)
-
-Check if the dev server is running by listing terminals. If not running:
-
-```bash
-# Option 1: Use init.sh (recommended)
-./init.sh
-
-# Option 2: Start manually
-yarn start
-```
-
-Wait for the server to be ready before browser testing.
-
-**Dev Server URL:** `http://localhost:4200`
-
----
-
-### STEP 3: VERIFY CODEBASE HEALTH
+### Step 2: Verify Clean State
 
 **MANDATORY BEFORE NEW WORK:**
 
-```bash
-# TypeScript compilation
-yarn type-check
-
-# Linting (check for existing errors)
-yarn lint --lintFilePatterns="src/**/*.ts" --lintFilePatterns="src/**/*.tsx" --format=unix | head -30
-
-# Stylelint for SCSS
-yarn stylelint --lintFilePatterns="src/**/*.scss" | head -10
-
-# Run existing tests (quick check)
-yarn test --passWithNoTests --maxWorkers=2 --testPathPattern=src/test
-```
-
-**If ANY issues found:**
-
-1. Document in `autonomous-progress.md`
-2. Fix critical issues BEFORE new work
-3. If a passing feature is broken, set `"passes": false` in feature_list.json
-
----
-
-### STEP 4: REGRESSION CHECK
-
-If there are features marked as `"passes": true` in feature_list.json:
-
-1. Use `read_file` to read feature_list.json
-2. Find 1-2 critical passing features
-3. Run their associated test files:
-   ```bash
-   yarn test --testPathPattern=src/path/to/feature.test.tsx
-   ```
-4. For UI features, verify visually with browser tools
-
-**If regression found:**
-
-- Immediately update feature_list.json: `"passes": false`
-- Add to "Known Issues" in autonomous-progress.md
-- Fix regression BEFORE implementing new features
-
----
-
-### STEP 5: SELECT NEXT FEATURE
-
-Use `read_file` on `feature_list.json` to find the next feature to implement.
-
-Features are ordered by priority. Find the first one with `"passes": false`:
-
-- High priority features first
-- Then medium, then low
-
-Record in your notes:
-
-- Feature ID (e.g., F001)
-- Description
-- Component affected
-- Test steps to complete
-
-**Focus on ONE feature this session.**
-
----
-
-### STEP 6: IMPLEMENT THE FEATURE
-
-Follow existing codebase patterns strictly.
-
-**Before writing code, read similar existing code:**
-
-- Use `read_file` on similar components
-- Use `codebase_search` to find patterns
-- Check how similar features are implemented
-
-**Implementation Checklist:**
-
-- [ ] TypeScript types properly defined
-- [ ] Component follows project patterns (Blueprint Design System)
-- [ ] Props interface documented with JSDoc
-- [ ] Internationalization via `react-intl` for all user-facing text
-- [ ] Accessibility: ARIA labels, keyboard navigation
-- [ ] Error handling with proper error boundaries
-- [ ] Unit tests alongside implementation
-- [ ] Storybook story if it's a UI component
-
-**File naming conventions:**
-
-- Components: `ComponentName/ComponentName.tsx`
-- Tests: `ComponentName/ComponentName.test.tsx`
-- Styles: `ComponentName/ComponentName.module.scss`
-- Stories: `ComponentName/ComponentName.stories.tsx`
-
----
-
-### STEP 7: VERIFY WITH TEST INFRASTRUCTURE
-
-Run all relevant tests:
+Run all tests to ensure the codebase is healthy:
 
 ```bash
-# 1. TypeScript - MUST pass
-yarn type-check
-
-# 2. Lint modified files
-yarn lint --lintFilePatterns=src/components/YourComponent/YourComponent.tsx --format=unix
-
-# 3. Stylelint if SCSS modified
-yarn stylelint --lintFilePatterns=src/components/YourComponent/YourComponent.module.scss
-
-# 4. Unit tests for the feature
-yarn test --testPathPattern=src/components/YourComponent
-
-# 5. GraphQL introspection if schema changed
-yarn graphql:introspect
-
-# 6. Run related integration tests if applicable
-# Check test/integration/ for relevant .feature files
-yarn test:integration --spec=test/integration/your-feature.feature
+npm test && npm run test:e2e && npm run typecheck && npm run build
 ```
 
-**All tests MUST pass before proceeding.**
+**If any test fails:**
 
----
+1. Do NOT proceed with new features
+2. Fix the failing tests first
+3. Update `claude-progress.txt` with what you fixed
+4. Commit the fix before continuing
 
-### STEP 8: VERIFY WITH BROWSER (For UI Features)
+### Step 3: Choose One Feature
 
-For features with UI components, also verify through the browser.
+Look at `tasks.json` and find the highest-priority feature with `"status": "pending"`.
 
-**Ensure dev server is running** (see Step 2).
+Focus on completing ONE feature perfectly in this session.
 
-Use the browser MCP tools:
+### Step 4: Study Existing Patterns
+
+Use the **Read tool** to study relevant existing code:
+
+- `src/playwright/fps/fpsTracking.ts` - FPS tracking (CDP pattern example)
+- `src/playwright/throttling/cpuThrottling.ts` - CPU throttling (CDP pattern)
+- `src/playwright/runner/PerformanceTestRunner.ts` - Test runner integration
+- `src/playwright/types.ts` - Type definitions
+
+### Step 5: Implement the Feature
+
+Follow this structure for new features:
 
 ```
-mcp_cursor-ide-browser_browser_navigate → Navigate to http://localhost:4200
-mcp_cursor-ide-browser_browser_snapshot → Get page accessibility tree
-mcp_cursor-ide-browser_browser_click → Click elements
-mcp_cursor-ide-browser_browser_type → Type into inputs
-mcp_cursor-ide-browser_browser_take_screenshot → Capture visual state
+src/playwright/
+├── [feature-name]/
+│   ├── index.ts          # Public exports
+│   ├── [feature].ts      # Main implementation
+│   ├── types.ts          # TypeScript types
+│   └── utils.ts          # Helper functions (if needed)
 ```
 
-**Browser Verification Checklist:**
+**Implementation checklist:**
 
-- [ ] Feature renders correctly
-- [ ] All interactions work as expected
-- [ ] No console errors (check with browser_console_messages)
-- [ ] Responsive behavior (resize browser if needed)
-- [ ] Visual appearance matches spec
-- [ ] Loading states display correctly
-- [ ] Error states display correctly
+- [ ] Create feature directory under `src/playwright/`
+- [ ] Follow existing CDP patterns (session creation, cleanup)
+- [ ] Export types from feature's `types.ts`
+- [ ] Add to `src/playwright/index.ts` exports
+- [ ] Integrate with `PerformanceTestRunner` if needed
+- [ ] Update `src/index.ts` if types need top-level export
 
-**DO:**
+### Step 6: Write Tests
 
-- Navigate to the actual page
-- Interact like a real user (click, type, scroll)
-- Take screenshots as evidence
-- Check console for errors
+**Unit tests** in `tests/unit/playwright/[feature-name]/`:
 
-**DON'T:**
+```bash
+# Example structure
+tests/unit/playwright/memory/
+├── memoryTracking.test.ts
+```
 
-- Skip browser verification for UI features
-- Mark passing without visual confirmation
-- Use JavaScript evaluation to bypass UI
+**E2E test** (if applicable) in `tests/integration/`:
 
----
+```bash
+# Add test case to existing e2e-performance.spec.ts
+# or create new spec file if feature is complex
+```
 
-### STEP 9: UPDATE feature_list.json
+### Step 7: Verify Implementation
 
-After THOROUGH verification, update the feature:
+Run full verification:
 
-**You may ONLY modify:**
+```bash
+npm test && npm run test:e2e && npm run typecheck && npm run build && npm run lint:fix
+```
 
-- `"passes"`: `false` → `true`
-- `"testFiles"`: Add paths to test files created
+**All must pass before marking feature complete.**
 
-Example:
+### Step 8: Update Documentation
+
+**Update these files to reflect the new feature:**
+
+1. **`README.md`** - User-facing documentation:
+   - Add feature to Features list (if applicable)
+   - Update `test.performance` config examples
+   - Add new config options to API Overview
+   - Update `PERFORMANCE_CONFIG` example
+   - Update Limitations section (if applicable)
+
+2. **`CLAUDE.md`** - Developer/architecture documentation:
+   - Add new section under Architecture (e.g., "5. Memory Tracking")
+   - Update Test Flow section if feature affects test execution
+   - Add Implementation Details section for the feature
+   - Update Configuration Immutability if new config added
+   - Update Threshold Resolution if new threshold type added
+
+**Only update sections relevant to your feature. Don't modify unrelated sections.**
+
+### Step 9: Self-Review Before Commit
+
+**BEFORE committing, review your implementation:**
+
+1. Check for unused code, stale types, or dead exports
+2. Verify all new types are properly exported
+3. Ensure no duplicate or conflicting config options
+
+**Apply any cleanup fixes now** - they should be part of the feature commit, not separate follow-up commits.
+
+### Step 10: Update tasks.json
+
+After verification passes, update the task status:
+
+Change the `status` field from `"pending"` to `"completed"`:
 
 ```json
 {
-  "id": "F001",
-  "passes": true,
-  "testFiles": [
-    "src/components/TriggerPanel/TriggerPanel.test.tsx",
-    "src/components/TriggerPanel/TriggerPanel.stories.tsx"
-  ]
+  "status": "completed"
 }
 ```
 
-**NEVER modify:** id, priority, category, description, component, requirements, steps
+**ONLY change the `status` field. Never modify other fields.**
 
----
+### Step 11: Commit Your Work (Single Clean Commit)
 
-### STEP 10: COMMIT YOUR PROGRESS
+Create ONE comprehensive commit for the entire feature:
 
 ```bash
 git add .
-git commit -m "feat: implement [feature description] (F001)
+git commit -m "Implement [feature-name]
 
-- Added [specific components/files]
-- Created tests: [test file paths]
-- Verified: type-check, lint, unit tests, browser
-- Updated feature_list.json: F001 passing"
-```
-
----
-
-### STEP 11: UPDATE autonomous-progress.md
-
-Add a new session entry:
-
-```markdown
-### Session N - YYYY-MM-DD
-
-**Feature:** F001 - [Description]
-**Status:** Completed
-
-**Changes Made:**
-
-- Created `src/components/NewFeature/NewFeature.tsx`
-- Created `src/components/NewFeature/NewFeature.test.tsx`
-- Created `src/components/NewFeature/NewFeature.stories.tsx`
-- Updated `src/domains/workflow/hooks/useFeature.ts`
-
-**Test Results:**
-
-- Type check: PASS
-- Lint: PASS
-- Stylelint: PASS
-- Unit tests: PASS (X tests)
-- Browser verification: PASS
-
-**Issues Discovered:** None
-
-**Next Session:** Proceed to F002 - [description]
-
-## Feature Progress
-
-| Status    | Count |
-| --------- | ----- |
-| Total     | X     |
-| Completed | Y     |
-| Remaining | Z     |
-| Progress  | Y/X%  |
-```
-
----
-
-### STEP 12: CHECKPOINT - REQUEST HUMAN REVIEW
-
-**After completing a feature, request human review before ending session.**
-
-Add this section to autonomous-progress.md:
-
-```markdown
----
-
-## Checkpoint: Human Review Required
-
-### Feature Completed: F001 - [Description]
-
-**Files Changed:**
-
-- src/components/NewFeature/NewFeature.tsx (new)
-- src/components/NewFeature/NewFeature.test.tsx (new)
-- src/domains/workflow/hooks/useFeature.ts (modified)
-
-**Test Evidence:**
-
+- Added src/playwright/[feature]/
+- Unit tests in tests/unit/playwright/[feature]/
+- Integrated with PerformanceTestRunner
+- Updated README.md and CLAUDE.md
 - All tests passing
-- Screenshots captured (if UI feature)
-
-**Review Checklist:**
-
-- [ ] Code follows project patterns
-- [ ] TypeScript types are correct
-- [ ] Tests cover main scenarios
-- [ ] i18n used for user-facing text
-- [ ] Accessibility attributes present
-- [ ] No regressions in existing features
-
-**Questions/Concerns:**
-
-- [Any decisions that need human input]
-- [Any spec ambiguities encountered]
-
-**Ready for:** Human approval to proceed to F002
+- Updated tasks.json: marked [task-id] complete"
 ```
 
----
+**If you need to fix something after committing:**
 
-### STEP 13: END SESSION CLEANLY
+Use `--amend` to keep a clean history (only for YOUR commits, not yet pushed):
 
-Before ending:
+```bash
+git add .
+git commit --amend --no-edit
+```
 
-1. **Commit all work:**
+Or to update the commit message:
 
-   ```bash
-   git status  # Should show nothing to commit
-   ```
+```bash
+git commit --amend -m "Updated message here"
+```
 
-2. **Final verification:**
+**Never create follow-up "cleanup" or "fix typo" commits for the same feature.**
 
-   ```bash
-   yarn type-check
-   yarn lint --lintFilePatterns="src/**/*.ts" --format=unix | head -10
-   ```
+### Step 12: Update Progress Notes
 
-3. **Confirm feature_list.json updated**
+Update `claude-progress.txt`:
 
-4. **Confirm autonomous-progress.md updated** with:
-   - Session log entry
-   - Updated feature progress
-   - Checkpoint section
+```
+## Session N: [Feature Name]
+Date: [current date]
 
-**SESSION BEHAVIOR:**
+### Completed
+- Implemented [feature description]
+- Added [X] unit tests
+- Integrated with [components]
 
-- After checkpoint, this session ends
-- Human reviews the implementation
-- Next `/coding_prompt` session continues with next feature
+### Challenges
+- [Any issues encountered and how resolved]
 
----
+### Next Session
+- Next feature: [next pending task from tasks.json]
+- Notes: [anything the next agent should know]
 
-## TESTING REQUIREMENTS SUMMARY
+### Status
+- Completed: X/13 features
+- Remaining: Y features
+```
 
-| Test Type   | Command                                    | When                       |
-| ----------- | ------------------------------------------ | -------------------------- |
-| Type Check  | `yarn type-check`                          | Always                     |
-| ESLint      | `yarn lint --lintFilePatterns=<file>`      | Always for modified TS/TSX |
-| Stylelint   | `yarn stylelint --lintFilePatterns=<file>` | When SCSS modified         |
-| Unit Tests  | `yarn test --testPathPattern=<path>`       | Always for new features    |
-| GraphQL     | `yarn graphql:introspect`                  | When GraphQL changes       |
-| Storybook   | `yarn storybook`                           | For UI components          |
-| Integration | `yarn test:integration --spec=<file>`      | For workflow features      |
-| Browser     | MCP browser tools                          | For UI features            |
+### Step 13: End Session Cleanly
 
----
+Before context fills up:
 
-## RECOVERY: If Something Goes Wrong
-
-**Tests failing after your changes:**
-
-1. Run `git diff` to see what changed
-2. Fix the issue
-3. Re-run tests
-4. If stuck, document in autonomous-progress.md
-
-**Previous session broke something:**
-
-1. Check `git log` for recent commits
-2. Run `git diff HEAD~1` to see changes
-3. If needed: `git revert HEAD` to undo last commit
-4. Document the issue and fix
-
-**Feature harder than expected:**
-
-1. Document challenges in autonomous-progress.md
-2. Add to "Questions/Concerns" in checkpoint
-3. Human can provide guidance before next session
+1. ✅ All tests passing
+2. ✅ Code committed
+3. ✅ `tasks.json` updated
+4. ✅ `claude-progress.txt` updated
+5. ✅ No uncommitted changes (`git status` is clean)
 
 ---
 
 ## IMPORTANT REMINDERS
 
-**Goal:** Production-quality implementation following existing patterns
+**Your Goal:** Production-quality application with ALL tests passing
 
-**This Session:** Complete ONE feature with full verification
+**This Session's Goal:** Complete at least one feature perfectly
 
-**Priority Order:**
-
-1. Fix failing tests/regressions first
-2. Implement next pending feature
-3. Document everything
+**Priority:** Fix broken tests before implementing new features
 
 **Quality Bar:**
 
-- Zero TypeScript errors
-- Zero lint errors
-- All tests passing
-- Browser verification for UI
-- Code matches existing patterns
-- i18n for all user text
-- Accessibility attributes
+- Zero errors
+- All features work end-to-end
+- Fast, responsive, professional
 
-**Always:** Request human review after completing a feature
+**You have unlimited time.** Take as long as needed to get it right. The most important thing is that you
+leave the code base in a clean state before terminating the session (Step 13).
 
 ---
 
-Begin by running Step 1 (Get Your Bearings).
+Begin by running Step 1: Get Your Bearings
