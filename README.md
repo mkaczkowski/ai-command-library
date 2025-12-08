@@ -112,16 +112,17 @@ npx link-ai-commands --provider <provider>
 
 ## Choose Your Provider
 
-| Provider | Destination | Skills | Agents | Best For |
-|----------|-------------|--------|--------|----------|
-| `claude` | `.claude/` | ✅ | ✅ | Project-specific Claude |
-| `claude-global` | `~/.claude/` | ✅ | ✅ | User-wide Claude |
-| `cursor` | `.cursor/` | ❌ | ❌ | Cursor IDE |
-| `cursor-global` | `~/.cursor/` | ❌ | ❌ | User-wide Cursor |
-| `copilot` | `.github/prompts/` | ❌ | ❌ | Copilot Workspace |
-| `codex-global` | `~/.codex/prompts/` | ❌ | ❌ | Codex CLI |
+| Provider        | Destination         | Skills | Agents | Best For                |
+| --------------- | ------------------- | ------ | ------ | ----------------------- |
+| `claude`        | `.claude/`          | ✅     | ✅     | Project-specific Claude |
+| `claude-global` | `~/.claude/`        | ✅     | ✅     | User-wide Claude        |
+| `cursor`        | `.cursor/`          | ❌     | ❌     | Cursor IDE              |
+| `cursor-global` | `~/.cursor/`        | ❌     | ❌     | User-wide Cursor        |
+| `copilot`       | `.github/prompts/`  | ❌     | ❌     | Copilot Workspace       |
+| `codex-global`  | `~/.codex/prompts/` | ❌     | ❌     | Codex CLI               |
 
 **Provider-specific notes:**
+
 - **Copilot:** Prompts are flattened to hyphenated names ending in `.prompt.md`
 - **Codex:** Commands are flattened to single filenames (e.g., `pr__enhance-review.md`)
 - **Skills/Agents:** Only available for Claude providers (project and global)
@@ -263,6 +264,7 @@ Auto-generate comprehensive PR descriptions from your code changes.
 ```
 
 **What the AI does:**
+
 1. Reads `.github/PULL_REQUEST_TEMPLATE.md`
 2. Analyzes commits and diffs since diverging from main
 3. Extracts tickets from branch name/commits
@@ -410,6 +412,7 @@ node {{script:pr/scripts/fetch-pr-comments.js}} --pr=123
 ```
 
 **Available placeholders:**
+
 - `{{script:path/to/script.js}}` - References helper scripts
 - `{{path:commandsRoot}}` - References commands directory
 
@@ -511,6 +514,7 @@ Each plugin group can contain:
 ```
 
 **Available groups:**
+
 - **pr/** - Pull request workflows and utilities
 - **debugger/** - Debugging agents and skills
 - **jira/** - JIRA ticket creation
@@ -536,6 +540,7 @@ Each plugin group can contain:
 ### Contributing
 
 We welcome contributions:
+
 - Add new workflows
 - Improve existing templates
 - Enhance provider support

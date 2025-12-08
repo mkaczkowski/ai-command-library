@@ -127,7 +127,6 @@ After approval, create each PR in sequence:
    ```
 
 2. **Implement changes for this chunk**:
-
    - Make the code changes specific to this chunk
    - Ensure changes are functional and don't break the build
    - Follow the project's coding standards
