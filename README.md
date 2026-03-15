@@ -364,6 +364,51 @@ flowchart TD
 
 ---
 
+### 🚨 Babysit Pull Requests
+
+Autonomous PR health monitor that automatically fixes CI failures and tracks review threads.
+
+**Skill:** `pr/babysit-pr` (requires `/loop` mode)
+
+**When to use:** When you want continuous monitoring and auto-fixing of PR issues during development or review cycles.
+
+```bash
+# Monitor a PR every 10 minutes
+/loop 10m /babysit-pr 1234
+```
+
+**What the AI does:**
+
+1. **Checks PR health** — CI status, review threads, merge conflicts, draft status
+2. **Auto-fixes CI failures** — reproduces lint/type/test/build errors locally and pushes fixes
+3. **Diagnoses Jenkins builds** — uses Jenkins MCP to read console logs and identify failing stages
+4. **Tracks review threads** — uses GraphQL to distinguish resolved/unresolved/outdated comments
+5. **Handles merge conflicts** — rebases onto base branch, asks for confirmation before force-push
+6. **Reports blockers** — presents review feedback analysis, waits for user approval before making changes
+
+**What gets auto-fixed (no confirmation needed):**
+
+- Lint errors (`yarn lint`)
+- Type errors (`yarn type-check`)
+- Test failures (`yarn test`)
+- Build failures (`yarn build`)
+
+**What requires approval:**
+
+- Review feedback changes
+- Merge conflict resolution (before force-push)
+- SonarQube issues (reports URL only)
+
+**Requirements:**
+
+- GitHub CLI (`gh`) configured
+- GitHub Enterprise support (auto-detects hostname from PR URL)
+- Optional: Jenkins MCP server for diagnosing umbrella CI checks
+
+**Benefits:** Hands-free CI fixing, no missed review comments, faster iteration cycles.
+
+---
+
 ### 🐞 File JIRA Tickets
 
 Quick JIRA ticket creation with guided workflows:
