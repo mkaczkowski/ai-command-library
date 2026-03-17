@@ -15,35 +15,15 @@ Run the co-located data collection script:
 .claude/skills/babysit-pr/collect-pr-state.sh $ARGUMENTS
 ```
 
-This outputs a single JSON object with these fields:
+`$ARGUMENTS` is the PR number (optional — defaults to current branch's PR).
 
-| Field                           | Type    | Description                                                                                     |
-| ------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
-| `number`                        | number  | PR number                                                                                       |
-| `title`                         | string  | PR title                                                                                        |
-| `url`                           | string  | PR URL                                                                                          |
-| `state`                         | string  | `OPEN`, `CLOSED`, `MERGED`                                                                      |
-| `isDraft`                       | boolean | Draft PR flag                                                                                   |
-| `headRefName`                   | string  | Source branch name                                                                              |
-| `baseRefName`                   | string  | Target branch name                                                                              |
-| `mergeable`                     | string  | `MERGEABLE`, `CONFLICTING`, or `UNKNOWN`                                                        |
-| `reviewDecision`                | string  | `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`, or `"null"`                                 |
-| `behindCount`                   | number  | Commits behind base branch                                                                      |
-| `checks.failedChecks`           | array   | `{name, link, description}` for each failed check                                               |
-| `checks.pendingChecks`          | array   | `{name, startedAt}` for each pending check                                                      |
-| `reviewThreads.total`           | number  | Total review threads                                                                            |
-| `reviewThreads.unresolvedCount` | number  | Unresolved, non-outdated threads needing attention                                              |
-| `reviewThreads.unresolved`      | array   | `{isResolved, isOutdated, path, line, comments[]}` — each comment has `{body, user, createdAt}` |
-| `reviewThreads.outdatedCount`   | number  | Threads on code that has since changed                                                          |
-| `reviewThreads.resolvedCount`   | number  | Threads marked as resolved                                                                      |
-| `health.healthy`                | boolean | True if zero blockers and zero warnings                                                         |
-| `health.blockers`               | number  | Count of blockers (failed checks, conflicts, changes requested)                                 |
-| `health.warnings`               | number  | Count of warnings (draft, pending, no reviewers, etc.)                                          |
+The script outputs a JSON object. Key fields: `health.healthy` (early exit), `checks.failedChecks` (CI failures), `mergeable` (conflicts), `reviewThreads.unresolved` (review feedback), `reviewers` (assigned reviewers). See script source for full schema.
 
 **Exit conditions:**
 
 - If the script fails → output the error and **STOP**.
 - If `health.healthy` is true → output `PR #<number> — healthy, no action needed.` and **STOP**.
+- If `checks.failedChecks` is empty AND `checks.pendingChecks` is non-empty AND any check's `startedAt` is within the last 15 minutes → report "Waiting for CI — N checks pending (started at <time>)" and **STOP**. This prevents re-analyzing a PR where a previous fix is still being verified by CI.
 
 ## Step 2: Fix Blockers
 
@@ -53,31 +33,29 @@ Process blockers in this exact order: **2a → 2b → 2c**. Skip a section if it
 
 **Trigger:** `checks.failedChecks` is non-empty.
 
-**Skip (loop awareness):** Before processing, check if `checks.failedChecks` is empty but `checks.pendingChecks` is non-empty. Compare each pending check's `startedAt` to now — if any check started within the last 15 minutes, a previous fix is likely being verified. Report "Waiting for CI — N checks pending (started at <time>)" and **STOP**.
-
 **For each failed check**, classify by name and handle accordingly:
 
-| Check name pattern (case-insensitive substring) | Classification    | Action                                                          |
-| ----------------------------------------------- | ----------------- | --------------------------------------------------------------- |
-| `jenkins` or `continuous-integration`           | Jenkins umbrella  | → Diagnose via Jenkins MCP (see below)                          |
-| `sonarqube` or `sonar`                          | Code quality gate | → Report `link` URL to user, **skip** (requires human judgment) |
-| `lint` or `eslint` or `stylelint`               | Lint              | → Run `yarn lint`                                               |
-| `type` or `typecheck` or `tsc`                  | Type check        | → Run `yarn type-check`                                         |
-| `test` or `jest` or `unit`                      | Test              | → Run `yarn test`                                               |
-| `build` or `compile`                            | Build             | → Run `yarn build`                                              |
-| _(no match)_                                    | Unknown           | → Report as "cannot auto-fix" with `link` URL, **skip**         |
+| Check name pattern (case-insensitive substring) | Classification    | Action                                                  |
+| ----------------------------------------------- | ----------------- | ------------------------------------------------------- |
+| `jenkins` or `continuous-integration`           | Jenkins umbrella  | → Diagnose via Jenkins MCP (see below)                  |
+| `sonarqube` or `sonar`                          | Code quality gate | → Report `link` URL to user, **skip**                   |
+| `lint` or `eslint` or `stylelint`               | Lint              | → Run `yarn lint`                                       |
+| `type` or `typecheck` or `tsc`                  | Type check        | → Run `yarn type-check`                                 |
+| `test` or `jest` or `unit`                      | Test              | → Run `yarn test`                                       |
+| `build` or `compile`                            | Build             | → Run `yarn build`                                      |
+| _(no match)_                                    | Unknown           | → Report as "cannot auto-fix" with `link` URL, **skip** |
 
 **Diagnosing Jenkins umbrella checks:**
 
-1. Call the Jenkins MCP tool `get_job_details` with the check's `link` URL.
-2. Parse the console log for stage names. Map stages using the same pattern table above (e.g., stage containing "lint" → `yarn lint`, "type" → `yarn type-check`, etc.).
-3. If no stage name matches, report the relevant log excerpt to the user and **skip**.
+1. Call `get_job_details` with the check's `link` URL.
+2. Parse console log for stage names → map via classification table above.
+3. For downstream failures (`Downstream Job failed!!` pattern):
+   call `get_job_details` on the downstream URL.
+   If 404 → try `list_artifacts` on parent. If no artifacts → suggest re-triggering CI.
+4. If failure is in E2E/integration tests → report as non-local, suggest re-trigger.
+5. If no match → report log excerpt and skip.
 
-**If Jenkins MCP fails:**
-
-- **404 or null build** → Report: "Jenkins build logs expired. Re-trigger CI with: `git commit --allow-empty -m 'chore: retrigger CI' && git push`". **Skip** this check.
-- **Auth error (401/403)** → Report the error. Fall back: run `yarn lint`, then `yarn type-check`, then `yarn test` sequentially. Stop at first failure and fix that.
-- **Other error** → Report the error and `link` URL. **Skip** this check.
+**On MCP failure:** 404/null → suggest retrigger with empty commit. 401/403 → fall back to local commands (lint → type-check → test). Other → report and skip.
 
 **Fixing a classified check (lint/type/test/build):**
 
@@ -88,7 +66,7 @@ Process blockers in this exact order: **2a → 2b → 2c**. Skip a section if it
 5. If still failing after **3 attempts** (fix → verify cycles) → report: "Cannot auto-fix `<check>` after 3 attempts" with the latest error output. **Skip** this check.
 6. Stage only the changed files, commit (`fix(<scope>): <description>`), and push.
 
-After pushing a fix, **STOP**. Do not process remaining failed checks — let CI re-run and re-invoke the skill on the next /loop cycle to check the result.
+After pushing a fix, **STOP**. Do not process remaining failed checks — let CI re-run and re-invoke the skill on the next /loop cycle.
 
 ### 2b: Merge Conflicts
 
@@ -99,22 +77,22 @@ After pushing a fix, **STOP**. Do not process remaining failed checks — let CI
    git fetch origin <baseRefName> && git rebase origin/<baseRefName>
    ```
 2. If conflicts arise, read both sides of each conflict marker:
-   - If changes are in **different logical areas** (non-overlapping edits) → accept both sides.
-   - If changes **conflict semantically** (same line/block modified differently) → present both versions with surrounding context to the user and **ask which to keep**. Do not guess merge intent.
+   - For non-overlapping edits in **separate files/functions** → accept both sides.
+   - For overlapping edits in the **same block** → present both versions with surrounding context to the user and **ask which to keep**.
 3. After resolving all conflicts: `git add <resolved files> && git rebase --continue`.
 4. Verify: run `yarn type-check`. If it fails, fix type errors before proceeding.
 5. **Ask the user before force-pushing.** If approved → `git push --force-with-lease`. If rejected → run `git rebase --abort` and report "Merge conflicts require manual resolution."
 
 ### 2c: Review Feedback
 
-**Trigger:** `reviewThreads.unresolvedCount` > 0 (regardless of `reviewDecision` — reviewers often leave comments without formally requesting changes).
+**Trigger:** `reviewThreads.unresolvedCount` > 0.
 
-**Important:** This step requires user interaction. If running via `/loop`, present the analysis in the Step 4 summary and **STOP** — do not make changes without explicit user approval.
+**Important:** Always present the analysis and wait for explicit user approval before making changes. Do not auto-fix review feedback.
 
-1. Read `reviewThreads.unresolved` from the JSON — each thread has `path`, `line`, and `comments[]` (each comment has `body`, `user`, `createdAt`). Focus on the **first comment** in each thread (the reviewer's original feedback); subsequent comments are replies/discussion.
+1. Read `reviewThreads.unresolved` — each thread has `path`, `line`, and `comments[]` (each with `body`, `user`, `createdAt`). Focus on the **first comment** in each thread (the reviewer's original feedback).
 2. For each unresolved thread, classify:
-   - **Requires code change** — comment contains action words (change, fix, remove, add, update, rename, use, replace) or code suggestions (inline code blocks).
-   - **Discussion/question** — comment ends with `?`, or contains "why", "how", "could you explain", "what about", "thoughts on".
+   - **Requires code change** — contains action words (change, fix, remove, add, update, rename, use, replace) or code suggestions (inline code blocks).
+   - **Discussion/question** — ends with `?`, or contains "why", "how", "could you explain", "what about", "thoughts on".
    - **Ambiguous** — does not clearly fit either category.
 3. Present analysis to the user: list each comment with its classification and your proposed change (or "no action needed" for discussions).
 4. After user approves specific changes → make edits, commit, push, and reply:
@@ -146,7 +124,7 @@ PR #<number> Status
 Branch: <headRefName> -> <baseRefName>
 
 Actions Taken:
-  - <commitSHA 7-char> <scope>: <description>
+  - <7-char SHA> <scope>: <description> (from fixes made in this run)
   - (or "None")
 
 Remaining Issues:
@@ -157,12 +135,8 @@ Remaining Issues:
 ## Rules
 
 - **Fix CI failures autonomously.** Lint, types, tests, builds are mechanical — fix and push without asking.
-- **Do not auto-fix review feedback.** Present proposed changes, wait for explicit user approval.
-- **Do not force-push without confirmation.**
-- **Do not auto-publish drafts or assign reviewers.**
-- **One fix per run.** After pushing a CI fix, STOP and let CI re-run. The next /loop cycle will pick up remaining issues.
-- **Verify before pushing.** Run the relevant check locally and confirm exit code 0 before committing.
-- **Fix only the reported issue.** Do not refactor unrelated code. If project standards require formatting changes in the same file (e.g., auto-fix from linter), include them in the same commit.
+- **Fix only the reported issue.** Do not refactor unrelated code. Include auto-fix formatting changes from linters in the same commit.
 - **Conventional commits.** `fix(scope): description`, `style(scope): lint fix`, etc.
 - **Follow project standards.** All code changes must follow `docs/coding-standards.md`.
-- **On unexpected errors** (network failure, permission denied, unrecognized output): output the full error, state what was being attempted, and **STOP**. Do not proceed to the next step.
+- **Do not auto-publish drafts or assign reviewers.**
+- **On unexpected errors** (network failure, permission denied, unrecognized output): output the full error, state what was being attempted, and **STOP**.
