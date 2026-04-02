@@ -5,7 +5,14 @@
 
 set -euo pipefail
 
-PR_NUMBER="${1:-}"
+PR_INPUT="${1:-}"
+
+# Extract numeric PR number from URL if needed (gh pr view accepts URLs, but GraphQL needs Int)
+if [[ "$PR_INPUT" =~ /pull/([0-9]+) ]]; then
+  PR_NUMBER="${BASH_REMATCH[1]}"
+else
+  PR_NUMBER="$PR_INPUT"
+fi
 
 if [[ -z "$PR_NUMBER" ]]; then
   PR_NUMBER=$(gh pr list --head "$(git branch --show-current 2>/dev/null)" --json number --jq '.[0].number' 2>/dev/null || true)
@@ -17,12 +24,13 @@ if [[ -z "$PR_NUMBER" ]]; then
 fi
 
 # Fetch all data in parallel (4 calls)
-PR_FILE=$(mktemp) CHECKS_FILE=$(mktemp) COMMENTS_FILE=$(mktemp) REPO_FILE=$(mktemp)
-trap 'rm -f "$PR_FILE" "$CHECKS_FILE" "$COMMENTS_FILE" "$REPO_FILE"' EXIT
+PR_FILE=$(mktemp) CHECKS_FILE=$(mktemp) COMMENTS_FILE=$(mktemp) ISSUE_COMMENTS_FILE=$(mktemp) REPO_FILE=$(mktemp)
+trap 'rm -f "$PR_FILE" "$CHECKS_FILE" "$COMMENTS_FILE" "$ISSUE_COMMENTS_FILE" "$REPO_FILE"' EXIT
 
 gh repo view --json nameWithOwner --jq '.nameWithOwner' >"$REPO_FILE" 2>/dev/null &
 gh pr view "$PR_NUMBER" --json number,title,state,isDraft,url,headRefName,baseRefName,author,createdAt,updatedAt,mergeable,reviewDecision,additions,deletions,changedFiles,commits,labels,reviewRequests >"$PR_FILE" 2>/dev/null &
 gh pr checks "$PR_NUMBER" --json name,state,bucket,description,startedAt,completedAt,link >"$CHECKS_FILE" 2>/dev/null &
+gh pr view "$PR_NUMBER" --json comments --jq '[.comments[] | {id: .id, body: .body, user: .author.login, createdAt: .createdAt}]' >"$ISSUE_COMMENTS_FILE" 2>/dev/null &
 wait
 
 REPO=$(cat "$REPO_FILE")
@@ -75,8 +83,10 @@ query($owner: String!, $repo: String!, $pr: Int!) {
 }]' >"$COMMENTS_FILE" 2>/dev/null || true
 
 THREADS=$(cat "$COMMENTS_FILE")
-[[ -z "$CHECKS" ]]   && CHECKS="[]"   || true
-[[ -z "$THREADS" ]]  && THREADS="[]"  || true
+ISSUE_COMMENTS=$(cat "$ISSUE_COMMENTS_FILE")
+[[ -z "$CHECKS" ]]          && CHECKS="[]"          || true
+[[ -z "$THREADS" ]]         && THREADS="[]"         || true
+[[ -z "$ISSUE_COMMENTS" ]]  && ISSUE_COMMENTS="[]"  || true
 
 # Compute behind-count
 BASE=$(echo "$PR" | jq -r '.baseRefName')
@@ -89,6 +99,7 @@ jq -n \
   --argjson pr "$PR" \
   --argjson checks "$CHECKS" \
   --argjson threads "$THREADS" \
+  --argjson issueComments "$ISSUE_COMMENTS" \
   --argjson behind "$BEHIND" \
   '
   ($checks | [.[] | select(.bucket == "fail")] | length) as $failCount |
@@ -133,6 +144,11 @@ jq -n \
       pending: $pendCount,
       failedChecks: [$checks[] | select(.bucket == "fail") | {name, link, description}],
       pendingChecks: [$checks[] | select(.bucket == "pending") | {name, startedAt}]
+    },
+    prComments: {
+      total: ($issueComments | length),
+      human: [($issueComments // [])[] | select(.user | test("\\[bot\\]$|^qodo-merge|^jenkins-ci|^sonarqube|^github-actions") | not) | {body, user, createdAt}],
+      humanCount: ([($issueComments // [])[] | select(.user | test("\\[bot\\]$|^qodo-merge|^jenkins-ci|^sonarqube|^github-actions") | not)] | length)
     },
     reviewThreads: {
       total: (($threads // []) | length),
