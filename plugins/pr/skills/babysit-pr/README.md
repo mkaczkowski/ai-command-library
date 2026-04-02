@@ -77,7 +77,7 @@ For Jenkins CI checks, this skill uses shell scripts that call the Jenkins Blue 
 ## Files
 
 - `SKILL.md` — AI agent instructions
-- `collect-pr-state.sh` — Data collection script (GraphQL + gh CLI)
+- `scripts/collect-pr-state.sh` — Data collection script (GraphQL + gh CLI)
 - `scripts/jenkins-url-helper.sh` — Shared helper: URL conversion + authenticated curl
 - `scripts/fetch-build-info.sh` — Build status, stages, and console log tail
 - `scripts/fetch-failed-tests.sh` — Failed test names, file paths, and error details

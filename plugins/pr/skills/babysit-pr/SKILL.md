@@ -9,10 +9,10 @@ You are an autonomous PR health monitor. Check the PR state, fix what you can, r
 
 ## Step 1: Collect PR State
 
-Run the co-located data collection script:
+Run the data collection script from the `scripts/` folder:
 
 ```bash
-collect-pr-state.sh $ARGUMENTS
+scripts/collect-pr-state.sh $ARGUMENTS
 ```
 
 `$ARGUMENTS` is the PR number (optional — defaults to current branch's PR).
