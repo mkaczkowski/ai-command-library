@@ -1,6 +1,6 @@
 ---
 name: pr-style
-description: Style guide for writing pull request review comments and replies in a concise, professional voice. Use when drafting or editing inline review comments, top-level PR reviews, or replies to existing comments (via `gh pr review`, `gh pr comment`, `gh api .../comments`, or any similar flow). Covers tone, structure, formatting, and a hard rule against AI attribution. Does NOT cover PR descriptions or titles.
+description: Style and formatting rules for pull request review comments and replies: inline comments on specific lines, top-level PR reviews, and replies to existing comment threads. Covers comment anatomy (anchor, observation, suggestion), tone, GitHub `suggestion` blocks, optional severity labels, reply patterns (accept, push back, defer), and a hard ban on AI attribution. Use when drafting, editing, or posting PR comments via `gh pr review`, `gh pr comment`, `gh api .../comments`, the GitHub UI, or any similar review flow. Do NOT use for PR titles or PR descriptions/bodies, which are a separate topic.
 ---
 
 # PR Comment Style
