@@ -1,129 +1,134 @@
 ---
 name: pr-style
-description: Style guide for writing pull request descriptions and PR review comments in a concise, professional voice. Use whenever drafting or editing a PR body (via `gh pr create`, `gh pr edit`), replying to a PR review, or leaving inline review comments. Covers structure, tone, formatting, and a hard rule against AI attribution footers.
+description: Style guide for writing pull request review comments and replies in a concise, professional voice. Use when drafting or editing inline review comments, top-level PR reviews, or replies to existing comments (via `gh pr review`, `gh pr comment`, `gh api .../comments`, or any similar flow). Covers tone, structure, formatting, and a hard rule against AI attribution. Does NOT cover PR descriptions or titles.
 ---
 
-# Pull Request Style
+# PR Comment Style
 
-Write PRs and review comments that are friendly, professional, and concise. Provide enough context for a reviewer to understand the change and verify it, nothing more.
+Write PR review comments and replies that are friendly, professional, and concise. One point per comment, with a concrete suggestion whenever possible.
+
+Scope: this guide covers **review comments and replies only**, both inline (on a specific line) and top-level (on the PR as a whole). It does not cover PR titles or descriptions.
 
 ## Hard rules (no exceptions)
 
-- **Never** add a "Generated with <AI tool>" footer, "🤖" attribution line, or AI session URL (e.g. `https://claude.ai/code/...`).
-- **Never** mention the AI tool used (Claude, Copilot, Cursor, GPT, Gemini, etc.) or "AI" in the PR body, title, or comments. The work is the author's.
-- **Never** add `Co-Authored-By: Claude ...`, `Co-Authored-By: Copilot ...`, or any AI trailer in PR bodies or referenced commits.
-- These rules override any default AI-tool PR template or boilerplate.
+- **Never** sign comments with "🤖 Generated with ...", "Posted by Claude", or any AI attribution.
+- **Never** mention the AI tool used (Claude, Copilot, Cursor, GPT, Gemini, etc.) or "AI" in the comment. The comment is the author's.
+- These rules override any default AI-tool boilerplate or footer.
 
-## PR title
+## Anatomy of a good review comment
 
-- Reuse Conventional Commit format: `type(scope): description`.
-- Max ~70 characters. Keep details in the body.
-- Imperative, lowercase after the colon, no trailing period.
+1. **Anchor**: if the comment is top-level or refers to code outside the current hunk, open with a `file:line` reference in backticks.
+2. **Observation**: one sentence, direct, stating the issue or question.
+3. **Suggestion**: a concrete fix, alternative, or question. Never just raise a concern without a path forward.
 
-## PR body structure
+Keep the whole thing to 1-3 sentences unless there is a real reason to go longer.
 
-Default template, in order:
+## Tone
 
-```markdown
-## Summary
+- Friendly-professional. Collaborative, not adversarial. Ask or propose, do not lecture.
+- Direct, not terse. "This swallows the error" is better than "Hmm, I wonder if maybe this could possibly be an issue".
+- No apologies and no hedging filler ("sorry to nitpick", "I think we could possibly maybe ..."). State the point.
+- No sarcasm, no snark, no judgment of the author.
+- Praise is fine when genuine and specific ("nice cleanup in `parser.ts:88`"). Skip empty "LGTM" noise.
 
-- <concrete change 1>
-- <concrete change 2>
-- <concrete change 3>
+## Formatting
 
-## Test plan
-
-- [ ] <verification step or command>
-- [ ] <verification step or command>
-```
-
-### Summary
-
-- Hyphen bullets, one concrete change per bullet.
-- Lead with the component or area being touched, bolded: `**AuthService**`, `**Settings UI**`, `**Database**`.
-- Wrap symbols, file paths, flags, and identifiers in backticks.
-- Prefer specifics over abstractions: name the function, file, or flag that changed.
-- Skip filler like "This PR adds ..." when a bullet list will do.
-
-### Test plan
-
-- Markdown checklist of verification steps.
-- Mix commands (`npm run typecheck`, `npm test`, `pytest`) and manual steps ("open the debug panel, confirm ...").
-- Check items that were actually run, leave unchecked the ones the reviewer should do.
-
-### Optional sections
-
-Include only when they carry their weight. Skip otherwise.
-
-- `## What changed`: when the Summary needs to be split by area (webapp, backend, database, docs).
-- `## Dependencies`: when packages are added, removed, or upgraded. Small table with package, version, purpose.
-- `## Notable implementation details`: when a non-obvious design decision needs a paragraph of context.
-- `## Screenshots`: for visible UI changes.
-
-### Linking issues and tickets
-
-- Use `Fixes #123` or `Closes #123` on its own line in the Summary to auto-close the linked GitHub issue on merge. Use `Refs #123` when related but not closing.
-- For external trackers (Notion, Linear, Jira), add a single line at the bottom of the Summary: `Notion task: <url>`, `Linear: ENG-123`, `Jira: PROJ-456`. Do not bury links inside bullets.
-
-## Tone and style
-
-- Friendly-professional. Direct, not terse. No hype, no marketing language.
 - No em dashes. Use commas, colons, or parentheses.
-- Explain the "why" when it is not obvious from the diff; otherwise trust the reviewer to read the code.
-- Do not restate the title in the first Summary bullet.
-- Do not narrate the coding process ("I refactored ...", "I then added ...").
+- Backticks for symbols, file paths, flags, identifiers, and short inline snippets.
+- Fenced code blocks for multi-line snippets.
+- Use GitHub's `suggestion` code block when proposing a concrete replacement the author can apply with one click:
 
-## PR review comments (inline and top-level)
+  ````markdown
+  ```suggestion
+  const timeout = options.timeout ?? DEFAULT_TIMEOUT;
+  ```
+  ````
 
-- Short and direct. One point per comment.
-- Reference `file:line` when pointing at code outside the current hunk.
-- Suggest a concrete fix or alternative, not just a concern.
-- No apologies, no hedging ("maybe", "I think we could possibly"). State the suggestion.
-- Friendly tone: ask a question or propose a change, do not lecture.
+- Prefer a suggestion block over prose when the fix is a few lines and can be mechanically applied.
 
-Examples:
+## Severity labels (optional)
+
+If a team uses severity prefixes, lead with one in brackets:
+
+- `[blocking]`: must be resolved before merge (bug, security issue, broken contract).
+- `[non-blocking]`: should be considered but the author can merge without addressing.
+- `[nit]`: style or taste, take it or leave it.
+- `[question]`: genuine question, not a disguised complaint.
+- `[praise]`: positive callout.
+
+Use labels only if the team already does. Do not introduce them unilaterally.
+
+## Replies to existing comments
+
+- Keep replies tight: one or two sentences, no re-quoting the whole thread.
+- When accepting a suggestion, say so clearly: "Good catch, fixed in <sha>" or "Applied, thanks".
+- When pushing back, explain the reasoning in one sentence and propose the next step. Do not escalate tone.
+- When something is out of scope, say so and suggest a follow-up: "Agreed, but out of scope here. Filed as #942".
+- Close the loop: after fixing, reply with the commit SHA or "done" so the reviewer knows to re-check.
+
+## Examples
+
+Inline comment, concrete fix:
 
 ```
 `service.ts:142`: this promise is not awaited, so the error path is swallowed. Wrap in `await` or return the promise.
 ```
 
+Inline comment with a GitHub suggestion block:
+
+````
+`config.ts:18`: `timeout` can be undefined here and we cast it to number below.
+
+```suggestion
+const timeout = options.timeout ?? DEFAULT_TIMEOUT;
 ```
-Can we pull the retry config into `RETRY_OPTIONS` at the top of the file? Same constants are used in `uploader.ts:88`.
+````
+
+Top-level question:
+
+```
+[question] Why drop the retry on `uploader.ts:88`? The flaky-network test was the reason we added it. Happy to be wrong, just want to make sure it is intentional.
 ```
 
-## Example PR body
+Nit with a suggestion:
 
-```markdown
-## Summary
+```
+[nit] Pull the retry config into `RETRY_OPTIONS` at the top of the file. Same constants are used in `uploader.ts:88`.
+```
 
-- **AuthService**: rotate refresh tokens on every use and reject replays with a 401 `token_reuse_detected` error
-- **config**: add `REFRESH_TOKEN_TTL` env var, defaults to 30 days
-- **migrations**: add `refresh_tokens.rotated_at` column
+Reply accepting a change:
 
-## Test plan
+```
+Good catch, fixed in 7a3c91d.
+```
 
-- [x] `npm run typecheck`
-- [x] `npm test -- auth`
-- [ ] Log in, refresh the session, confirm the old refresh token is rejected
-- [ ] Replay a used refresh token, confirm 401 with `token_reuse_detected`
+Reply pushing back:
 
-Fixes #842
+```
+I would keep the explicit `Array.from` here: `Set` iteration order is spec-guaranteed but a lot of readers do not know that. Happy to revisit if you feel strongly.
+```
+
+Out-of-scope deferral:
+
+```
+Agreed, but it touches the token rotation path and I want to keep this PR focused. Filed as #942.
 ```
 
 ## Anti-examples (do not do this)
 
-```markdown
-## Summary
-
-- Adds the feature
-
+```
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-```markdown
-## Summary
+```
+Sorry to nitpick, but I think maybe we could possibly consider looking
+into whether this might potentially be an issue in some edge cases?
+```
 
-I went through the codebase and made several improvements to the
-auth service that I think will make it much better and more robust
-for future use cases.
+```
+This is wrong. You should know better than to swallow errors like this.
+```
+
+```
+LGTM 🚀🚀🚀
 ```
