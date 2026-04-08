@@ -1,6 +1,6 @@
 ---
 name: commit-style
-description: Style and formatting rules for git commit messages: Conventional Commits structure, subject and body conventions, tone, and a hard ban on AI attribution trailers like `Co-Authored-By: Claude` or "🤖 Generated with ...". Use when writing, editing, reviewing, or approving any commit message, including during `git commit`, `git commit --amend`, rebase reword, squash, or any flow that asks "what should the commit message be?". This skill covers style and voice, not how to derive a message from a diff (for that, use a commit-generation skill like `commit-helper`).
+description: Style rules for git commit messages. Use when writing or editing a commit message.
 ---
 
 # Commit Message Style

@@ -1,13 +1,11 @@
 ---
 name: pr-style
-description: Style and formatting rules for pull request review comments and replies: inline comments on specific lines, top-level PR reviews, and replies to existing comment threads. Covers comment anatomy (anchor, observation, suggestion), tone, GitHub `suggestion` blocks, optional severity labels, reply patterns (accept, push back, defer), and a hard ban on AI attribution. Use when drafting, editing, or posting PR comments via `gh pr review`, `gh pr comment`, `gh api .../comments`, the GitHub UI, or any similar review flow. Do NOT use for PR titles or PR descriptions/bodies, which are a separate topic.
+description: Style rules for PR review comments and replies. Use when drafting or posting a PR review comment, inline comment, or thread reply.
 ---
 
 # PR Comment Style
 
 Write PR review comments and replies that are friendly, professional, and concise. One point per comment, with a concrete suggestion whenever possible.
-
-Scope: this guide covers **review comments and replies only**, both inline (on a specific line) and top-level (on the PR as a whole). It does not cover PR titles or descriptions.
 
 ## Hard rules (no exceptions)
 
@@ -25,11 +23,22 @@ Keep the whole thing to 1-3 sentences unless there is a real reason to go longer
 
 ## Tone
 
-- Friendly-professional. Collaborative, not adversarial. Ask or propose, do not lecture.
+- Friendly, inclusive, collaborative. Ask or propose, do not lecture.
 - Direct, not terse. "This swallows the error" is better than "Hmm, I wonder if maybe this could possibly be an issue".
-- No apologies and no hedging filler ("sorry to nitpick", "I think we could possibly maybe ..."). State the point.
 - No sarcasm, no snark, no judgment of the author.
 - Praise is fine when genuine and specific ("nice cleanup in `parser.ts:88`"). Skip empty "LGTM" noise.
+
+### Preferred phrasing
+
+Lean on these openers and softeners. They keep the tone friendly and collaborative without turning into hedging filler:
+
+- **Questions and proposals**: `Could you ...`, `Would you ...`, `Can you ...`, `What do you think?` / `WDYT?`
+- **Opinion markers** (use sparingly, when the point is subjective): `IMO`, `TBH`, `I would ...`, `I would try to ...`
+- **Verification asks**: `Can you double-check ...`, `Just to confirm ...`, `Just making sure ...`
+
+Keep them first-person and specific. "Could you wrap this in `await`?" beats "This should be awaited." "WDYT about pulling this into a constant?" beats "This should be a constant."
+
+Avoid hedging filler that adds no information: "sorry to nitpick", "I think we could possibly maybe ...", "not sure if this is a big deal but ...". Soften with phrasing, not with apology.
 
 ## Formatting
 
@@ -46,17 +55,13 @@ Keep the whole thing to 1-3 sentences unless there is a real reason to go longer
 
 - Prefer a suggestion block over prose when the fix is a few lines and can be mechanically applied.
 
-## Severity labels (optional)
+## Nits
 
-If a team uses severity prefixes, lead with one in brackets:
+For small style or taste comments the author can take or leave, prefix the comment with `nit:` (lowercase, followed by a space).
 
-- `[blocking]`: must be resolved before merge (bug, security issue, broken contract).
-- `[non-blocking]`: should be considered but the author can merge without addressing.
-- `[nit]`: style or taste, take it or leave it.
-- `[question]`: genuine question, not a disguised complaint.
-- `[praise]`: positive callout.
-
-Use labels only if the team already does. Do not introduce them unilaterally.
+```
+nit: pull the retry config into `RETRY_OPTIONS` at the top of the file.
+```
 
 ## Replies to existing comments
 
@@ -71,29 +76,35 @@ Use labels only if the team already does. Do not introduce them unilaterally.
 Inline comment, concrete fix:
 
 ```
-`service.ts:142`: this promise is not awaited, so the error path is swallowed. Wrap in `await` or return the promise.
+`service.ts:142`: could you wrap this in `await`? Right now the promise isn't awaited, so the error path gets swallowed.
 ```
 
 Inline comment with a GitHub suggestion block:
 
 ````
-`config.ts:18`: `timeout` can be undefined here and we cast it to number below.
+`config.ts:18`: `timeout` can be undefined here and we cast it to number below. WDYT about defaulting it?
 
 ```suggestion
 const timeout = options.timeout ?? DEFAULT_TIMEOUT;
 ```
 ````
 
+Verification ask:
+
+```
+Just to confirm, can you double-check that the migration on `schema.sql:42` is idempotent? We replay this file on staging every morning.
+```
+
 Top-level question:
 
 ```
-[question] Why drop the retry on `uploader.ts:88`? The flaky-network test was the reason we added it. Happy to be wrong, just want to make sure it is intentional.
+What do you think about keeping the retry on `uploader.ts:88`? The flaky-network test was the reason we added it, so I want to make sure dropping it is intentional.
 ```
 
 Nit with a suggestion:
 
 ```
-[nit] Pull the retry config into `RETRY_OPTIONS` at the top of the file. Same constants are used in `uploader.ts:88`.
+nit: WDYT about pulling the retry config into `RETRY_OPTIONS` at the top of the file? The same constants are used in `uploader.ts:88`.
 ```
 
 Reply accepting a change:
@@ -105,13 +116,13 @@ Good catch, fixed in 7a3c91d.
 Reply pushing back:
 
 ```
-I would keep the explicit `Array.from` here: `Set` iteration order is spec-guaranteed but a lot of readers do not know that. Happy to revisit if you feel strongly.
+TBH I would keep the explicit `Array.from` here. `Set` iteration order is spec-guaranteed, but IMO a lot of readers don't know that. Happy to revisit if you feel strongly.
 ```
 
 Out-of-scope deferral:
 
 ```
-Agreed, but it touches the token rotation path and I want to keep this PR focused. Filed as #942.
+Agreed, but it touches the token rotation path and I would try to keep this PR focused. Filed as #942, can you take a look there?
 ```
 
 ## Anti-examples (do not do this)
