@@ -45,6 +45,11 @@ function parseArgs(argv, config) {
       continue;
     }
 
+    if (flagHandlers[arg]) {
+      options = flagHandlers[arg](options, undefined);
+      continue;
+    }
+
     if (!booleanFlags.includes(arg)) {
       throw buildUnknownParameterError(`Unknown parameter: ${arg}`);
     }
