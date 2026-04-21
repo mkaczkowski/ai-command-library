@@ -13,10 +13,11 @@ Act as a staff-level engineer and seasoned reviewer responsible for producing a 
 1. Collect PR metadata:
 
 ```bash
-node .cursor/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+REPO_ROOT=$(git rev-parse --show-toplevel)
+node "$REPO_ROOT/.cursor/commands/pr/scripts/fetch-pr-context.js" --pr=[PR_NUMBER] --output="$REPO_ROOT/tmp/pr-[PR_NUMBER]-context.json"
 ```
 
-2. Read `tmp/pr-[PR_NUMBER]-context.json` and extract:
+2. Read `$REPO_ROOT/tmp/pr-[PR_NUMBER]-context.json` and extract:
    - `number`, `title`, `author`, `state`
    - `branches.base.ref` and `branches.head.ref`
    - `stats` (additions, deletions, changedFiles)
@@ -145,7 +146,7 @@ Rewritten comment body:
 
 #### 3e. Write JSON
 
-Save the comment array to `tmp/pr-[PR_NUMBER]-review-comments.json`:
+Save the comment array to `$REPO_ROOT/tmp/pr-[PR_NUMBER]-review-comments.json`:
 
 ```json
 [
@@ -197,19 +198,21 @@ If the user is not ready, stop here.
 
 ## Step 2: Finalize and Submit
 
-1. Double-check `tmp/pr-[PR_NUMBER]-review-comments.json` for empty bodies, missing locations, or malformed JSON.
-2. Confirm that each comment targets a file that exists in the PR diff (cross-reference with `tmp/pr-[PR_NUMBER]-context.json` files list).
+1. Double-check `$REPO_ROOT/tmp/pr-[PR_NUMBER]-review-comments.json` for empty bodies, missing locations, or malformed JSON.
+2. Confirm that each comment targets a file that exists in the PR diff (cross-reference with `$REPO_ROOT/tmp/pr-[PR_NUMBER]-context.json` files list).
 
 **Important:** Use only the provided scripts for creating and sending data to GitHub. **NEVER use `gh pr review` command in any form.**
 
 3. Submit the review:
 
 ```bash
-node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
+REPO_ROOT=$(git rev-parse --show-toplevel)
+node "$REPO_ROOT/.cursor/commands/pr/scripts/create-pr-review.js" --input="$REPO_ROOT/tmp/pr-[PR_NUMBER]-review-comments.json" --pr=[PR_NUMBER]
 ```
 
 **Note:** If it fails because of existing pending reviews, ask the user to add `--discard-existing` flag. If the user agrees:
 
 ```bash
-node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
+REPO_ROOT=$(git rev-parse --show-toplevel)
+node "$REPO_ROOT/.cursor/commands/pr/scripts/create-pr-review.js" --input="$REPO_ROOT/tmp/pr-[PR_NUMBER]-review-comments.json" --pr=[PR_NUMBER] --discard-existing
 ```
