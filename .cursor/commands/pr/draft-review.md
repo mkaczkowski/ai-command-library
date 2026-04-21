@@ -13,7 +13,7 @@ Act as a staff-level engineer and seasoned reviewer responsible for producing a 
 1. Collect PR metadata:
 
 ```bash
-node {{script:pr/commands/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
+node .cursor/commands/pr/scripts/fetch-pr-context.js --pr=[PR_NUMBER] --output=tmp/pr-[PR_NUMBER]-context.json
 ```
 
 2. Read `tmp/pr-[PR_NUMBER]-context.json` and extract:
@@ -25,11 +25,9 @@ node {{script:pr/commands/scripts/fetch-pr-context.js}} --pr=[PR_NUMBER] --outpu
 3. Store these as `PR_META` for the review header in Phase 4.
 
 4. Checkout the PR branch to ensure local files match the PR HEAD:
-
    ```bash
    gh pr checkout [PR_NUMBER]
    ```
-
    If this fails due to uncommitted changes, ask the user to stash or commit first.
 
 5. Determine the diff command:
@@ -100,7 +98,6 @@ For each finding, build a JSON comment object:
 ```
 
 **Priority-to-severity mapping for the body prefix:**
-
 - `Critical` -> `**Blocker**`
 - `High` -> `**Major**`
 - `Medium` -> `**Minor**`
@@ -114,7 +111,6 @@ Findings without file/line references go into the review body summary (used in S
 #### 3c. Cross-Analysis
 
 Compare findings across all agents:
-
 - When 2+ agents flag the same file and similar issue, note it as a high-confidence finding. Elevate the priority if not already Critical.
 - Deduplicate: if multiple agents found the same issue at the same file+line, keep one comment with the clearest description. Mention the agreeing agents in the body (e.g., "Flagged by correctness reviewer and qodo reviewer").
 
@@ -134,13 +130,11 @@ For each finding:
 Example transformation:
 
 Agent output:
-
 ```
 FILE: src/api/client.ts | LINE: 42 | PRIORITY: Critical | ISSUE: response.data accessed without null check, will throw if API returns empty body | SUGGESTION: Add optional chaining: response.data?.user
 ```
 
 Rewritten comment body:
-
 ```
 **Blocker** - Null access on API response
 
@@ -171,7 +165,7 @@ If no findings were produced (all agents returned "No issues found"), output `[]
 
 Output the review summary for the user:
 
-```markdown
+````markdown
 # PR Review Feedback
 
 **PR:** #[number] - [title]
@@ -185,21 +179,17 @@ Output the review summary for the user:
 ## Findings ([total] issues: [critical] blocker, [high] major, [medium] minor)
 
 [For each finding, show:]
-
 ### [N]. [Severity] - [Short title]
-
 **File:** `[path]#L[line]`
 [Issue description]
 **Suggestion:** [fix]
 
 ## Cross-Model Agreements
-
 [Bullet list of findings flagged by 2+ agents]
 
 ## Review Body Summary
-
 [1-2 paragraph summary of the overall change quality, incorporating external agent perspectives. This becomes the review body text when submitting.]
-```
+````
 
 Then ask: **"Continue to Step 2: Finalize and Submit?"**
 
@@ -215,11 +205,11 @@ If the user is not ready, stop here.
 3. Submit the review:
 
 ```bash
-node {{script:pr/commands/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
+node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER]
 ```
 
 **Note:** If it fails because of existing pending reviews, ask the user to add `--discard-existing` flag. If the user agrees:
 
 ```bash
-node {{script:pr/commands/scripts/create-pr-review.js}} --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
+node .cursor/commands/pr/scripts/create-pr-review.js --input=tmp/pr-[PR_NUMBER]-review-comments.json --pr=[PR_NUMBER] --discard-existing
 ```
